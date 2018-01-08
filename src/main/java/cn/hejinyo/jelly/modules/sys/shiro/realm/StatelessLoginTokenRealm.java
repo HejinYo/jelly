@@ -31,16 +31,21 @@ public class StatelessLoginTokenRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         StatelessLoginToken loginToken = (StatelessLoginToken) token;
-        String username = loginToken.getUsername();//从Token中获取身份信息
-        CurrentUserDTO currentUserDTO = sysUserService.getCurrentUser(username);//根据登录名查询用户信息
-        if (null == currentUserDTO || -1 == currentUserDTO.getState()) {// 如果无相关用户或已删除则返回null
+        //从Token中获取身份信息
+        String username = loginToken.getUsername();
+        //根据登录名查询用户信息
+        CurrentUserDTO currentUserDTO = sysUserService.getCurrentUser(username);
+        // 如果无相关用户或已删除则返回null
+        if (null == currentUserDTO || -1 == currentUserDTO.getState()) {
             return null;
-        } else if (0 == currentUserDTO.getState()) {//是否锁定
-            throw new LockedAccountException(); //抛出帐号锁定异常
+        } else if (0 == currentUserDTO.getState()) {
+            //是否锁定，抛出帐号锁定异常
+            throw new LockedAccountException();
         }
         //获取用户数据库中密码
         String password = currentUserDTO.getUserPwd();
-        String salt = currentUserDTO.getUserSalt();//获取用户盐
+        //获取用户盐
+        String salt = currentUserDTO.getUserSalt();
         // 返回认证信息由父类AuthenticatingRealm进行认证
         return new SimpleAuthenticationInfo(currentUserDTO, password, ByteSource.Util.bytes(salt), getName());
     }

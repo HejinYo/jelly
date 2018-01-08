@@ -27,15 +27,6 @@ public class SysResourceController extends BaseController {
     @Autowired
     private SysResourceService sysResourceService;
 
-    /**
-     * 获得用户菜单
-     *
-     * @return
-     */
-    @GetMapping(value = "/usermenu")
-    public Map<String, Object> mutilMenu() {
-        return Result.ok("获取成功", sysResourceService.getUserMenuList(getUserId()));
-    }
 
     /**
      * 分页查询
@@ -49,8 +40,6 @@ public class SysResourceController extends BaseController {
 
     /**
      * 所有资源树
-     *
-     * @return
      */
     @GetMapping("/tree")
     @RequiresPermissions("resource:view")

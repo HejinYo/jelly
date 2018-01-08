@@ -30,13 +30,13 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     @Override
     public List<ResourceTreeDTO> getRecursionTree() {
         List<ResourceTreeDTO> list = baseDao.getRecursionTree();
-        ResourceTreeDTO sysResourceTree = new ResourceTreeDTO();
+       /* ResourceTreeDTO sysResourceTree = new ResourceTreeDTO();
         sysResourceTree.setResId(0);
         sysResourceTree.setResName("/root");
         sysResourceTree.setChildrenRes(list);
         List<ResourceTreeDTO> listtree = new ArrayList<>();
-        listtree.add(sysResourceTree);
-        return listtree;
+        listtree.add(sysResourceTree);*/
+        return list;
     }
 
     @Override

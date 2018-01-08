@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -73,14 +74,16 @@ public class StatelessAuthcTokenRealm extends AuthorizingRealm {
             roleSet = list.get("role");
             permissionsSet = list.get("permissions");
         } else {
+            list = new HashMap<>();
             roleSet = sysRoleService.getUserRoleSet(userId);
+            list.put("role", roleSet);
             //获得权限信息
             permissionsSet = sysPermissionService.getUserPermisSet(userId);
-            list = new HashMap<>();
-            list.put("role", roleSet);
             list.put("permissions", permissionsSet);
             redisUtils.set(RedisKeys.getAuthCacheKey(username), list, 600);
         }
+        roleSet.removeIf(Objects::isNull);
+        permissionsSet.removeIf(Objects::isNull);
         authorizationInfo.addRoles(roleSet);
         authorizationInfo.addStringPermissions(permissionsSet);
         return authorizationInfo;

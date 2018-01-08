@@ -10,7 +10,7 @@ spring:
   datasource:
     name: mysql_druid
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/yoyo?useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://127.0.0.1:3306/jelly?useUnicode=true&characterEncoding=utf-8
     username: root
     password: XroRXpiGU7vJeuQrAnZ8FhA4+BEzU9x45IabHN5yzo8bNhm2VXcUG4XdMf1RxNP5CQmbRr05/S/bsNvOcnSaHA==
     sql-script-encoding: UTF-8

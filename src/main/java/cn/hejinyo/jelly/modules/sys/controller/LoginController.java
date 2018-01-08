@@ -4,8 +4,10 @@ import cn.hejinyo.jelly.common.cloudstorage.CloudStorageConfig;
 import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.utils.*;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessLoginToken;
+import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
 import com.qiniu.util.Auth;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -23,10 +26,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/")
 public class LoginController extends BaseController {
+
     @Autowired
     private RedisUtils redisUtils;
     @Autowired
     private SysUserService sysUserService;
+    @Autowired
+    private SysResourceService sysResourceService;
 
 
     /**
@@ -51,7 +57,7 @@ public class LoginController extends BaseController {
             return Result.ok(StatusCode.SUCCESS, userDTO);
         } catch (Exception e) {
             //登录失败
-            logger.error("[" + loginUser.getUserName() + "] 登录失败：", e.getMessage());
+            logger.error("[{}] 登录失败：{}", loginUser.getUserName(), e.getMessage());
             if (e instanceof UnknownAccountException) {
                 return Result.error(StatusCode.LOGIN_USER_NOEXIST);
             }
@@ -69,15 +75,26 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 退出登录
+     * 获得当前用户redis中的用户信息
      *
      * @return
      */
-    @GetMapping(value = "/logout")
-    public Result logout() {
-        return Result.ok();
+    @GetMapping(value = "/userInfo")
+    public Result getToken() {
+        CurrentUserDTO user = redisUtils.get(RedisKeys.getTokenCacheKey(ShiroUtils.getCurrentUser().getUserName()), CurrentUserDTO.class);
+        user.setUserToken(null);
+        return Result.ok(user);
     }
 
+    /**
+     * 获得用户菜单
+     *
+     * @return
+     */
+    @GetMapping(value = "/userMenu")
+    public Map<String, Object> userMenu() {
+        return Result.ok("获取成功", sysResourceService.getUserMenuList(getUserId()));
+    }
 
     /**
      * 单文件上传获取token

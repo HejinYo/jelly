@@ -25,6 +25,7 @@ public class CurrentUserDTO implements Serializable {
     private String email;//邮箱
     private String phone;//手机号
     private String loginIp;//最后登录IP
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date loginTime;//最后登录时间
     private Integer state;//用户状态 0：正常；1：锁定；-1：禁用(删除)
     private List<UserMenuDTO> userMenu;//用户可用菜单

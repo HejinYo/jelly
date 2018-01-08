@@ -23,18 +23,24 @@ public class LogoutFilter extends AdviceFilter {
 
     @Override
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
-        String userToken = ((HttpServletRequest) request).getParameter(DEFAULT_AUTHOR_PARAM);
-        try {
+        String userToken = ((HttpServletRequest) request).getHeader(DEFAULT_AUTHOR_PARAM);
+        if (userToken != null) {
+            //token中获取用户名
             String username = Tools.getTokenInfo(userToken, UserToken.USERNAME.getValue());
+            //查询缓存中的用户信息
             CurrentUserDTO userDTO = redisUtils.get(RedisKeys.getTokenCacheKey(username), CurrentUserDTO.class, 1800);
             if (null != userDTO) {
-                Tools.verifyToken(userToken, userDTO.getUserPwd());
-                //清除token缓存
-                redisUtils.delete(RedisKeys.getTokenCacheKey(userDTO.getUserName()));
-                //清除授权缓存
-                redisUtils.delete(RedisKeys.getAuthCacheKey(userDTO.getUserName()));
+                try {
+                    //验证token是否有效
+                    Tools.verifyToken(userToken, userDTO.getUserPwd());
+                    //清除token缓存
+                    redisUtils.delete(RedisKeys.getTokenCacheKey(userDTO.getUserName()));
+                    //清除授权缓存
+                    redisUtils.delete(RedisKeys.getAuthCacheKey(userDTO.getUserName()));
+                } catch (Exception ignored) {
+
+                }
             }
-        } catch (Exception ignored) {
         }
         ResponseUtils.response(response, Result.ok("退出登录成功"));
         return false;

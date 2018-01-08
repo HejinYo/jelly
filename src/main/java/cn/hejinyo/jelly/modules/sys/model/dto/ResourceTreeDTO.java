@@ -27,5 +27,5 @@ public class ResourceTreeDTO implements Serializable {
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;//创建时间
     private Integer createId;//创建人员ID
-    private List<ResourceTreeDTO> childrenRes;//子资源
+    private List<ResourceTreeDTO> children;//子资源
 }

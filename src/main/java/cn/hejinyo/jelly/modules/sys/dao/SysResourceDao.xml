@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysResourceDao">
+
     <resultMap id="BaseResultMap" type="sysResource">
         <id column="res_id" jdbcType="INTEGER" property="resId"/>
         <result column="res_type" jdbcType="VARCHAR" property="resType"/>
@@ -16,7 +17,6 @@
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
     </resultMap>
 
-
     <resultMap id="ResourceTreeMap" type="resourceTreeDTO">
         <id column="res_id" jdbcType="INTEGER" property="resId"/>
         <result column="res_type" jdbcType="VARCHAR" property="resType"/>
@@ -30,7 +30,7 @@
         <result column="state" jdbcType="INTEGER" property="state"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
-        <collection property="childrenRes" column="res_id" ofType="resourceTreeDTO" javaType="java.util.ArrayList" select="selectChildrenRes"/>
+        <collection property="children" column="res_id" ofType="resourceTreeDTO" javaType="java.util.ArrayList" select="selectChildrenRes"/>
     </resultMap>
 
     <!-- 递归查询用户菜单 -->
@@ -44,7 +44,7 @@
         <result column="res_icon" jdbcType="VARCHAR" property="micon"/>
         <result column="seq" jdbcType="INTEGER" property="seq"/>
         <result column="perm_url" jdbcType="INTEGER" property="murl"/>
-        <collection property="childrenMenu" column="{resId=res_id,roleId=role_id}" ofType="userMenuDTO" javaType="java.util.ArrayList" select="selectChildren"/>
+        <collection property="children" column="{resId=res_id,roleId=role_id}" ofType="userMenuDTO" javaType="java.util.ArrayList" select="selectChildren"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -65,6 +65,48 @@
             <if test="null != createId">and create_id = #{createId}</if>
         </where>
     </sql>
+
+
+    <!-- 根据登录名获取菜单信息 -->
+    <select id="getUserMenuList" resultMap="BaseUserMenuMap">
+        SELECT
+            sre.res_id,
+            sr.role_id,
+            sre.res_code,
+            res_name,
+            res_pid,
+            res_level,
+            res_icon,
+            sre.seq,
+            sp.perm_url
+        FROM sys_user_role sur
+            JOIN sys_role sr ON sr.role_id = sur.role_id AND sr.state = 1
+            JOIN sys_role_resource srr ON srr.role_id = sr.role_id
+            JOIN sys_resource sre ON sre.res_id = srr.res_id AND sre.res_pid = 0 AND res_type = 'menu'
+            JOIN sys_permission sp ON sp.res_code = sre.res_code AND sp.perm_id = srr.perm_id AND perm_code = 'view'
+        WHERE sre.state = 1 AND sp.state = 1 AND user_id = #{userId}
+        ORDER BY sre.seq
+    </select>
+
+    <!-- 递归查询子菜单 -->
+    <select id="selectChildren" resultMap="BaseUserMenuMap">
+        SELECT
+            sre.res_id,
+            srr.role_id,
+            sre.res_code,
+            res_name,
+            res_pid,
+            res_level,
+            res_icon,
+            sre.seq,
+            sp.perm_url
+        FROM sys_resource sre
+            JOIN sys_role_resource srr ON sre.res_id = srr.res_id AND srr.role_id = #{roleId}
+            JOIN sys_permission sp ON sp.perm_id = srr.perm_id AND sp.res_code = sre.res_code AND perm_code = 'view'
+        WHERE
+            res_type = 'menu' AND res_pid = #{resId} AND sre.state = 1 AND sp.state = 1
+        ORDER BY sre.seq
+    </select>
 
 
     <!-- 递归查询所有资源树 -->
@@ -121,46 +163,6 @@
         SET seq = seq - 1
         WHERE res_pid = #{resPid} AND seq > #{seq}
     </update>
-
-    <!-- 根据登录名获取菜单信息 -->
-    <select id="getUserMenuList" resultMap="BaseUserMenuMap">
-        SELECT
-            sre.res_id,
-            sr.role_id,
-            sre.res_code,
-            res_name,
-            res_pid,
-            res_level,
-            res_icon,
-            sre.seq,
-            sp.perm_url
-        FROM sys_user_role sur
-            JOIN sys_role sr ON sr.role_id = sur.role_id AND sr.state = 1
-            JOIN sys_role_resource srr ON srr.role_id = sr.role_id
-            JOIN sys_resource sre ON sre.res_id = srr.res_id AND sre.res_pid = 0 AND sre.state = 1
-            JOIN sys_permission sp ON sp.res_code = sre.res_code AND sp.perm_id = srr.perm_id AND res_type = 'menu' AND perm_code = 'view' AND sp.state = 1
-        WHERE user_id = #{userId}
-        ORDER BY sre.res_pid, sre.seq
-    </select>
-
-    <select id="selectChildren" resultMap="BaseUserMenuMap">
-        SELECT
-            sre.res_id,
-            srr.role_id,
-            sre.res_code,
-            res_name,
-            res_pid,
-            res_level,
-            res_icon,
-            sre.seq,
-            sp.perm_url
-        FROM sys_resource sre
-            JOIN sys_role_resource srr ON sre.res_id = srr.res_id AND srr.role_id = #{roleId}
-            JOIN sys_permission sp ON sp.perm_id = srr.perm_id AND sp.res_code = sre.res_code AND perm_code = 'view'
-        WHERE
-            res_type = 'menu' AND res_pid = #{resId} AND sre.state = 1
-        ORDER BY sre.res_pid, sre.seq
-    </select>
 
     <!--  ******************************************分割线*****************************************  -->
     <delete id="delete">

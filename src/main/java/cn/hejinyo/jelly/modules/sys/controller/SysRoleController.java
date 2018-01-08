@@ -29,17 +29,20 @@ public class SysRoleController extends BaseController {
     private SysRoleService sysRoleService;
 
     /**
-     * 分页查询
-     *
-     * @return
+     * 分页查询角色列表
      */
     @GetMapping(value = "/listPage")
+    @RequiresPermissions("role:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
         PageInfo<SysRole> rolePageInfo = new PageInfo<>(sysRoleService.findPage(new PageQuery(paramers)));
         return Result.ok(rolePageInfo);
     }
 
+    /**
+     * 查询角色权限
+     */
     @GetMapping(value = "/roleResourceListPage")
+    @RequiresPermissions("role:view")
     public Result roleResourceList(@RequestParam HashMap<String, Object> paramers) {
         PageInfo<RoleResourceDTO> roleResourcePageInfo = new PageInfo<>(sysRoleService.findPageForRoleResource(new PageQuery(paramers)));
         return Result.ok(roleResourcePageInfo);
@@ -50,8 +53,8 @@ public class SysRoleController extends BaseController {
      */
     @PostMapping
     @RequiresPermissions("role:create")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysRole SysRole) {
-        int result = sysRoleService.save(SysRole);
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysRole sysRole) {
+        int result = sysRoleService.save(sysRole);
         if (result == 0) {
             return Result.error();
         }
@@ -63,9 +66,9 @@ public class SysRoleController extends BaseController {
      */
     @PutMapping(value = "/{roleId}")
     @RequiresPermissions("role:update")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysRole SysRole, @PathVariable("roleId") Integer roleId) {
-        SysRole.setRoleId(roleId);
-        int result = sysRoleService.update(SysRole);
+    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysRole sysRole, @PathVariable("roleId") Integer roleId) {
+        sysRole.setRoleId(roleId);
+        int result = sysRoleService.update(sysRole);
         if (result > 0) {
             return Result.ok();
         }

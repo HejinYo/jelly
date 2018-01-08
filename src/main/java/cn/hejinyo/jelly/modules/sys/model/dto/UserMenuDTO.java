@@ -24,5 +24,5 @@ public class UserMenuDTO implements Serializable {
     private Integer mlevel;//菜单级别
     private Integer seq;//菜单显示顺序
     private String micon;//菜单图标
-    private List<UserMenuDTO> childrenMenu;
+    private List<UserMenuDTO> children;
 }

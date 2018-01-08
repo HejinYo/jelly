@@ -44,7 +44,6 @@ public class SysPermissionController extends BaseController {
         return Result.ok(sysPermission);
     }
 
-
     /**
      * 增加
      */
