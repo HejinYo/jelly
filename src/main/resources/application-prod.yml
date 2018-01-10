@@ -8,7 +8,7 @@ spring:
     port: 29
     password: redhat     # 密码（默认为空）
   datasource:
-    name: mysql_druid
+    name: mysql
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/jelly?useUnicode=true&characterEncoding=utf-8
     username: root

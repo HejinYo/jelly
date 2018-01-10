@@ -42,8 +42,21 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
      */
     public static String getIpAddr(HttpServletRequest request) {
         String ip = null;
+        logger.debug("request.getRemoteHost():" + request.getRemoteHost());
+      /*  //取得全部头信息
+        Enumeration enu = request.getHeaderNames();
+        //以此取出头信息
+        while (enu.hasMoreElements()) {
+            String headerName = (String) enu.nextElement();
+            //取出头信息内容
+            String headerValue = request.getHeader(headerName);
+            System.out.println(headerName + ":" + headerValue);
+        }*/
         try {
             ip = request.getHeader("x-forwarded-for");
+            if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getHeader("x-real-ip");
+            }
             if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getHeader("Proxy-Client-IP");
             }
