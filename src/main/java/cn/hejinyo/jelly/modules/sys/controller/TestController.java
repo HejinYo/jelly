@@ -1,8 +1,8 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
-import cn.hejinyo.jelly.common.cloudstorage.CloudStorageConfig;
-import cn.hejinyo.jelly.common.cloudstorage.QiniuCloudStorageService;
 import cn.hejinyo.jelly.common.utils.Result;
+import cn.hejinyo.jelly.modules.oss.cloud.CloudStorage;
+import cn.hejinyo.jelly.modules.oss.cloud.QiniuCloudStorageService;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
@@ -35,7 +35,7 @@ public class TestController {
     @PostMapping(value = "/multiFileUpload")
     public Result multiFileUpload(@RequestParam("file") MultipartFile[] files) {
         List<String> list = new ArrayList<>();
-        CloudStorageConfig config = new CloudStorageConfig();
+        CloudStorage config = new CloudStorage();
         config.setQiniuAccessKey("GqZQG6TvEZGPkCXzm5O7QN1jipLdeI4CXXsR6N3G");
         config.setQiniuSecretKey("qodIX8q2zqaX4eSAiOvcS1YNLeKU_cxyNtSFkWf9");
         config.setQiniuBucketName("skye-user-avatar");
@@ -100,7 +100,6 @@ public class TestController {
             }
             return Result.ok(list);
         }
-
 
         return Result.error();
     }

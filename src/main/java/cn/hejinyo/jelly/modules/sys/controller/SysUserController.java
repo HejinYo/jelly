@@ -1,12 +1,11 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.common.annotation.SysLogger;
-import cn.hejinyo.jelly.common.cloudstorage.CloudStorageConfig;
-import cn.hejinyo.jelly.common.cloudstorage.QiniuCloudStorageService;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
+import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -154,19 +153,26 @@ public class SysUserController extends BaseController {
         return Result.error("删除失败");
     }
 
-    @PostMapping(value = "/qiniuUpload")
-    public Result uploadUserAvatar(@RequestParam("file") MultipartFile multipartFile) {
-        CloudStorageConfig config = new CloudStorageConfig();
-        config.setQiniuAccessKey("GqZQG6TvEZGPkCXzm5O7QN1jipLdeI4CXXsR6N3G");
-        config.setQiniuSecretKey("qodIX8q2zqaX4eSAiOvcS1YNLeKU_cxyNtSFkWf9");
-        config.setQiniuBucketName("skye-user-avatar");
-        config.setKey(getCurrentUser().getUserName());
-        QiniuCloudStorageService storageService = new QiniuCloudStorageService(config);
-        try {
-            storageService.upload(multipartFile.getInputStream(), getCurrentUser().getUserName());
-        } catch (IOException e) {
-            e.printStackTrace();
+    /**
+     * 头像上传
+     *
+     * @param file
+     * @return
+     */
+    @PostMapping(value = "/avatar")
+    public Result avatarUpload(@RequestParam("file") MultipartFile file) {
+        // 获得原始文件名
+        String fileName = file.getOriginalFilename();
+        System.out.println("fileName:" + fileName);
+        String key = "avatar/" + getCurrentUser().getUserName() + ".png";
+        if (!file.isEmpty()) {
+            try {
+                String result = OSSFactory.build(key).upload(file.getInputStream(), key);
+                return Result.ok(result);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        return Result.ok();
+        return Result.error("上传失败");
     }
 }

@@ -4,6 +4,9 @@ package cn.hejinyo.jelly.common.utils;
  * Redis所有Keys
  */
 public class RedisKeys {
+    public static String getSysConfigKey(String key) {
+        return "sys:config:" + key;
+    }
 
     public static String getTokenCacheKey(String key) {
         return "skye-shiro:tokenCache:" + key;

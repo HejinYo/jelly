@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
-import cn.hejinyo.jelly.common.cloudstorage.CloudStorageConfig;
 import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.utils.*;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
@@ -8,7 +7,6 @@ import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessLoginToken;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
-import com.qiniu.util.Auth;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
-import java.util.UUID;
 
 
 //@CrossOrigin(origins = "http://localhost:8080")
@@ -99,15 +96,15 @@ public class LoginController extends BaseController {
     /**
      * 单文件上传获取token
      */
-    @GetMapping(value = "/fileUploadToken")
+ /*   @GetMapping(value = "/fileUploadToken")
     public Result uploadUserAvatar() {
-        CloudStorageConfig config = new CloudStorageConfig();
+        CloudStorageConfig0ld config = new CloudStorageConfig0ld();
         config.setQiniuAccessKey("GqZQG6TvEZGPkCXzm5O7QN1jipLdeI4CXXsR6N3G");
         config.setQiniuSecretKey("qodIX8q2zqaX4eSAiOvcS1YNLeKU_cxyNtSFkWf9");
         config.setQiniuBucketName("skye-user-avatar");
         String token = Auth.create(config.getQiniuAccessKey(), config.getQiniuSecretKey()).uploadToken(config.getQiniuBucketName());
         return Result.ok(UUID.randomUUID().toString(), token);
-    }
+    }*/
 
 
 }

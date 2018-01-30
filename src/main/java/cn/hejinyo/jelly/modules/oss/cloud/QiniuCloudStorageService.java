@@ -1,4 +1,4 @@
-package cn.hejinyo.jelly.common.cloudstorage;
+package cn.hejinyo.jelly.modules.oss.cloud;
 
 import cn.hejinyo.jelly.common.exception.InfoException;
 import com.google.gson.Gson;
@@ -16,18 +16,20 @@ import java.io.InputStream;
 /**
  * 七牛云存储
  */
-public class QiniuCloudStorageService extends CloudStorageService {
+public class QiniuCloudStorageService extends AbstractCloudStorage {
     private UploadManager uploadManager;
     private String token;
 
-    public QiniuCloudStorageService(CloudStorageConfig config) {
+    public QiniuCloudStorageService(CloudStorage config) {
         this.config = config;
-        //初始化
         init();
     }
 
+    /**
+     * 初始化
+     */
     private void init() {
-        uploadManager = new UploadManager(new Configuration(Zone.autoZone()));
+        uploadManager = new UploadManager(new Configuration(Zone.zone0()));
         if (null != config.getKey()) {
             token = Auth.create(config.getQiniuAccessKey(), config.getQiniuSecretKey()).uploadToken(config.getQiniuBucketName(), config.getKey());
         } else {
@@ -37,23 +39,19 @@ public class QiniuCloudStorageService extends CloudStorageService {
 
     @Override
     public String upload(byte[] data, String path) {
-        String result = "";
         try {
             Response res = uploadManager.put(data, path, token);
             //解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(res.bodyString(), DefaultPutRet.class);
             //解析上传成功的结果
-            System.out.println(putRet.key);
-            System.out.println(putRet.hash);
-            result = putRet.key;
             if (!res.isOK()) {
                 throw new RuntimeException("上传七牛出错：" + res.toString());
             }
+            return config.getQiniuDomain() + "/" + putRet.key;
         } catch (Exception e) {
             e.printStackTrace();
             throw new InfoException("上传文件失败，请核对七牛配置信息", e);
         }
-        return config.getQiniuDomain() + "/" + result;
     }
 
     @Override
@@ -67,12 +65,12 @@ public class QiniuCloudStorageService extends CloudStorageService {
     }
 
     @Override
-    public String upload(byte[] data) {
-        return upload(data, getPath(config.getQiniuPrefix()));
+    public String uploadSuffix(byte[] data, String suffix) {
+        return upload(data, getPath(config.getQiniuPrefix(), suffix));
     }
 
     @Override
-    public String upload(InputStream inputStream) {
-        return upload(inputStream, getPath(config.getQiniuPrefix()));
+    public String uploadSuffix(InputStream inputStream, String suffix) {
+        return upload(inputStream, getPath(config.getQiniuPrefix(), suffix));
     }
 }
