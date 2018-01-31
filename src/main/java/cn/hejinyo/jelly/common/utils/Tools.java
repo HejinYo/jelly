@@ -18,10 +18,7 @@ import java.util.Date;
 /**
  * 字符串，字符，日期 工具类
  *
- * @author HejinYo
- * @version 1.0
- * @email hejinyo@gmail.com
- * @since 1.0
+ * @author HejinYo hejinyo@gmail.com
  */
 public class Tools {
 
@@ -52,10 +49,6 @@ public class Tools {
 
     /**
      * 数据库密码加密
-     *
-     * @param password
-     * @return
-     * @throws IOException
      */
     public static String[] encryptDBPassword(String password) {
         String path = "C:/java/tools/JDK/";
@@ -67,9 +60,12 @@ public class Tools {
             Process proc = Runtime.getRuntime().exec(fileInfo);
             InputStreamReader is = new InputStreamReader(proc.getInputStream());
             BufferedReader in = new BufferedReader(is);
-            pw[1] = in.readLine();//privateKey
-            pw[2] = in.readLine();//publicKey
-            pw[0] = in.readLine();//encryptPassword
+            //privateKey
+            pw[1] = in.readLine();
+            //publicKey
+            pw[2] = in.readLine();
+            //encryptPassword
+            pw[0] = in.readLine();
             in.close();
             is.close();
         } catch (IOException e) {
@@ -83,7 +79,6 @@ public class Tools {
      *
      * @param key     密钥
      * @param content 内容
-     * @return
      */
     public static String hmacSHA256Digest(String key, String content) {
         try {
@@ -106,17 +101,15 @@ public class Tools {
 
     /**
      * byte 转 字符串
-     *
-     * @param b
-     * @return
      */
     public static String byte2hex(byte[] b) {
         StringBuilder hs = new StringBuilder();
         String stmp;
         for (int n = 0; b != null && n < b.length; n++) {
             stmp = Integer.toHexString(b[n] & 0XFF);
-            if (stmp.length() == 1)
+            if (stmp.length() == 1) {
                 hs.append('0');
+            }
             hs.append(stmp);
         }
         return hs.toString();
@@ -125,19 +118,15 @@ public class Tools {
     /**
      * 创建jwt token
      *
-     * @param expires  n小时后失效
-     * @param userid
-     * @param username
-     * @param password
-     * @return
+     * @param expires n小时后失效
      */
-    public static String createToken(int expires, int userid, String username, String password) {
+    public static String createToken(int expires, int userId, String username, String password) {
         String token = "";
         try {
             token = JWT.create().
                     withIssuedAt(new Date()).
                     withExpiresAt(new Date(System.currentTimeMillis() + (expires * 60 * 60 * 1000))).
-                    withClaim(UserToken.USERID.getValue(), userid).
+                    withClaim(UserToken.USERID.getValue(), userId).
                     withClaim(UserToken.USERNAME.getValue(), username).
                     sign(Algorithm.HMAC256(password));
         } catch (UnsupportedEncodingException e) {
@@ -148,10 +137,6 @@ public class Tools {
 
     /**
      * 获得token 信息
-     *
-     * @param token
-     * @param key
-     * @return
      */
     public static String getTokenInfo(String token, String key) {
         DecodedJWT dJWT = JWT.decode(token);
@@ -160,10 +145,6 @@ public class Tools {
 
     /**
      * 验证token 有效性
-     *
-     * @param token
-     * @param password
-     * @throws UnsupportedEncodingException
      */
     public static void verifyToken(String token, String password) throws UnsupportedEncodingException {
         JWT.require(Algorithm.HMAC256(password)).build().verify(token);

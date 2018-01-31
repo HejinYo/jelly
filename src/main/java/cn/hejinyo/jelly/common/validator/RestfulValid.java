@@ -5,7 +5,6 @@ import javax.validation.GroupSequence;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/8/25 21:47
- * @Description :
  */
 public interface RestfulValid {
     public interface GET {

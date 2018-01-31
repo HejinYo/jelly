@@ -10,6 +10,7 @@ import java.io.Serializable;
  * 云存储配置信息
  *
  * @author hejinyo
+ * @date 2017/9/26 11:00
  */
 @Data
 public class CloudStorage implements Serializable {

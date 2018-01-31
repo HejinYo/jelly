@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author : HejinYo   hejinyo@gmail.com     2017/9/26 11:00
- * @apiNote :
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date 2017/9/26 11:00
  */
 @RestController
 @RequestMapping("/resource")

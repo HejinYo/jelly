@@ -7,13 +7,15 @@ import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/7/29 18:07
+ */
 public class ShiroUtils {
     private static final Logger logger = LoggerFactory.getLogger(ShiroUtils.class);
 
     /**
      * 生成用户密码
-     *
-     * @return
      */
     public static String userPassword(String userPwd, String salt) {
         String algorithmName = "md5";
@@ -24,8 +26,6 @@ public class ShiroUtils {
 
     /**
      * 获取用户Subject
-     *
-     * @return
      */
     public static Subject getSubject() {
         return SecurityUtils.getSubject();
@@ -33,8 +33,6 @@ public class ShiroUtils {
 
     /**
      * 获取用户对象
-     *
-     * @return
      */
     public static CurrentUserDTO getCurrentUser() {
         return (CurrentUserDTO) SecurityUtils.getSubject().getPrincipal();
@@ -42,8 +40,6 @@ public class ShiroUtils {
 
     /**
      * 获得用户id
-     *
-     * @return
      */
     public static int getUserId() {
         return getCurrentUser().getUserId();
@@ -51,8 +47,6 @@ public class ShiroUtils {
 
     /**
      * 判断用户是否登录
-     *
-     * @return
      */
     public static boolean isLogin() {
         return SecurityUtils.getSubject().getPrincipal() != null;

@@ -12,10 +12,6 @@ public class Constant {
 
     /**
      * 菜单类型
-     *
-     * @author chenshun
-     * @email sunlightcs@gmail.com
-     * @date 2016年11月15日 下午1:24:29
      */
     public enum MenuType {
         /**
@@ -48,10 +44,6 @@ public class Constant {
 
     /**
      * 定时任务状态
-     *
-     * @author chenshun
-     * @email sunlightcs@gmail.com
-     * @date 2016年12月3日 上午12:07:22
      */
     public enum ScheduleStatus {
         /**
@@ -77,34 +69,5 @@ public class Constant {
             return this.getValue().equals(value);
         }
     }
-
-    /**
-     * 云服务商
-     */
-    public enum CloudService {
-        /**
-         * 七牛云
-         */
-        QINIU(1),
-        /**
-         * 阿里云
-         */
-        ALIYUN(2);
-
-        private Integer value;
-
-        CloudService(Integer value) {
-            this.value = value;
-        }
-
-        public Integer getValue() {
-            return value;
-        }
-
-        public boolean equals(Integer value) {
-            return this.getValue().equals(value);
-        }
-    }
-
 }
 

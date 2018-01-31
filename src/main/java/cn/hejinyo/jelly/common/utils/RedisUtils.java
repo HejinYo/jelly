@@ -29,6 +29,8 @@ public class RedisUtils {
     private SetOperations<String, Object> setOperations;
     @Autowired
     private ZSetOperations<String, Object> zSetOperations;
+
+    private final static Gson GSON = new Gson();
     /**
      * 默认过期时长，单位：秒
      */
@@ -37,28 +39,18 @@ public class RedisUtils {
      * 不设置过期时长
      */
     private final static long NOT_EXPIRE = -1;
-    private final static Gson gson = new Gson();
+
+
+    public void set(String key, Object value) {
+        Long expire = redisTemplate.getExpire(key);
+        set(key, value, expire != null ? expire : DEFAULT_EXPIRE);
+    }
 
     public void set(String key, Object value, long expire) {
         valueOperations.set(key, toJson(value));
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
-    }
-
-    /**
-     * 更新值，不更新过期时间
-     *
-     * @param key
-     * @param value
-     */
-    public void setDefaultExpire(String key, Object value) {
-        Long expire = redisTemplate.getExpire(key);
-        set(key, value, expire);
-    }
-
-    public void set(String key, Object value) {
-        set(key, value, DEFAULT_EXPIRE);
     }
 
     public <T> T get(String key, Class<T> clazz, long expire) {
@@ -97,14 +89,14 @@ public class RedisUtils {
                 object instanceof Double || object instanceof Boolean || object instanceof String) {
             return String.valueOf(object);
         }
-        return gson.toJson(object);
+        return GSON.toJson(object);
     }
 
     /**
      * JSON数据，转成Object
      */
     private <T> T fromJson(String json, Class<T> clazz) {
-        return gson.fromJson(json, clazz);
+        return GSON.fromJson(json, clazz);
     }
 
     /**

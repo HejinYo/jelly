@@ -8,6 +8,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/6/17 17:04
+ */
 public class URLFilter extends AdviceFilter {
     private static final Logger logger = LoggerFactory.getLogger(URLFilter.class);
 

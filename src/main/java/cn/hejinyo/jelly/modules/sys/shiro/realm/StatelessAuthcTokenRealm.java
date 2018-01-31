@@ -26,7 +26,6 @@ import java.util.Set;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:09
- * @Description :
  */
 public class StatelessAuthcTokenRealm extends AuthorizingRealm {
 

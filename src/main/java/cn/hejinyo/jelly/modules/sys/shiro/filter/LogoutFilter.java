@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/8/6 15:07
- * @Description :
  */
 public class LogoutFilter extends AdviceFilter {
     private static final String DEFAULT_AUTHOR_PARAM = "Authorization";

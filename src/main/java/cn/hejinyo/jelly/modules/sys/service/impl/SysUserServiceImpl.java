@@ -16,6 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+/**
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/6/17 17:04
+ */
 @Service
 public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Integer> implements SysUserService {
     @Autowired

@@ -13,5 +13,4 @@ import org.springframework.stereotype.Service;
 @Service("sysOssService")
 public class SysOssServiceImpl extends BaseServiceImpl<SysOssDao, SysOss, Long> implements SysOssService {
 
-
 }

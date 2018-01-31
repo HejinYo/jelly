@@ -5,11 +5,12 @@ import org.apache.shiro.authc.AuthenticationToken;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/30 16:48
- * @Description :
  */
 public class BaseToken implements AuthenticationToken {
-    //token类型
-    protected String tokenType;
+    /**
+     * token类型
+     */
+    String tokenType;
 
     public String getTokenType() {
         return tokenType;

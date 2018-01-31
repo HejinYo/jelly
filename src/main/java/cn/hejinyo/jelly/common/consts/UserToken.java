@@ -6,8 +6,14 @@ package cn.hejinyo.jelly.common.consts;
  * @Description :
  */
 public enum UserToken {
-    USERNAME("use"),//用户名,username
-    USERID("uid");//用户id,userid
+    /**
+     * 用户名,username
+     */
+    USERNAME("use"),
+    /**
+     * 用户id,userid
+     */
+    USERID("uid");
     private final String value;
 
     private UserToken(String value) {

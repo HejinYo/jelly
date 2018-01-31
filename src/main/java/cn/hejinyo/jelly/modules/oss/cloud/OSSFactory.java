@@ -8,9 +8,8 @@ import org.springframework.stereotype.Component;
 /**
  * 文件上传Factory
  *
- * @author chenshun
- * @email sunlightcs@gmail.com
- * @date 2017-03-26 10:18
+ * @author hejinyo
+ * @date 2017/9/26 11:00
  */
 @Component
 public final class OSSFactory {

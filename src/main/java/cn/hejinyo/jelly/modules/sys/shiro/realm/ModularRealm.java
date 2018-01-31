@@ -11,9 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
+ * 对特定的token指定realm进行处理
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/30 13:03
- * @Description : 对特定的token指定realm进行处理
  */
 public class ModularRealm extends ModularRealmAuthenticator {
     @Override

@@ -1,11 +1,11 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
-import cn.hejinyo.jelly.common.annotation.SysLogger;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
+import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -21,7 +21,6 @@ import java.util.HashMap;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/17 22:29
- * @Description :
  */
 @RestController
 @RequestMapping("/user")
@@ -32,8 +31,6 @@ public class SysUserController extends BaseController {
 
     /**
      * 获得一个用户信息
-     *
-     * @return
      */
     @GetMapping(value = "/{userId}")
     @RequiresPermissions("user:view")
@@ -47,8 +44,6 @@ public class SysUserController extends BaseController {
 
     /**
      * 分页查询用户信息
-     *
-     * @return
      */
     @GetMapping(value = "/listPage")
     @RequiresPermissions("user:view")
@@ -87,9 +82,6 @@ public class SysUserController extends BaseController {
 
     /**
      * 更新一个用户
-     *
-     * @param sysUser
-     * @return
      */
     @SysLogger("更新用户")
     @RequiresPermissions("user:update")
@@ -110,9 +102,6 @@ public class SysUserController extends BaseController {
 
     /**
      * 删除一个用户
-     *
-     * @param userId
-     * @return
      */
     @SysLogger("删除用户")
     @RequiresPermissions("user:delete")
@@ -134,8 +123,6 @@ public class SysUserController extends BaseController {
 
     /**
      * 批量删除
-     *
-     * @return
      */
     @SysLogger("删除用户")
     @RequiresPermissions("user:delete")
@@ -155,9 +142,6 @@ public class SysUserController extends BaseController {
 
     /**
      * 头像上传
-     *
-     * @param file
-     * @return
      */
     @PostMapping(value = "/avatar")
     public Result avatarUpload(@RequestParam("file") MultipartFile file) {

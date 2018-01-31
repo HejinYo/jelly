@@ -8,6 +8,10 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/6/17 16:54
+ */
 @Mapper
 public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
     /**

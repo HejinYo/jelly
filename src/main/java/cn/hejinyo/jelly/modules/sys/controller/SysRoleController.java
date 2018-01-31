@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author : HejinYo   hejinyo@gmail.com     2017/9/27 19:03
- * @apiNote :
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date 2017/9/27 19:03
  */
 @RestController
 @RequestMapping("/role")

@@ -11,7 +11,6 @@ import javax.annotation.Resource;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/9/16 13:42
- * @Description :
  */
 public class RedisCacheManager implements CacheManager {
 

@@ -72,16 +72,15 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
             if (StringUtils.isEmpty(ip) || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();
             }
+            //使用代理，则获取第一个IP地址
+            if (StringUtils.isEmpty(ip) && ip.length() > 15) {
+                if (ip.indexOf(",") > 0) {
+                    ip = ip.substring(0, ip.indexOf(","));
+                }
+            }
         } catch (Exception e) {
             logger.error("IPUtils ERROR ", e);
         }
-
-        //        //使用代理，则获取第一个IP地址
-        //        if(StringUtils.isEmpty(ip) && ip.length() > 15) {
-        //			if(ip.indexOf(",") > 0) {
-        //				ip = ip.substring(0, ip.indexOf(","));
-        //			}
-        //		}
         return ip;
     }
 
@@ -92,9 +91,6 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
 
     /**
      * 读取cookie
-     *
-     * @param request
-     * @return
      */
     public static String getCookieValue(HttpServletRequest request, String name) {
         Cookie cookie = getCookie(request, name);

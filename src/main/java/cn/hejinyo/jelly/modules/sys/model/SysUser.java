@@ -11,36 +11,91 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * 用户实体类
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/4/9 14:48
- * @Description : 用户实体类
  */
 @Data
 public class SysUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Integer userId;//用户编号
+
+    /**
+     * 用户编号
+     */
+    private Integer userId;
+
+    /**
+     * 用户名称
+     */
     @NotBlank(message = "用户名不能为空", groups = {RestfulValid.POST.class})
-    private String userName;//用户名称
-    //密码相关不允许序列化
+    private String userName;
+
+    /**
+     * 密码相关不允许序列化
+     */
     @JSONField(serialize = false)
     @NotBlank(message = "密码不能为空", groups = {RestfulValid.POST.class})
-    private String userPwd;//密码
-    @JSONField(serialize = false)
-    private String userSalt;//盐
-    @Email(message = "邮箱格式不正确", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
-    private String email;//邮箱
-    @Pattern(regexp = "^$|^((17[0-9])|(14[0-9])|(13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$", message = "手机格式不正确", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
-    private String phone;//手机号
-    private String loginIp;//最后登录IP
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
-    private Date loginTime;//最后登录时间
-    private Integer state;//用户状态 0：正常；1：锁定；-1：禁用(删除)
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime; //创建时间
-    private Integer createId;//创建人员ID
+    private String userPwd;
 
-    private Integer roleId;//用户角色
-    private String roleCode;//角色编码
-    private String roleName;//角色名称
+    /**
+     * 盐
+     */
+    @JSONField(serialize = false)
+    private String userSalt;
+
+    /**
+     * 邮箱
+     */
+    @Email(message = "邮箱格式不正确", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
+    private String email;
+
+    /**
+     * 手机号
+     */
+    @Pattern(regexp = "^$|^((17[0-9])|(14[0-9])|(13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$", message = "手机格式不正确", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
+    private String phone;
+
+    /**
+     * 最后登录IP
+     */
+    private String loginIp;
+
+    /**
+     * 最后登录时间
+     */
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date loginTime;
+
+    /**
+     * 用户状态 0：正常；1：锁定；-1：禁用(删除)
+     */
+    private Integer state;
+
+    /**
+     * 创建时间
+     */
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
+
+    /**
+     * 创建人员ID
+     */
+    private Integer createId;
+
+    /**
+     * 用户角色
+     */
+    private Integer roleId;
+
+    /**
+     * 角色编码
+     */
+    private String roleCode;
+    
+    /*
+    角色名称
+     */
+    private String roleName;
 }

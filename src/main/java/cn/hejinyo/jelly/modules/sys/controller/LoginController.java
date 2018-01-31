@@ -73,8 +73,6 @@ public class LoginController extends BaseController {
 
     /**
      * 获得当前用户redis中的用户信息
-     *
-     * @return
      */
     @GetMapping(value = "/userInfo")
     public Result getToken() {
@@ -85,8 +83,6 @@ public class LoginController extends BaseController {
 
     /**
      * 获得用户菜单
-     *
-     * @return
      */
     @GetMapping(value = "/userMenu")
     public Map<String, Object> userMenu() {

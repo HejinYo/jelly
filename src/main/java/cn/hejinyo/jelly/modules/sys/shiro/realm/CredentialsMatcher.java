@@ -13,10 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 账户登录多次失败锁定
  *
- * @author HejinYo
- * @version 1.0
- * @email hejinyo@gmail.com
- * @since 1.0
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/6/17 17:04
  */
 public class CredentialsMatcher extends HashedCredentialsMatcher {
 
@@ -37,7 +35,7 @@ public class CredentialsMatcher extends HashedCredentialsMatcher {
                 redisUtils.set(cacheName, retryCount, 1800);
                 redisUtils.delete(RedisKeys.getTokenCacheKey(username));
             } else {
-                redisUtils.setDefaultExpire(cacheName, retryCount);
+                redisUtils.set(cacheName, retryCount);
             }
             throw new ExcessiveAttemptsException();
         }
@@ -45,7 +43,7 @@ public class CredentialsMatcher extends HashedCredentialsMatcher {
         if (matches) {//认证成功，清除登陆执行次数
             redisUtils.delete(cacheName);
         } else {
-            redisUtils.setDefaultExpire(cacheName, retryCount);
+            redisUtils.set(cacheName, retryCount);
         }
         return matches;
     }

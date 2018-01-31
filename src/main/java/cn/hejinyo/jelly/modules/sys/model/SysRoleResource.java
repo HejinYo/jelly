@@ -13,8 +13,20 @@ import java.io.Serializable;
 public class SysRoleResource implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Integer id;//角色授权编号
-    private Integer roleId;//角色编号
-    private Integer resId;//资源编号
-    private Integer permId;//权限编号
+    /**
+     * 角色授权编号
+     */
+    private Integer id;
+    /**
+     * 角色编号
+     */
+    private Integer roleId;
+    /**
+     * 资源编号
+     */
+    private Integer resId;
+    /**
+     * 权限编号
+     */
+    private Integer permId;
 }

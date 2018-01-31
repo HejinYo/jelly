@@ -22,8 +22,6 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
 
     /**
      * 注入fastJson
-     *
-     * @param converters
      */
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -32,7 +30,7 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         fastJsonConfig.setSerializerFeatures(SerializerFeature.PrettyFormat);
         // 自定义时间格式
-        //fastJsonConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
+        fastJsonConfig.setDateFormat("yyyy-MM-dd HH:mm:ss");
         //禁用循环引用检测
         fastJsonConfig.setFeatures(Feature.DisableCircularReferenceDetect);
         fastConverter.setFastJsonConfig(fastJsonConfig);
@@ -48,7 +46,6 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
     /**
      * 配置静态访问资源
      *
-     * @param registry
      */
 /*    @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -63,7 +60,6 @@ public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
      * 以前要访问一个页面需要先创建个Controller控制类，在写方法跳转到页面
      * 在这里配置后就不需要那么麻烦了，直接访问http://localhost:8080/toLogin就跳转到login.html页面了
      *
-     * @param registry
      */
   /*  @Override
     public void addViewControllers(ViewControllerRegistry registry) {

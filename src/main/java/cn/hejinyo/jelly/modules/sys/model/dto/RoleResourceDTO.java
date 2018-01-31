@@ -14,23 +14,51 @@ import java.io.Serializable;
 public class RoleResourceDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Integer id;//角色授权编号
-    private Integer resId;//资源编号
-    private Integer roleId;//角色编号
-    private String roleCode;//角色编码
-    private String resName;//角色编码
-    //权限编号 perm_id
+    /**
+     * 角色授权编号
+     */
+    private Integer id;
+
+    /**
+     * 资源编号
+     */
+    private Integer resId;
+
+    /**
+     * 角色编号
+     */
+    private Integer roleId;
+
+    /**
+     * 角色编码
+     */
+    private String roleCode;
+
+    /**
+     * 角色编码
+     */
+    private String resName;
+
+    /**
+     * 权限编号 perm_id
+     */
     private Integer permId;
 
-    //资源编码 res_code
+    /**
+     * 资源编码 res_code
+     */
     @NotBlank(message = "资源编码不能为空", groups = {RestfulValid.POST.class})
     private String resCode;
 
-    //权限编码 perm_code
+    /**
+     * 权限编码 perm_code
+     */
     @NotBlank(message = "权限编码不能为空", groups = {RestfulValid.POST.class})
     private String permCode;
 
-    //权限名称 perm_name
+    /**
+     * 权限名称 perm_name
+     */
     @NotBlank(message = "权限名称不能为空", groups = {RestfulValid.POST.class})
     private String permName;
 }

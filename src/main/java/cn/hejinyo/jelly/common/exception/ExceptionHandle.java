@@ -25,7 +25,7 @@ public class ExceptionHandle {
 
 
     /**
-     * infoException
+     * infoException，返回消息
      */
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler(InfoException.class)
@@ -35,7 +35,7 @@ public class ExceptionHandle {
     }
 
     /**
-     * 401 UNAUTHORIZED
+     * 401 UNAUTHORIZED，无权限
      */
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler({UnauthorizedException.class})
@@ -43,6 +43,9 @@ public class ExceptionHandle {
         return Result.error(-1, "无此权限");
     }
 
+    /**
+     * 实体验证
+     */
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result validException(MethodArgumentNotValidException mnve) {

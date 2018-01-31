@@ -4,7 +4,9 @@ import net.sf.cglib.beans.BeanCopier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -12,21 +14,16 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/22 21:24
- * @Description :
  */
 public class PojoConvertUtil {
     private static Logger logger = LoggerFactory.getLogger(PojoConvertUtil.class);
 
     private static Lock initLock = new ReentrantLock();
 
-    private static Map<String, BeanCopier> beanCopierMap = new HashMap<String, BeanCopier>();
+    private static Map<String, BeanCopier> beanCopierMap = new HashMap<>();
 
     /**
      * 初始化 BeanCopier
-     *
-     * @param source
-     * @param target
-     * @return
      */
     private static BeanCopier initCopier(Class source, Class target) {
         initLock.lock();
@@ -44,10 +41,6 @@ public class PojoConvertUtil {
 
     /**
      * 获取BeanCopier
-     *
-     * @param source
-     * @param target
-     * @return
      */
     private static BeanCopier getBeanCopier(Class source, Class target) {
         BeanCopier beanCopier = beanCopierMap.get(source.getClass().getName() + "_" + target.getName());
@@ -60,11 +53,6 @@ public class PojoConvertUtil {
 
     /**
      * Pojo 类型转换（浅复制，字段名&类型相同则被复制）
-     *
-     * @param source
-     * @param targetClass
-     * @param <T>
-     * @return
      */
     public static <T> T convert(Object source, Class<T> targetClass) {
         if (source == null) {
@@ -85,7 +73,7 @@ public class PojoConvertUtil {
     /**
      * Pojo 类型转换（浅复制，字段名&类型相同则被复制）
      */
-/*    public static <E> List<E> convert(List source, Class<E> targetClass) {
+    public static <E> List<E> convert(List source, Class<E> targetClass) {
         if (source == null) {
             return null;
         }
@@ -93,7 +81,7 @@ public class PojoConvertUtil {
             if (source.isEmpty()) {
                 return new ArrayList<E>();
             }
-            List result = new ArrayList<E>();
+            List<E> result = new ArrayList<E>();
 
             for (Object each : source) {
                 result.add(convert(each, targetClass));
@@ -103,7 +91,7 @@ public class PojoConvertUtil {
             logger.error("对象拷贝失败,{}", e);
             throw new RuntimeException("对象拷贝失败" + source + "_" + targetClass);
         }
-    }*/
+    }
 
 
 }

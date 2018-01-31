@@ -112,8 +112,6 @@ public class ShiroConfiguration {
 
     /**
      * 凭证匹配器
-     *
-     * @return
      */
     @Bean
     public CredentialsMatcher credentialsMatcher() {
@@ -126,8 +124,6 @@ public class ShiroConfiguration {
 
     /**
      * 配置使用自定义认证器，可以实现多Realm认证，并且可以指定特定Realm处理特定类型的验证
-     *
-     * @return
      */
     @Bean
     public ModularRealm defaultModularRealm(List<Realm> realms) {
@@ -138,8 +134,6 @@ public class ShiroConfiguration {
 
     /**
      * 登录创建token的Realm
-     *
-     * @return
      */
     @Bean
     public StatelessLoginTokenRealm statelessLoginRealm() {
@@ -153,8 +147,6 @@ public class ShiroConfiguration {
 
     /**
      * token验证Realm
-     *
-     * @return
      */
     @Bean
     public StatelessAuthcTokenRealm statelessAuthcRealm() {
@@ -167,14 +159,12 @@ public class ShiroConfiguration {
 
     /**
      * 在方法中 注入  securityManager ，进行代理控制,相当于调用SecurityUtils.setSecurityManager(securityManager)
-     *
-     * @return
      */
     @Bean
     public MethodInvokingFactoryBean getMethodInvokingFactoryBean() {
         MethodInvokingFactoryBean factoryBean = new MethodInvokingFactoryBean();
         factoryBean.setStaticMethod("org.apache.shiro.SecurityUtils.setSecurityManager");
-        factoryBean.setArguments(new Object[]{securityManager()});
+        factoryBean.setArguments(securityManager());
         return factoryBean;
     }
 
@@ -185,14 +175,12 @@ public class ShiroConfiguration {
 
     /**
      * 解决自定义拦截器混乱问题
-     *
-     * @param authcFilter
-     * @return
      */
     @Bean
     public FilterRegistrationBean registrationAuthcFilterBean(StatelessAuthcFilter authcFilter) {
         FilterRegistrationBean registration = new FilterRegistrationBean(authcFilter);
-        registration.setEnabled(false);//取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
+        //取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
+        registration.setEnabled(false);
         return registration;
     }
 
@@ -207,7 +195,8 @@ public class ShiroConfiguration {
     @Bean
     public FilterRegistrationBean registrationLogoutFilterBean(LogoutFilter logoutFilter) {
         FilterRegistrationBean registration = new FilterRegistrationBean(logoutFilter);
-        registration.setEnabled(false);//取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
+        //取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
+        registration.setEnabled(false);
         return registration;
     }
 

@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:05
- * @Description :
  */
 public class StatelessAuthcFilter extends AccessControlFilter {
     private static final Logger logger = LoggerFactory.getLogger(StatelessAuthcFilter.class);

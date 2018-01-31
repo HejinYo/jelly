@@ -1,4 +1,4 @@
-package cn.hejinyo.jelly.common.annotation;
+package cn.hejinyo.jelly.modules.sys.annotation;
 
 import java.lang.annotation.*;
 
@@ -7,7 +7,6 @@ import java.lang.annotation.*;
  *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/12 22:19
- * @Description :
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)

@@ -21,5 +21,4 @@ public class SysOss implements Serializable {
     private String url;
     //创建时间
     private Date createDate;
-
 }

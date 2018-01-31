@@ -10,7 +10,8 @@ import java.util.UUID;
 /**
  * 云存储
  *
- * @author HejinYo
+ * @author HejinYo hejinyo@gmail.com
+ * @date 2017/9/26 11:00
  */
 public abstract class AbstractCloudStorage {
     /**

@@ -13,7 +13,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/9/16 13:41
- * @Description :
  */
 @SuppressWarnings("unchecked")
 public class ShiroCache<K, V> implements Cache<K, V> {

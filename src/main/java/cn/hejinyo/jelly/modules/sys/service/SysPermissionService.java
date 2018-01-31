@@ -9,7 +9,6 @@ import java.util.Set;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/17 17:06
- * @Description :
  */
 public interface SysPermissionService extends BaseService<SysPermission, Integer> {
 

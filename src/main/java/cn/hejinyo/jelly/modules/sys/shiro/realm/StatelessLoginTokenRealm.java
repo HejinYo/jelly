@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/30 11:48
- * @Description :
  */
 public class StatelessLoginTokenRealm extends AuthorizingRealm {
 

@@ -1,6 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.aspect;
 
-import cn.hejinyo.jelly.common.annotation.SysLogger;
+import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.common.utils.JsonUtils;
 import cn.hejinyo.jelly.common.utils.WebUtils;
 import cn.hejinyo.jelly.modules.sys.model.SysLog;
@@ -38,7 +38,7 @@ public class SysLogAspect {
     private SysLogService sysLogService;
 
     /*@Pointcut("execution(public * cn.hejinyo.skyeboot.controller.SysLogController.add(..))")*/
-    @Pointcut("@annotation(cn.hejinyo.jelly.common.annotation.SysLogger)")
+    @Pointcut("@annotation(cn.hejinyo.jelly.modules.sys.annotation.SysLogger)")
     public void logPointCut() {
 
     }
@@ -84,11 +84,7 @@ public class SysLogAspect {
         //用户名
         //Optional<String> username = Optional.ofNullable(ShiroUtils.getCurrentUser().getUserName());
         //sysLog.setUserName(username.orElse("outline"));
-        if (ShiroUtils.getSubject().isAuthenticated()) {
-            sysLog.setUserName(ShiroUtils.getCurrentUser().getUserName());
-        } else {
-            sysLog.setUserName("visitor");
-        }
+        sysLog.setUserName(ShiroUtils.getSubject().isAuthenticated() ? ShiroUtils.getCurrentUser().getUserName() : "visitor");
 
         logger.debug("SysLogger={}", "[" + request.getRequestURL().toString() + "]" + JsonUtils.toJSONString(syslog));
         //保存系统日志

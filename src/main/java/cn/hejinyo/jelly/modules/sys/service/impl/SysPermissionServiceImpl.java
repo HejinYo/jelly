@@ -13,7 +13,6 @@ import java.util.Set;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/17 17:06
- * @Description :
  */
 @Service
 public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, SysPermission, Integer> implements SysPermissionService {

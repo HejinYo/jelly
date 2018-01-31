@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 
 /**
- * @author : HejinYo   hejinyo@gmail.com     2017/9/17 16:46
- * @apiNote :
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date 2017/9/17 16:46
  */
 @RestController
 @RequestMapping("/permission")
 public class SysPermissionController extends BaseController {
+
     @Autowired
     private SysPermissionService sysPermissionService;
 

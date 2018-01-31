@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author : HejinYo   hejinyo@gmail.com     2017/9/25 12:06
- * @apiNote :
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date 2017/9/25 12:06
  */
 @RestController
 @RequestMapping("/test")

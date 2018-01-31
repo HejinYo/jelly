@@ -8,7 +8,6 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/4/9 14:59
- * @Description : 用户实体类
  */
 @Mapper
 public interface SysUserDao extends BaseDao<SysUser, Integer> {

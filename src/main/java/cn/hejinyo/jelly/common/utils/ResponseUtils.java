@@ -14,12 +14,17 @@ import java.io.IOException;
  */
 public class ResponseUtils {
 
-    //response 返回json格式Return数据
+    /**
+     * response 返回json格式Return数据
+     */
     public static void response(HttpServletResponse httpResponse, int statusCode, Result returns) {
         httpResponse.setStatus(statusCode);
-        httpResponse.setCharacterEncoding("UTF-8"); //设置编码格式
-        httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);//设置ContentType，返回内容的MIME类型
-        httpResponse.setHeader("Cache-Control", "no-cache");//告诉所有的缓存机制是否可以缓存及哪种类型
+        //设置编码格式
+        httpResponse.setCharacterEncoding("UTF-8");
+        //设置ContentType，返回内容的MIME类型
+        httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        //告诉所有的缓存机制是否可以缓存及哪种类型
+        httpResponse.setHeader("Cache-Control", "no-cache");
         String json = JsonUtils.toJSONString(returns);
         try {
             httpResponse.getWriter().write(json);

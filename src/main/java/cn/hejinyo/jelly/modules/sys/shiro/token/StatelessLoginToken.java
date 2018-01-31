@@ -3,7 +3,6 @@ package cn.hejinyo.jelly.modules.sys.shiro.token;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:07
- * @Description :
  */
 public class StatelessLoginToken extends BaseToken {
 
@@ -40,10 +39,6 @@ public class StatelessLoginToken extends BaseToken {
 
     @Override
     public String toString() {
-        String sb = getClass().getName() +
-                " - " +
-                super.tokenType +
-                username;
-        return sb;
+        return getClass().getName() + " - " + super.tokenType + username;
     }
 }

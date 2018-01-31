@@ -4,6 +4,10 @@ import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 
+/**
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/6/17 17:04
+ */
 public interface SysUserService extends BaseService<SysUser, Integer> {
 
     /**

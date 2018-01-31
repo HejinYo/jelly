@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/4/22 15:11
- * @Description :
  */
 @Service
 public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysResource, Integer> implements SysResourceService {

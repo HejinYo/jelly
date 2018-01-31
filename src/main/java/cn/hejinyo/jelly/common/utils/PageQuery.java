@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.common.utils;
 
 import lombok.Getter;
+import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
 
@@ -27,19 +28,15 @@ public class PageQuery extends HashMap<String, Object> {
         this.putAll(parameters);
         this.pageNum = Integer.parseInt(parameters.get(PAGENUM).toString());
         this.pageSize = Integer.parseInt(parameters.get(PAGESIZE).toString());
-        String sidx = null != parameters.get(SIDX) && StringUtils.isNotEmpty(parameters.get(SIDX).toString()) ? StringUtils.underscoreName(parameters.get(SIDX).toString()) : null;
-        if (null != sidx) {
-            this.order = sidx;
-        }
-        String sort = null;
-        if (null != sidx && null != parameters.get(SORT) && StringUtils.isNotEmpty(parameters.get(SORT).toString())) {
-            sort = parameters.get(SORT).toString().toLowerCase().contains("desc") ? "DESC" : "ASC";
+        String sidx = StringUtils.underscoreName(MapUtils.getString(parameters, SIDX, ""));
+        if (StringUtils.isNotBlank(sidx)) {
+            String sort = MapUtils.getString(parameters, SORT, "DESC");
             this.order = sidx + " " + sort;
+            this.put(SIDX, sidx);
+            this.put(SORT, sort);
         }
         this.put(PAGENUM, pageNum);
         this.put(PAGESIZE, pageSize);
-        this.put(SIDX, sidx);
-        this.put(SORT, sort);
     }
 
 }

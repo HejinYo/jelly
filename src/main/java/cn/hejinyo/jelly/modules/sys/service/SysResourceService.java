@@ -10,7 +10,6 @@ import java.util.List;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/4/22 15:10
- * @Description :
  */
 public interface SysResourceService extends BaseService<SysResource, Integer> {
 

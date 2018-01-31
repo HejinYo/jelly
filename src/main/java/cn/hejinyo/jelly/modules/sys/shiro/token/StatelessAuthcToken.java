@@ -3,7 +3,6 @@ package cn.hejinyo.jelly.modules.sys.shiro.token;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:07
- * @Description :
  */
 public class StatelessAuthcToken extends BaseToken {
 
