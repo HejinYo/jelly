@@ -48,12 +48,12 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteArray(Long[] ids) {
+    public int deleteBatch(Long[] ids) {
         for (Long id : ids) {
             SysConfig config = findOne(id);
             redisUtils.delete(config.getKey());
         }
-        return baseDao.deleteArray(ids);
+        return baseDao.deleteBatch(ids);
     }
 
 

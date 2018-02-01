@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -17,14 +18,45 @@ public class BaseServiceImpl<M extends BaseDao<T, ID>, T, ID extends Serializabl
     @Autowired
     protected M baseDao;
 
+
+    @Override
+    public int save(T entity) {
+        return baseDao.save(entity);
+    }
+
+    @Override
+    public int save(Map<String, Object> map) {
+        return baseDao.save(map);
+    }
+
+    @Override
+    public int saveBatch(List<T> list) {
+        return baseDao.saveBatch(list);
+    }
+
+    @Override
+    public int update(T entity) {
+        return baseDao.update(entity);
+    }
+
+    @Override
+    public int update(Map<String, Object> map) {
+        return baseDao.update(map);
+    }
+
     @Override
     public int delete(ID id) {
         return baseDao.delete(id);
     }
 
     @Override
-    public int deleteArray(ID[] ids) {
-        return baseDao.deleteArray(ids);
+    public int delete(Map<String, Object> map) {
+        return baseDao.delete(map);
+    }
+
+    @Override
+    public int deleteBatch(ID[] ids) {
+        return baseDao.deleteBatch(ids);
     }
 
     @Override
@@ -38,13 +70,13 @@ public class BaseServiceImpl<M extends BaseDao<T, ID>, T, ID extends Serializabl
     }
 
     @Override
-    public List<T> findAll() {
-        return baseDao.findAll();
+    public List<T> findList(T entity) {
+        return baseDao.findList(entity);
     }
 
     @Override
-    public List<T> findList(T entity) {
-        return baseDao.findList(entity);
+    public List<T> findList(Map<String, Object> map) {
+        return baseDao.findList(map);
     }
 
     @Override
@@ -63,13 +95,4 @@ public class BaseServiceImpl<M extends BaseDao<T, ID>, T, ID extends Serializabl
         return baseDao.exsit(entity);
     }
 
-    @Override
-    public int save(T entity) {
-        return baseDao.save(entity);
-    }
-
-    @Override
-    public int update(T entity) {
-        return baseDao.update(entity);
-    }
 }

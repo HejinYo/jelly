@@ -133,7 +133,7 @@ public class SysUserController extends BaseController {
                 return Result.error("admin不允许被删除");
             }
         }
-        int result = sysUserService.deleteArray(ids);
+        int result = sysUserService.deleteBatch(ids);
         if (result > 0) {
             return Result.ok("删除成功");
         }

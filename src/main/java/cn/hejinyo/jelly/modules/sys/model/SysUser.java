@@ -46,6 +46,11 @@ public class SysUser implements Serializable {
     private String userSalt;
 
     /**
+     * 头像地址
+     */
+    private String avatar;
+
+    /**
      * 邮箱
      */
     @Email(message = "邮箱格式不正确", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
@@ -93,7 +98,7 @@ public class SysUser implements Serializable {
      * 角色编码
      */
     private String roleCode;
-    
+
     /*
     角色名称
      */

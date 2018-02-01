@@ -109,7 +109,7 @@ public class SysOssController {
     @RequestMapping("/delete")
     @RequiresPermissions("sys:oss:all")
     public Result delete(@RequestBody Long[] ids) {
-        sysOssService.deleteArray(ids);
+        sysOssService.deleteBatch(ids);
         return Result.ok();
     }
 

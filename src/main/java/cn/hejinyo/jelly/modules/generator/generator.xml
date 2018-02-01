@@ -10,11 +10,11 @@
         <property name="javaFileEncoding" value="utf-8"/>
 
         <!-- 通过自定义插件类生成自定义注解和接口 -->
-        <plugin type="cn.hejinyo.GenPlugin"/>
+        <plugin type="cn.hejinyo.jelly.modules.generator.GenPlugin"/>
         <!--  <plugin type="com.xe.demo.common.generator.GenPlugin">
               <property name="mappers" value="com.xe.demo.mapper.BaseMapper"/>
           </plugin>-->
-
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>
 
         <commentGenerator>
             <!-- 取消生成注释 -->
@@ -22,7 +22,7 @@
         </commentGenerator>
 
         <!-- 数据库链接URL、用户名、密码 -->
-        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/yoyo?characterEncoding=utf8" userId="root" password="redhat">
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/jelly?characterEncoding=utf8" userId="root" password="redhat">
         </jdbcConnection>
 
         <!-- java类型处理器,用于处理DB中的类型到Java中的类型，默认使用JavaTypeResolverDefaultImpl；
@@ -34,11 +34,11 @@
                   scale=0;length[10,18]：使用Long；
                   scale=0;length[5,9]：使用Integer；
                   scale=0;length<5：使用Short； -->
-            <property name="forceBigDecimals" value="false"/>
+            <property name="forceBigDecimals" value="true"/>
         </javaTypeResolver>
 
         <!-- 生成实体类 -->
-        <javaModelGenerator targetPackage="cn.hejinyo.model" targetProject="hejinyo-generator/src/main/java">
+        <javaModelGenerator targetPackage="cn.hejinyo.jelly.modules.generator.model" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
             <!-- 设置是否在getter方法中，对String类型字段调用trim()方法 -->
             <property name="trimStrings" value="false"/>
@@ -46,18 +46,18 @@
         </javaModelGenerator>
 
         <!-- 生成Dao接口 -->
-        <sqlMapGenerator targetPackage="cn.hejinyo.dao" targetProject="hejinyo-generator/src/main/java">
+        <sqlMapGenerator targetPackage="cn.hejinyo.jelly.modules.generator.dao" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </sqlMapGenerator>
 
         <!-- 生成DAO映射文件 -->
-        <javaClientGenerator type="XMLMAPPER" targetPackage="cn.hejinyo.dao" targetProject="hejinyo-generator/src/main/java">
+        <javaClientGenerator type="XMLMAPPER" targetPackage="cn.hejinyo.jelly.modules.generator.dao" targetProject="src/main/java">
             <property name="enableSubPackages" value="true"/>
         </javaClientGenerator>
 
         <!-- 要生成那些表(更改tableName和domainObjectName就可以) -->
-        <table tableName="sys_role" domainObjectName="SysRole"
-               mapperName="SysRoleDao"
+        <table tableName="sys_user" domainObjectName="SysUser"
+               mapperName="SysUserDao"
                enableInsert="false"
                enableSelectByPrimaryKey="true"
                enableDeleteByPrimaryKey="false"
