@@ -269,7 +269,7 @@ public class GenPlugin extends PluginAdapter {
         String pkType = getParameterType(pkColumn);
         //rootElement.addElement(createSql("Base_Column_List", columnList));
 
-        rootElement.addElement(new TextElement("\n  <!-- 通用模糊查询sql -->"));
+        rootElement.addElement(new TextElement("\n  <!-- 通用查询sql -->"));
         rootElement.addElement(createSql("Base_Where_SQL", whereList));
 
 
@@ -296,6 +296,7 @@ public class GenPlugin extends PluginAdapter {
         rootElement.addElement(createSelect("count", tableName, modelName, pkColumn));
         rootElement.addElement(new TextElement("\n  <!-- 查询记录是否存在 -->"));
         rootElement.addElement(createSelect("exsit", tableName, modelName, pkColumn));
+        rootElement.addElement(new TextElement("\n"));
 
         /* rootElement.addElement(new TextElement("\n  <!-- 查询所有 -->"));
          rootElement.addElement(createSelect("findAll", tableName, modelName, pkColumn));*/
