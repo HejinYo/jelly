@@ -30,7 +30,6 @@
         <result column="state" jdbcType="INTEGER" property="state"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
-        <collection property="children" column="res_id" ofType="resourceTreeDTO" javaType="java.util.ArrayList" select="selectChildrenRes"/>
     </resultMap>
 
     <!-- 递归查询用户菜单 -->
@@ -44,7 +43,6 @@
         <result column="res_icon" jdbcType="VARCHAR" property="micon"/>
         <result column="seq" jdbcType="INTEGER" property="seq"/>
         <result column="perm_url" jdbcType="INTEGER" property="murl"/>
-        <collection property="children" column="{resId=res_id,roleId=role_id}" ofType="userMenuDTO" javaType="java.util.ArrayList" select="selectChildren"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -66,48 +64,37 @@
         </where>
     </sql>
 
-
-    <!-- 根据登录名获取菜单信息 -->
-    <select id="getUserMenuList" resultMap="BaseUserMenuMap">
+    <!-- 查询用户所有授权菜单列表 -->
+    <select id="findAllMenuList" resultMap="BaseUserMenuMap">
         SELECT
-            sre.res_id,
-            sr.role_id,
-            sre.res_code,
-            res_name,
-            res_pid,
-            res_level,
-            res_icon,
-            sre.seq,
-            sp.perm_url
-        FROM sys_user_role sur
+        sre.res_id,
+        sre.res_code,
+        sre.res_name,
+        sre.res_pid,
+        sre.res_level,
+        sre.res_icon,
+        sre.seq,
+        sp.perm_url
+        <if test="null != userId">
+            FROM sys_user_role sur
             JOIN sys_role sr ON sr.role_id = sur.role_id AND sr.state = 1
             JOIN sys_role_resource srr ON srr.role_id = sr.role_id
-            JOIN sys_resource sre ON sre.res_id = srr.res_id AND sre.res_pid = 0 AND res_type = 'menu'
+            JOIN sys_resource sre ON sre.res_id = srr.res_id AND res_type = 'menu'
             JOIN sys_permission sp ON sp.res_code = sre.res_code AND sp.perm_id = srr.perm_id AND perm_code = 'view'
-        WHERE sre.state = 1 AND sp.state = 1 AND user_id = #{userId}
-        ORDER BY sre.seq
+            <where>
+                sre.state = 1 AND sp.state = 1 and user_id = #{userId}
+            </where>
+        </if>
+        <if test="null == userId">
+            FROM sys_resource sre
+            JOIN sys_permission sp ON sp.res_code = sre.res_code AND sp.perm_code = 'view'
+            <where>
+                res_type = 'menu' and
+                sre.state = 1 AND sp.state = 1
+            </where>
+        </if>
+        ORDER BY sre.res_pid, sre.seq
     </select>
-
-    <!-- 递归查询子菜单 -->
-    <select id="selectChildren" resultMap="BaseUserMenuMap">
-        SELECT
-            sre.res_id,
-            srr.role_id,
-            sre.res_code,
-            res_name,
-            res_pid,
-            res_level,
-            res_icon,
-            sre.seq,
-            sp.perm_url
-        FROM sys_resource sre
-            JOIN sys_role_resource srr ON sre.res_id = srr.res_id AND srr.role_id = #{roleId}
-            JOIN sys_permission sp ON sp.perm_id = srr.perm_id AND sp.res_code = sre.res_code AND perm_code = 'view'
-        WHERE
-            res_type = 'menu' AND res_pid = #{resId} AND sre.state = 1 AND sp.state = 1
-        ORDER BY sre.seq
-    </select>
-
 
     <!-- 递归查询所有资源树 -->
     <select id="getRecursionTree" resultMap="ResourceTreeMap">
@@ -126,27 +113,6 @@
             sr.create_id
         FROM sys_resource sr
             LEFT JOIN sys_resource ps ON ps.res_id = sr.res_pid
-        WHERE sr.res_pid = 0
-        ORDER BY sr.res_pid, sr.seq
-    </select>
-
-    <select id="selectChildrenRes" resultMap="ResourceTreeMap">
-        SELECT
-            sr.res_id,
-            sr.res_type,
-            sr.res_code,
-            sr.res_name,
-            sr.res_pid,
-            ps.res_name res_pname,
-            sr.res_level,
-            sr.res_icon,
-            sr.seq,
-            sr.state,
-            sr.create_time,
-            sr.create_id
-        FROM sys_resource sr
-            LEFT JOIN sys_resource ps ON ps.res_id = sr.res_pid
-        WHERE sr.res_pid = #{res_id}
         ORDER BY sr.res_pid, sr.seq
     </select>
 

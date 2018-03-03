@@ -31,7 +31,7 @@ public class SysPermissionController extends BaseController {
     @GetMapping(value = "/listPage")
     @RequiresPermissions("resource:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysPermission> userPageInfo = new PageInfo<>(sysPermissionService.findPage(new PageQuery(paramers)));
+        PageInfo<SysPermission> userPageInfo = new PageInfo<>(sysPermissionService.findPage(PageQuery.build(paramers)));
         return Result.ok(userPageInfo);
     }
 

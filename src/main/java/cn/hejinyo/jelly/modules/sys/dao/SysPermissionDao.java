@@ -25,6 +25,11 @@ public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
     Set<String> getRolePermissionSet(int roleId);
 
     /**
+     * 根据查询所有权限列表字符串
+     */
+    Set<String> getAllPermisSet();
+
+    /**
      * 查询指定resPid的资源
      */
     List<RolePermissionTreeDTO> findResourceList(int resPid);

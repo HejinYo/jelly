@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
+import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
@@ -19,6 +20,10 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
 
     @Override
     public Set<String> getUserPermisSet(int userId) {
+        //管理员获得所有权限
+        if (userId == Constant.SUPER_ADMIN) {
+            return baseDao.getAllPermisSet();
+        }
         return baseDao.getUserPermisSet(userId);
     }
 

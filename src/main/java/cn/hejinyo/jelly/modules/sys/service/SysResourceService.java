@@ -14,11 +14,16 @@ import java.util.List;
 public interface SysResourceService extends BaseService<SysResource, Integer> {
 
     /**
-     * 查询用户编号可用菜单
+     * 查询用户编号可用菜单列表
      *
      * @param userId
      */
     List<UserMenuDTO> getUserMenuList(int userId);
+
+    /**
+     * 查询用户编号可用菜单树
+     */
+    List<UserMenuDTO> getUserMenuTree(int userId);
 
     /**
      * 递归获得所有资源树
@@ -31,5 +36,6 @@ public interface SysResourceService extends BaseService<SysResource, Integer> {
      * @param resCode
      */
     boolean isExistResCode(String resCode);
+
 
 }

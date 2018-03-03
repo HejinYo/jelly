@@ -11,22 +11,25 @@ import java.io.Serializable;
  */
 @Data
 public class SysRoleResource implements Serializable {
+
     private static final long serialVersionUID = 1L;
+    /**
+     * 角色资源编号 id
+     **/
+    private Integer id;
 
     /**
-     * 角色授权编号
-     */
-    private Integer id;
-    /**
-     * 角色编号
-     */
+     * 角色编号 role_id
+     **/
     private Integer roleId;
+
     /**
-     * 资源编号
-     */
+     * 资源编号 res_id
+     **/
     private Integer resId;
+
     /**
-     * 权限编号
-     */
+     * 权限编号 perm_id
+     **/
     private Integer permId;
 }

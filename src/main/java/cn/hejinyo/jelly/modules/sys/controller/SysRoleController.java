@@ -34,7 +34,7 @@ public class SysRoleController extends BaseController {
     @GetMapping(value = "/listPage")
     @RequiresPermissions("role:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysRole> rolePageInfo = new PageInfo<>(sysRoleService.findPage(new PageQuery(paramers)));
+        PageInfo<SysRole> rolePageInfo = new PageInfo<>(sysRoleService.findPage(PageQuery.build(paramers)));
         return Result.ok(rolePageInfo);
     }
 
@@ -44,7 +44,7 @@ public class SysRoleController extends BaseController {
     @GetMapping(value = "/roleResourceListPage")
     @RequiresPermissions("role:view")
     public Result roleResourceList(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<RoleResourceDTO> roleResourcePageInfo = new PageInfo<>(sysRoleService.findPageForRoleResource(new PageQuery(paramers)));
+        PageInfo<RoleResourceDTO> roleResourcePageInfo = new PageInfo<>(sysRoleService.findPageForRoleResource(PageQuery.build(paramers)));
         return Result.ok(roleResourcePageInfo);
     }
 
@@ -74,7 +74,6 @@ public class SysRoleController extends BaseController {
         }
         return Result.error("未作任何修改");
     }
-
 
     /**
      * 删除
@@ -109,7 +108,7 @@ public class SysRoleController extends BaseController {
     }
 
     /**
-     * 角色列表select
+     * 角色列表下拉选择select
      */
     @GetMapping(value = "/select")
     public Result roleSelect() {

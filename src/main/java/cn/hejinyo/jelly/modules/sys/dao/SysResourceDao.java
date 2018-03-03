@@ -5,6 +5,7 @@ import cn.hejinyo.jelly.modules.sys.model.SysResource;
 import cn.hejinyo.jelly.modules.sys.model.dto.ResourceTreeDTO;
 import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -14,13 +15,6 @@ import java.util.List;
  */
 @Mapper
 public interface SysResourceDao extends BaseDao<SysResource, Integer> {
-
-    /**
-     * 查询用户编号可用菜单
-     *
-     * @param userId
-     */
-    List<UserMenuDTO> getUserMenuList(int userId);
 
     /**
      * 递归获得所有资源树
@@ -40,4 +34,9 @@ public interface SysResourceDao extends BaseDao<SysResource, Integer> {
      * @param sysResource
      */
     int updateSubtractionSeq(SysResource sysResource);
+
+    /**
+     * 查询用户所有授权菜单列表
+     */
+    List<UserMenuDTO> findAllMenuList(@Param("userId") Integer userId);
 }

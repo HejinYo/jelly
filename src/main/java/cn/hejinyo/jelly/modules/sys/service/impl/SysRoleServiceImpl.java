@@ -9,6 +9,7 @@ import cn.hejinyo.jelly.modules.sys.dao.SysRoleDao;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO;
+import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,17 +29,29 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
     @Autowired
     private RedisUtils redisUtils;
 
+    @Autowired
+    private SysRoleResourceService sysRoleResourceService;
+
+    /**
+     * 查找用户编号对应的角色编码字符串
+     */
     @Override
     public Set<String> getUserRoleSet(int userId) {
         return baseDao.getUserRoleSet(userId);
     }
 
+    /**
+     * 查询角色权限列表
+     */
     @Override
     public List<RoleResourceDTO> findPageForRoleResource(PageQuery pageQuery) {
         PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getOrder());
         return baseDao.findPageForRoleResource(pageQuery);
     }
 
+    /**
+     * 角色授权
+     */
     @Override
     public int operationPermission(int roleId, List<RolePermissionTreeDTO> rolePermissionList) {
         //清除redis中的权限缓存
@@ -52,15 +65,15 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
         //lamuda表达式
         rolePermissionList.removeIf(permissionTree -> permissionTree.getType().equals("resource"));
         if (rolePermissionList.size() > 0) {
-            HashMap<String, Object> param = new HashMap<>();
-            param.put("roleId", roleId);
-            param.put("permission", rolePermissionList);
-            return baseDao.saveRolePermission(param);
+            return sysRoleResourceService.saveRolePermission(roleId, rolePermissionList);
         }
 
         throw new InfoException("没有选择任何有效权限");
     }
 
+    /**
+     * 角色列表下拉选择select
+     */
     @Override
     public List<SysRole> roleSelect() {
         return baseDao.roleSelect();

@@ -18,7 +18,6 @@ public class BaseServiceImpl<M extends BaseDao<T, ID>, T, ID extends Serializabl
     @Autowired
     protected M baseDao;
 
-
     @Override
     public int save(T entity) {
         return baseDao.save(entity);

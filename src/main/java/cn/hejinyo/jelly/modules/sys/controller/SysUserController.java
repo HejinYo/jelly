@@ -1,5 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
+import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
@@ -48,7 +49,7 @@ public class SysUserController extends BaseController {
     @GetMapping(value = "/listPage")
     @RequiresPermissions("user:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(new PageQuery(paramers)));
+        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(paramers)));
         return Result.ok(userPageInfo);
     }
 
@@ -88,11 +89,10 @@ public class SysUserController extends BaseController {
     @PutMapping(value = "/{userId}")
     @Transactional
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysUser sysUser, @PathVariable("userId") Integer userId) {
-        if (1 == userId) {
+        if (1 == userId && getUserId() != Constant.SUPER_ADMIN) {
             return Result.error("admin不允许修改");
         }
         sysUser.setUserId(userId);
-        System.out.println(userId);
         int result = sysUserService.update(sysUser);
         if (result > 0) {
             return Result.ok();
@@ -101,35 +101,14 @@ public class SysUserController extends BaseController {
     }
 
     /**
-     * 删除一个用户
+     * 删除
      */
     @SysLogger("删除用户")
     @RequiresPermissions("user:delete")
-    @DeleteMapping(value = "/{userId}")
-    public Result delete(@PathVariable("userId") Integer userId) {
-        if (1 == userId) {
-            return Result.error("admin不允许被删除");
-        }
-        SysUser sysUser = sysUserService.findOne(userId);
-        if (sysUser == null) {
-            return Result.error("用户不存在");
-        }
-        int result = sysUserService.delete(sysUser.getUserId());
-        if (result > 0) {
-            return Result.ok("删除成功");
-        }
-        return Result.error("删除失败");
-    }
-
-    /**
-     * 批量删除
-     */
-    @SysLogger("删除用户")
-    @RequiresPermissions("user:delete")
-    @DeleteMapping(value = "/batch/{userIdList}")
+    @DeleteMapping(value = "/{userIdList}")
     public Result delete(@PathVariable("userIdList") Integer[] ids) {
         for (int userId : ids) {
-            if (1 == userId) {
+            if (Constant.SUPER_ADMIN == userId) {
                 return Result.error("admin不允许被删除");
             }
         }

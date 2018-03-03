@@ -1,7 +1,9 @@
 package cn.hejinyo.jelly.modules.sys.model;
 
+import cn.hejinyo.jelly.common.validator.RestfulValid;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -24,11 +26,13 @@ public class SysRole implements Serializable {
     /**
      * 角色编码
      */
+    @NotBlank(message = "角色编码不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private String roleCode;
 
     /**
      * 角色名称
      */
+    @NotBlank(message = "角色名称不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private String roleName;
 
     /**

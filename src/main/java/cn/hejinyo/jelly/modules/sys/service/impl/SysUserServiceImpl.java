@@ -1,9 +1,11 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
+import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
+import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
@@ -50,7 +52,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
         //创建时间
         newUser.setCreateTime(new Date());
         //默认状态：正常
-        newUser.setState(1);
+        newUser.setState(sysUser.getState());
         int result = baseDao.save(newUser);
         if (result > 0) {
             newUser.setRoleId(sysUser.getRoleId());
@@ -59,6 +61,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
         return result;
     }
 
+    /**
+     * 检查用户名是否存在，加锁
+     */
     @Override
     public boolean isExistUserName(String userName) {
         //查询用户名是否存在
@@ -84,7 +89,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
         String pwdStr = sysUser.getUserPwd();
         String email = sysUser.getEmail();
         String phone = sysUser.getPhone();
-        String loginIp = sysUser.getLoginIp();
         Date loginTime = sysUser.getLoginTime();
         Integer state = sysUser.getState();
 
@@ -99,7 +103,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
             flag = true;
         }
         //密码是否修改
-      /*  if (StringUtils.isNotNull(pwdStr)) {
+        if (StringUtils.isNotNull(pwdStr)) {
             //加密新密码
             String userPwd = ShiroUtils.userPassword(sysUser.getUserPwd(), sysUserOld.getUserSalt());
             if (!userPwd.equals(sysUserOld.getUserPwd())) {
@@ -110,7 +114,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
                 newUser.setUserPwd(ShiroUtils.userPassword(sysUser.getUserPwd(), salt));
                 flag = true;
             }
-        }*/
+        }
         //邮箱是否修改
         if (!email.equals(sysUserOld.getEmail())) {
             newUser.setEmail(email);
@@ -121,11 +125,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
             newUser.setPhone(phone);
             flag = true;
         }
-        //登录IP是否修改
-       /* if (!loginIp.equals(sysUserOld.getLoginIp())) {
-            newUser.setLoginIp(loginIp);
-            flag = true;
-        }*/
         //登录时间是否修改
         if (null != loginTime) {
             if (!loginTime.equals(sysUserOld.getLoginTime())) {
@@ -134,11 +133,10 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
             }
         }
         //状态是否修改
-        if (!state.equals(sysUserOld.getState())) {
+        if (!sysUserOld.getState().equals(state)) {
             newUser.setState(state);
             flag = true;
         }
-
         int result = 0;
         //角色是否修改
         if (!sysUser.getRoleId().equals(sysUserOld.getRoleId())) {
@@ -164,5 +162,14 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
         sysUser.setUserId(userDTO.getUserId());
         sysUser.setLoginIp(userDTO.getLoginIp());
         return baseDao.update(sysUser);
+    }
+
+    @Override
+    public int deleteBatch(Integer[] ids) {
+        /*  for (int userId : ids) {
+            //删除用户角色表记录
+
+        }*/
+        return baseDao.deleteBatch(ids);
     }
 }

@@ -17,12 +17,6 @@ public class UserMenuDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 角色编码
-     */
-    @JSONField(deserialize = false)
-    private Integer roleId;
-
-    /**
      * 菜单编号
      */
     private Integer mid;
@@ -61,6 +55,6 @@ public class UserMenuDTO implements Serializable {
      * 菜单图标
      */
     private String micon;
-    
+
     private List<UserMenuDTO> children;
 }

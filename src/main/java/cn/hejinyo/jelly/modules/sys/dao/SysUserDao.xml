@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysUserDao">
-    <resultMap id="BaseResultMap" type="sysUser">
+
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysUser">
         <id column="user_id" jdbcType="INTEGER" property="userId"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="user_pwd" jdbcType="VARCHAR" property="userPwd"/>
         <result column="user_salt" jdbcType="VARCHAR" property="userSalt"/>
+        <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="phone" jdbcType="VARCHAR" property="phone"/>
         <result column="login_ip" jdbcType="VARCHAR" property="loginIp"/>
@@ -13,27 +16,28 @@
         <result column="state" jdbcType="INTEGER" property="state"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
-        <result column="role_id" jdbcType="INTEGER" property="roleId"/>
-        <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
-        <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
     </resultMap>
 
+    <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        user_id, user_name, user_pwd, user_salt, email, phone, login_ip, login_time, state, create_time, create_id
+        user_id, user_name, user_pwd, user_salt, avatar, email, phone, login_ip, login_time,
+        state, create_time, create_id
     </sql>
 
+    <!-- 通用查询sql -->
     <sql id="Base_Where_SQL">
         <where>
-            <if test="null != userName">and user_name = #{userName}</if>
-            <if test="null != userPwd">and user_pwd = #{userPwd}</if>
-            <if test="null != userSalt">and user_salt = #{userSalt}</if>
-            <if test="null != email">and email = #{email}</if>
-            <if test="null != phone">and phone = #{phone}</if>
-            <if test="null != loginIp">and login_ip = #{loginIp}</if>
-            <if test="null != loginTime">and login_time = #{loginTime}</if>
-            <if test="null != state">and state = #{state}</if>
-            <if test="null != createTime">and create_time = #{createTime}</if>
-            <if test="null != createId">and create_id = #{createId}</if>
+            <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name = #{userName}</if>
+            <if test="userPwd != null and !&quot;&quot;.equals(userPwd)">and user_pwd = #{userPwd}</if>
+            <if test="userSalt != null and !&quot;&quot;.equals(userSalt)">and user_salt = #{userSalt}</if>
+            <if test="avatar != null and !&quot;&quot;.equals(avatar)">and avatar = #{avatar}</if>
+            <if test="email != null and !&quot;&quot;.equals(email)">and email = #{email}</if>
+            <if test="phone != null and !&quot;&quot;.equals(phone)">and phone = #{phone}</if>
+            <if test="loginIp != null and !&quot;&quot;.equals(loginIp)">and login_ip = #{loginIp}</if>
+            <if test="loginTime != null and !&quot;&quot;.equals(loginTime)">and login_time = #{loginTime}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
         </where>
     </sql>
 
@@ -59,26 +63,27 @@
         WHERE su.user_id = #{userId}
     </select>
 
+
     <select id="findPage" resultMap="BaseResultMap">
         select * from
         (select
         su.user_id, su.user_name, su.user_pwd, su.user_salt, su.email, su.phone, su.login_ip,
-        su.login_time, su.state, su.create_time, su.create_id,sr.role_id,sr.role_name,sr.role_code
+        su.login_time, su.state, su.create_time, su.create_id, sr.role_id, sr.role_name, sr.role_code
         from sys_user su
         LEFT JOIN sys_user_role sur on sur.user_id = su.user_id
         left join sys_role sr on sr.role_id = sur.role_id) as n
         <where>
-            <if test="null != userName">and user_name like concat('%',#{userName},'%')</if>
-            <if test="null != userPwd">and user_pwd like concat('%',#{userPwd},'%')</if>
-            <if test="null != userSalt">and user_salt like concat('%',#{userSalt},'%')</if>
-            <if test="null != email">and email like concat('%',#{email},'%')</if>
-            <if test="null != phone">and phone like concat('%',#{phone},'%')</if>
-            <if test="null != loginIp">and login_ip like concat('%',#{loginIp},'%')</if>
-            <if test="null != loginTime">and login_time like concat('%',#{loginTime},'%')</if>
-            <if test="null != state">and state like concat('%',#{state},'%')</if>
-            <if test="null != createTime">and create_time like concat('%',#{createTime},'%')</if>
-            <if test="null != createId">and create_id like concat('%',#{createId},'%')</if>
-            <if test="null != roleName">and role_name like concat('%',#{roleName},'%')</if>
+            <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name like concat('%',#{userName},'%')</if>
+            <if test="userPwd != null and !&quot;&quot;.equals(userPwd)">and user_pwd like concat('%',#{userPwd},'%')</if>
+            <if test="userSalt != null and !&quot;&quot;.equals(userSalt)">and user_salt like concat('%',#{userSalt},'%')</if>
+            <if test="avatar != null and !&quot;&quot;.equals(avatar)">and avatar like concat('%',#{avatar},'%')</if>
+            <if test="email != null and !&quot;&quot;.equals(email)">and email like concat('%',#{email},'%')</if>
+            <if test="phone != null and !&quot;&quot;.equals(phone)">and phone like concat('%',#{phone},'%')</if>
+            <if test="loginIp != null and !&quot;&quot;.equals(loginIp)">and login_ip like concat('%',#{loginIp},'%')</if>
+            <if test="loginTime != null and !&quot;&quot;.equals(loginTime)">and DATE_FORMAT(login_time,'%Y-%m-%d') = STR_TO_DATE(#{loginTime},'%Y-%m-%d'))</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
         </where>
     </select>
 
@@ -96,6 +101,7 @@
     </insert>
 
 
+    <!-- 删除给定主键的记录 -->
     <delete id="delete">
         DELETE
         FROM sys_user
@@ -103,7 +109,8 @@
             user_id = #{userId}
     </delete>
 
-    <delete id="deleteArray">
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
         delete
         from sys_user
         where
@@ -113,6 +120,7 @@
         </foreach>
     </delete>
 
+    <!-- 多个实体批量删除记录 -->
     <delete id="deleteList">
         delete
         from sys_user
@@ -129,6 +137,7 @@
         from sys_user
     </select>
 
+    <!-- 查询多条 -->
     <select id="findList" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
@@ -136,13 +145,15 @@
         <include refid="Base_Where_SQL"/>
     </select>
 
-    <select id="count">
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
         select
         count(*)
         from sys_user
         <include refid="Base_Where_SQL"/>
     </select>
 
+    <!-- 查询记录是否存在 -->
     <select id="exsit" resultType="boolean">
         select
         count(*)
@@ -150,12 +161,14 @@
         <include refid="Base_Where_SQL"/>
     </select>
 
+    <!-- 插入一条记录 -->
     <insert id="save" keyProperty="userId" useGeneratedKeys="true">
         insert into sys_user
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != userName">user_name,</if>
             <if test="null != userPwd">user_pwd,</if>
             <if test="null != userSalt">user_salt,</if>
+            <if test="null != avatar">avatar,</if>
             <if test="null != email">email,</if>
             <if test="null != phone">phone,</if>
             <if test="null != loginIp">login_ip,</if>
@@ -169,6 +182,7 @@
             <if test="null != userName">#{userName},</if>
             <if test="null != userPwd">#{userPwd},</if>
             <if test="null != userSalt">#{userSalt},</if>
+            <if test="null != avatar">#{avatar},</if>
             <if test="null != email">#{email},</if>
             <if test="null != phone">#{phone},</if>
             <if test="null != loginIp">#{loginIp},</if>
@@ -179,12 +193,14 @@
         </trim>
     </insert>
 
+    <!-- 更新一条记录 -->
     <update id="update">
         update sys_user
         <set>
             <if test="null != userName">user_name = #{userName},</if>
             <if test="null != userPwd">user_pwd = #{userPwd},</if>
             <if test="null != userSalt">user_salt = #{userSalt},</if>
+            <if test="null != avatar">avatar = #{avatar},</if>
             <if test="null != email">email = #{email},</if>
             <if test="null != phone">phone = #{phone},</if>
             <if test="null != loginIp">login_ip = #{loginIp},</if>

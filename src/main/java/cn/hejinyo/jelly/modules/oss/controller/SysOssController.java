@@ -47,7 +47,7 @@ public class SysOssController {
     @RequiresPermissions("sys:oss:all")
     public Result list(@RequestParam HashMap<String, Object> params) {
         //查询列表数据
-        PageInfo<SysOss> ossPageInfo = new PageInfo<>(sysOssService.findPage(new PageQuery(params)));
+        PageInfo<SysOss> ossPageInfo = new PageInfo<>(sysOssService.findPage(PageQuery.build(params)));
         return Result.ok(ossPageInfo);
     }
 

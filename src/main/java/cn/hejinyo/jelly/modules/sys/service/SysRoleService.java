@@ -25,7 +25,13 @@ public interface SysRoleService extends BaseService<SysRole, Integer> {
      */
     List<RoleResourceDTO> findPageForRoleResource(PageQuery pageQuery);
 
+    /**
+     * 角色授权
+     */
     int operationPermission(int roleId, List<RolePermissionTreeDTO> rolePermissionList);
 
+    /**
+     * 角色列表下拉选择select
+     */
     List<SysRole> roleSelect();
 }

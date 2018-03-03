@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.apache.commons.collections.MapUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 查询参数
@@ -20,23 +21,52 @@ public class PageQuery extends HashMap<String, Object> {
     //排序方式
     private static final String SORT = "sort";
 
+    //简单查询
+    private static final String QUERY_KEY = "queryKey";
+    private static final String QUERY_VALUE = "queryValue";
+
     private int pageNum;
     private int pageSize;
     private String order;
 
-    public PageQuery(HashMap<String, Object> parameters) {
-        this.putAll(parameters);
-        this.pageNum = Integer.parseInt(parameters.get(PAGENUM).toString());
-        this.pageSize = Integer.parseInt(parameters.get(PAGESIZE).toString());
-        String sidx = StringUtils.underscoreName(MapUtils.getString(parameters, SIDX, ""));
+    private PageQuery() {
+    }
+
+    public static PageQuery build(Map<String, Object> pageParam, Map<String, Object> queryParam) {
+        return init(pageParam, queryParam);
+    }
+
+    public static PageQuery build(Map<String, Object> pageParam) {
+        return init(pageParam, null);
+    }
+
+    private static PageQuery init(Map<String, Object> pageParam, Map<String, Object> queryParam) {
+        PageQuery pageQuery = new PageQuery();
+        pageQuery.putAll(pageParam);
+        pageQuery.pageNum = MapUtils.getInteger(pageParam, PAGENUM, 1);
+        pageQuery.pageSize = MapUtils.getInteger(pageParam, PAGESIZE, 10);
+        pageQuery.put(PAGENUM, pageQuery.pageNum);
+        pageQuery.put(PAGESIZE, pageQuery.pageSize);
+
+        String sidx = StringUtils.underscoreName(MapUtils.getString(pageParam, SIDX, ""));
         if (StringUtils.isNotBlank(sidx)) {
-            String sort = MapUtils.getString(parameters, SORT, "DESC");
-            this.order = sidx + " " + sort;
-            this.put(SIDX, sidx);
-            this.put(SORT, sort);
+            String sort = (MapUtils.getString(pageParam, SORT, "ASC")).toUpperCase().contains("ASC") ? "ASC" : "DESC";
+            pageQuery.order = sidx + " " + sort;
+            pageQuery.put(SIDX, sidx);
+            pageQuery.put(SORT, sort);
         }
-        this.put(PAGENUM, pageNum);
-        this.put(PAGESIZE, pageSize);
+
+        if (queryParam != null) {
+            pageQuery.putAll(queryParam);
+            return pageQuery;
+        }
+
+        String queryValue = MapUtils.getString(pageParam, QUERY_VALUE);
+        if (StringUtils.isNotBlank(queryValue)) {
+            pageQuery.put(MapUtils.getString(pageParam, QUERY_KEY), queryValue);
+        }
+
+        return pageQuery;
     }
 
 }

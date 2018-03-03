@@ -86,7 +86,7 @@ public class LoginController extends BaseController {
      */
     @GetMapping(value = "/userMenu")
     public Map<String, Object> userMenu() {
-        return Result.ok("获取成功", sysResourceService.getUserMenuList(getUserId()));
+        return Result.ok("获取成功", sysResourceService.getUserMenuTree(getUserId()));
     }
 
     /**

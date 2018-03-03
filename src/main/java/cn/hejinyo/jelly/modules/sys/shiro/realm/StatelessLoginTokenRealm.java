@@ -37,7 +37,7 @@ public class StatelessLoginTokenRealm extends AuthorizingRealm {
         // 如果无相关用户或已删除则返回null
         if (null == currentUserDTO || -1 == currentUserDTO.getState()) {
             return null;
-        } else if (0 == currentUserDTO.getState()) {
+        } else if (1 == currentUserDTO.getState()) {
             //是否锁定，抛出帐号锁定异常
             throw new LockedAccountException();
         }

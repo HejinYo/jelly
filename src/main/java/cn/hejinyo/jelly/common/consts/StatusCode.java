@@ -7,7 +7,7 @@ package cn.hejinyo.jelly.common.consts;
  */
 public enum StatusCode {
     FAILURE(-1, "失败"),
-    SUCCESS(1, "成功"),
+    SUCCESS(0, "成功"),
     PARAMETER_ERROR(1001, "提交参数不符合规范"),
     USERTOKEN_PARAMETER_ERROR(1002, "请登录后继续操作"),
     LOGIN_FAILURE(1110, "登录失败"),

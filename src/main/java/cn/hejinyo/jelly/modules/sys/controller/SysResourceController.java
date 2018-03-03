@@ -34,7 +34,7 @@ public class SysResourceController extends BaseController {
     @GetMapping(value = "/listPage")
     @RequiresPermissions("resource:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysResource> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(new PageQuery(paramers)));
+        PageInfo<SysResource> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(paramers)));
         return Result.ok(resourcePageInfo);
     }
 
@@ -44,8 +44,7 @@ public class SysResourceController extends BaseController {
     @GetMapping("/tree")
     @RequiresPermissions("resource:view")
     public Result test() {
-        List<ResourceTreeDTO> list = sysResourceService.getRecursionTree();
-        return Result.ok(list);
+        return Result.ok(sysResourceService.getRecursionTree());
     }
 
     /**

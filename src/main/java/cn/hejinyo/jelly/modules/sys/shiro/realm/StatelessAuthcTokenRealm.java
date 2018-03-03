@@ -36,7 +36,7 @@ public class StatelessAuthcTokenRealm extends AuthorizingRealm {
     @Autowired
     private RedisUtils redisUtils;
 
-    private final static Gson gson = new Gson();
+    private final static Gson GSON = new Gson();
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -68,7 +68,7 @@ public class StatelessAuthcTokenRealm extends AuthorizingRealm {
         Set<String> permissionsSet;
         Map<String, Set<String>> list;
         if (null != json) {
-            list = gson.fromJson(json, new TypeToken<Map<String, Set<String>>>() {
+            list = GSON.fromJson(json, new TypeToken<Map<String, Set<String>>>() {
             }.getType());
             roleSet = list.get("role");
             permissionsSet = list.get("permissions");

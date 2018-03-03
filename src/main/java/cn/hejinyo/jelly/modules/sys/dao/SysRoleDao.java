@@ -19,12 +19,12 @@ public interface SysRoleDao extends BaseDao<SysRole, Integer> {
 
     /**
      * 查找用户编号对应的角色编码字符串
-     *
-     * @param userId
-     * @return
      */
     Set<String> getUserRoleSet(int userId);
 
+    /**
+     * 查询角色权限列表
+     */
     List<RoleResourceDTO> findPageForRoleResource(PageQuery pageQuery);
 
     /**
@@ -33,9 +33,7 @@ public interface SysRoleDao extends BaseDao<SysRole, Integer> {
     int deleteRolePermission(int roleId);
 
     /**
-     * 保存角色权限
+     * 角色列表下拉选择select
      */
-    int saveRolePermission(HashMap<String, Object> param);
-
     List<SysRole> roleSelect();
 }

@@ -38,6 +38,7 @@
         </where>
     </sql>
 
+    <!-- 根据用户Id获得权限列表字符串 -->
     <select id="getUserPermisSet" resultType="String">
         SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
         FROM sys_user_role sur
@@ -47,11 +48,18 @@
         WHERE sur.user_id = #{userId}
     </select>
 
+    <!-- 根据角色Id获得权限列表字符串 -->
     <select id="getRolePermissionSet" resultType="String">
         SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
         FROM sys_permission sp
             LEFT JOIN sys_role_resource srr ON sp.perm_id = srr.perm_id
         WHERE srr.role_id = #{roleId}
+    </select>
+
+    <!-- 根据查询所有权限列表字符串 -->
+    <select id="getAllPermisSet" resultType="String">
+        SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
+        FROM sys_permission sp
     </select>
 
     <select id="findResourceList" resultMap="RolePermissionResultMap">
