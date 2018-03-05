@@ -21,11 +21,6 @@ public interface SysRoleService extends BaseService<SysRole, Integer> {
     Set<String> getUserRoleSet(int userId);
 
     /**
-     * 查询角色权限列表
-     */
-    List<RoleResourceDTO> findPageForRoleResource(PageQuery pageQuery);
-
-    /**
      * 角色授权
      */
     int operationPermission(int roleId, List<RolePermissionTreeDTO> rolePermissionList);

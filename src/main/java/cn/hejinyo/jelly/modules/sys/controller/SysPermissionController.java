@@ -9,6 +9,7 @@ import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,16 +26,10 @@ public class SysPermissionController extends BaseController {
     @Autowired
     private SysPermissionService sysPermissionService;
 
-    /**
-     * 分页查询
-     */
-    @GetMapping(value = "/listPage")
-    @RequiresPermissions("resource:view")
-    public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysPermission> userPageInfo = new PageInfo<>(sysPermissionService.findPage(PageQuery.build(paramers)));
-        return Result.ok(userPageInfo);
-    }
 
+    /**
+     * 获得一个权限信息
+     */
     @GetMapping(value = "/{permId}")
     @RequiresPermissions("resource:view")
     public Result get(@PathVariable(value = "permId") int permId) {
@@ -43,6 +38,16 @@ public class SysPermissionController extends BaseController {
             return Result.error("资源权限不存在");
         }
         return Result.ok(sysPermission);
+    }
+
+    /**
+     * 分页查询
+     */
+    @GetMapping(value = "/listPage")
+    @RequiresPermissions("resource:view")
+    public Result list(@RequestParam HashMap<String, Object> paramers) {
+        PageInfo<SysPermission> userPageInfo = new PageInfo<>(sysPermissionService.findPage(PageQuery.build(paramers)));
+        return Result.ok(userPageInfo);
     }
 
     /**
@@ -55,10 +60,10 @@ public class SysPermissionController extends BaseController {
             return Result.error("资源权限已经存在");
         }
         int result = sysPermissionService.save(sysPermission);
-        if (result == 0) {
-            return Result.error();
+        if (result > 0) {
+            return Result.ok();
         }
-        return Result.ok();
+        return Result.error();
     }
 
     /**
@@ -80,6 +85,7 @@ public class SysPermissionController extends BaseController {
      */
     @DeleteMapping(value = "/{permId}")
     @RequiresPermissions("resource:delete")
+    @Transactional(rollbackFor = Exception.class)
     public Result delete(@PathVariable("permId") int permId) {
         SysPermission sysPermission = sysPermissionService.findOne(permId);
         if (sysPermission == null) {
@@ -101,14 +107,11 @@ public class SysPermissionController extends BaseController {
     }
 
     /**
-     * 权限树
+     * 授权树
      */
-    @GetMapping("/tree")
-    public Result permissonTree() {
-        RolePermissionTreeDTO res = new RolePermissionTreeDTO();
-        res.setResId(0);
-        res.setResCode("");
-        return Result.ok(sysPermissionService.getResourcePermissionTree(res));
+    @GetMapping("/authTree")
+    public Result authTree() {
+        return Result.ok(sysPermissionService.getResourcePermissionTree());
     }
 
 

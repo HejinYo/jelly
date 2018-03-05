@@ -81,5 +81,5 @@ public class SysResource implements Serializable {
     /**
      * 资源编号
      */
-    private List<SysResource> childrenRes;
+    private List<SysResource> children;
 }

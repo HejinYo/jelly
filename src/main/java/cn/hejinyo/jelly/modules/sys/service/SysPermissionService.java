@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,7 +34,12 @@ public interface SysPermissionService extends BaseService<SysPermission, Integer
     Set<String> getRolePermissionSet(int roleId);
 
     /**
-     * 获得指定角色的授权树
+     * 获得授权树
      */
-    RolePermissionTreeDTO getResourcePermissionTree(RolePermissionTreeDTO rolePerm);
+    List<RolePermissionTreeDTO> getResourcePermissionTree();
+
+    /**
+     * 删除资源对应权限数据
+     */
+    int deletePermByResCode(String resCode);
 }

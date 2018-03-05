@@ -29,6 +29,19 @@ public class SysRoleController extends BaseController {
     private SysRoleService sysRoleService;
 
     /**
+     * 获得一个角色信息
+     */
+    @GetMapping(value = "/{roleId}")
+    @RequiresPermissions("role:view")
+    public Result get(@PathVariable(value = "roleId") Integer roleId) {
+        SysRole sysRole = sysRoleService.findOne(roleId);
+        if (sysRole == null) {
+            return Result.error("角色不存在");
+        }
+        return Result.ok(sysRole);
+    }
+
+    /**
      * 分页查询角色列表
      */
     @GetMapping(value = "/listPage")
@@ -36,16 +49,6 @@ public class SysRoleController extends BaseController {
     public Result list(@RequestParam HashMap<String, Object> paramers) {
         PageInfo<SysRole> rolePageInfo = new PageInfo<>(sysRoleService.findPage(PageQuery.build(paramers)));
         return Result.ok(rolePageInfo);
-    }
-
-    /**
-     * 查询角色权限
-     */
-    @GetMapping(value = "/roleResourceListPage")
-    @RequiresPermissions("role:view")
-    public Result roleResourceList(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<RoleResourceDTO> roleResourcePageInfo = new PageInfo<>(sysRoleService.findPageForRoleResource(PageQuery.build(paramers)));
-        return Result.ok(roleResourcePageInfo);
     }
 
     /**
@@ -78,14 +81,10 @@ public class SysRoleController extends BaseController {
     /**
      * 删除
      */
-    @DeleteMapping(value = "/{roleId}")
+    @DeleteMapping(value = "/{roleIdList}")
     @RequiresPermissions("role:delete")
-    public Result delete(@PathVariable("roleId") Integer roleId) {
-        SysRole SysRole = sysRoleService.findOne(roleId);
-        if (SysRole == null) {
-            return Result.error("资源不存在");
-        }
-        int result = sysRoleService.delete(SysRole.getRoleId());
+    public Result delete(@PathVariable("roleIdList") Integer[] ids) {
+        int result = sysRoleService.deleteBatch(ids);
         if (result > 0) {
             return Result.ok("删除成功");
         }

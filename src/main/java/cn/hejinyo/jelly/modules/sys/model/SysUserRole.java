@@ -15,19 +15,26 @@ public class SysUserRole implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    public SysUserRole() {
+    }
+
+    public SysUserRole(Integer userId, Integer roleId) {
+        this.userId = userId;
+        this.roleId = roleId;
+    }
+
     /**
-     * 用户角色ID
-     */
+     * 编号 id
+     **/
     private Integer id;
 
     /**
-     * 用户ID
-     */
+     * 用户编号 user_id
+     **/
     private Integer userId;
 
     /**
-     * 角色ID
-     */
+     * 角色编号 role_id
+     **/
     private Integer roleId;
-
 }

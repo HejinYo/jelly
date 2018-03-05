@@ -7,10 +7,12 @@ import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysRoleDao;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
+import cn.hejinyo.jelly.modules.sys.model.SysUserRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
+import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,8 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
 
     @Autowired
     private SysRoleResourceService sysRoleResourceService;
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
 
     /**
      * 查找用户编号对应的角色编码字符串
@@ -38,15 +42,6 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
     @Override
     public Set<String> getUserRoleSet(int userId) {
         return baseDao.getUserRoleSet(userId);
-    }
-
-    /**
-     * 查询角色权限列表
-     */
-    @Override
-    public List<RoleResourceDTO> findPageForRoleResource(PageQuery pageQuery) {
-        PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getOrder());
-        return baseDao.findPageForRoleResource(pageQuery);
     }
 
     /**
@@ -58,7 +53,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
         redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
 
         //删除原来所有的授权
-        baseDao.deleteRolePermission(roleId);
+        sysRoleResourceService.deleteRolePermission(roleId);
         if (rolePermissionList.size() == 0) {
             return 1;
         }
@@ -77,5 +72,20 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
     @Override
     public List<SysRole> roleSelect() {
         return baseDao.roleSelect();
+    }
+
+
+    @Override
+    public int deleteBatch(Integer[] ids) {
+        for (int roleId : ids) {
+            //删除用户角色表记录
+            SysUserRole sysUserRole = new SysUserRole();
+            sysUserRole.setRoleId(roleId);
+            List<SysUserRole> list = sysUserRoleService.findList(sysUserRole);
+            if (list.size() > 0) {
+                throw new InfoException("角色 [" + baseDao.findOne(roleId).getRoleName() + "] 存在用户，请取消后删除");
+            }
+        }
+        return baseDao.deleteBatch(ids);
     }
 }

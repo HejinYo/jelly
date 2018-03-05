@@ -5,16 +5,19 @@ import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.modules.sys.dao.SysResourceDao;
 import cn.hejinyo.jelly.modules.sys.model.SysResource;
-import cn.hejinyo.jelly.modules.sys.model.dto.ResourceTreeDTO;
 import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
+import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
+import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -26,6 +29,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysResource, Integer> implements SysResourceService {
 
     private static final Logger logger = LoggerFactory.getLogger(SysResourceServiceImpl.class);
+
+    @Autowired
+    private SysRoleResourceService sysRoleResourceService;
+
+    @Autowired
+    private SysPermissionService sysPermissionService;
 
     @Override
     public List<UserMenuDTO> getUserMenuList(int userId) {
@@ -58,17 +67,23 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     }
 
     @Override
-    public List<ResourceTreeDTO> getRecursionTree() {
-        return recursionRes(0, new CopyOnWriteArrayList<>(baseDao.getRecursionTree()));
+    public HashMap<String, List<SysResource>> getRecursionTree() {
+        List<SysResource> list = baseDao.findAllResourceList();
+        List<SysResource> tree = recursionRes(-1, new CopyOnWriteArrayList<>(new ArrayList<>(list)));
+        HashMap<String, List<SysResource>> map = new HashMap<>();
+        map.put("list", list);
+        map.put("tree", tree);
+        return map;
     }
 
     /**
      * 将资源列表递归成树
      */
-    private List<ResourceTreeDTO> recursionRes(Integer parentId, List<ResourceTreeDTO> list) {
-        List<ResourceTreeDTO> result = new ArrayList<>();
+    private List<SysResource> recursionRes(Integer parentId, List<SysResource> list) {
+        List<SysResource> result = new ArrayList<>();
         list.forEach(value -> {
-            if (parentId.equals(value.getResPid())) {
+            //!value.getResId().equals(value.getResPid()) 杜绝死循环情况
+            if (parentId.equals(value.getResPid()) && !value.getResId().equals(value.getResPid())) {
                 value.setChildren(recursionRes(value.getResId(), list));
                 result.add(value);
                 list.remove(value);
@@ -144,9 +159,29 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
 
     @Override
     public int delete(Integer resId) {
-        int result = super.delete(resId);
+        SysResource sysResource = baseDao.findOne(resId);
+        if (sysResource == null) {
+            throw new InfoException("资源ID [" + resId + "] 不存在");
+        }
+
+        //查询是否还有子节点
+        SysResource sysRes = new SysResource();
+        sysRes.setResPid(resId);
+        List<SysResource> list = baseDao.findList(sysRes);
+        if (list.size() > 0) {
+            throw new InfoException("资源 [" + sysResource.getResName() + "] 存在子节点");
+        }
+
+        //删除角色资源表数据
+        sysRoleResourceService.deleteRoleRes(resId);
+
+        //删除资源对应权限数据
+        sysPermissionService.deletePermByResCode(sysResource.getResCode());
+
+        //删除资源
+        int result = baseDao.delete(resId);
         if (result > 0) {
-            baseDao.updateSubtractionSeq(findOne(resId));
+            baseDao.updateSubtractionSeq(sysResource);
         }
         return result;
     }

@@ -2,28 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysResourceDao">
 
-    <resultMap id="BaseResultMap" type="sysResource">
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysResource">
         <id column="res_id" jdbcType="INTEGER" property="resId"/>
         <result column="res_type" jdbcType="VARCHAR" property="resType"/>
         <result column="res_code" jdbcType="VARCHAR" property="resCode"/>
         <result column="res_name" jdbcType="VARCHAR" property="resName"/>
         <result column="res_pid" jdbcType="INTEGER" property="resPid"/>
-        <result column="res_pname" jdbcType="VARCHAR" property="resPname"/>
-        <result column="res_level" jdbcType="INTEGER" property="resLevel"/>
-        <result column="res_icon" jdbcType="VARCHAR" property="resIcon"/>
-        <result column="seq" jdbcType="INTEGER" property="seq"/>
-        <result column="state" jdbcType="INTEGER" property="state"/>
-        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
-        <result column="create_id" jdbcType="INTEGER" property="createId"/>
-    </resultMap>
-
-    <resultMap id="ResourceTreeMap" type="resourceTreeDTO">
-        <id column="res_id" jdbcType="INTEGER" property="resId"/>
-        <result column="res_type" jdbcType="VARCHAR" property="resType"/>
-        <result column="res_code" jdbcType="VARCHAR" property="resCode"/>
-        <result column="res_name" jdbcType="VARCHAR" property="resName"/>
-        <result column="res_pid" jdbcType="INTEGER" property="resPid"/>
-        <result column="res_pname" jdbcType="VARCHAR" property="resPname"/>
+        <result column="res_pname" jdbcType="INTEGER" property="resPname"/>
         <result column="res_level" jdbcType="INTEGER" property="resLevel"/>
         <result column="res_icon" jdbcType="VARCHAR" property="resIcon"/>
         <result column="seq" jdbcType="INTEGER" property="seq"/>
@@ -33,7 +19,7 @@
     </resultMap>
 
     <!-- 递归查询用户菜单 -->
-    <resultMap id="BaseUserMenuMap" type="userMenuDTO">
+    <resultMap id="BaseUserMenuMap" type="cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO">
         <id column="res_id" jdbcType="INTEGER" property="mid"/>
         <result column="role_id" jdbcType="INTEGER" property="roleId"/>
         <result column="res_code" jdbcType="VARCHAR" property="redCode"/>
@@ -45,24 +31,61 @@
         <result column="perm_url" jdbcType="INTEGER" property="murl"/>
     </resultMap>
 
+    <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        res_id, res_type, res_code, res_name, res_pid, res_level, res_icon, seq, state, create_time, create_id
+        res_id, res_type, res_code, res_name, res_pid, res_level, res_icon, seq, state, create_time,
+        create_id
     </sql>
 
+    <!-- 通用查询sql -->
     <sql id="Base_Where_SQL">
         <where>
-            <if test="null != resType">and res_type = #{resType}</if>
-            <if test="null != resCode">and res_code = #{resCode}</if>
-            <if test="null != resName">and res_name = #{resName}</if>
-            <if test="null != resPid">and res_pid = #{resPid}</if>
-            <if test="null != resLevel">and res_level = #{resLevel}</if>
-            <if test="null != resIcon">and res_icon = #{resIcon}</if>
-            <if test="null != seq">and seq = #{seq}</if>
-            <if test="null != state">and state = #{state}</if>
-            <if test="null != createTime">and create_time = #{createTime}</if>
-            <if test="null != createId">and create_id = #{createId}</if>
+            <if test="resType != null and !&quot;&quot;.equals(resType)">and res_type = #{resType}</if>
+            <if test="resCode != null and !&quot;&quot;.equals(resCode)">and res_code = #{resCode}</if>
+            <if test="resName != null and !&quot;&quot;.equals(resName)">and res_name = #{resName}</if>
+            <if test="resPid != null and !&quot;&quot;.equals(resPid)">and res_pid = #{resPid}</if>
+            <if test="resLevel != null and !&quot;&quot;.equals(resLevel)">and res_level = #{resLevel}</if>
+            <if test="resIcon != null and !&quot;&quot;.equals(resIcon)">and res_icon = #{resIcon}</if>
+            <if test="seq != null and !&quot;&quot;.equals(seq)">and seq = #{seq}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
         </where>
     </sql>
+
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        sr.res_id,
+        sr.res_type,
+        sr.res_code,
+        sr.res_name,
+        sr.res_pid,
+        sp.res_name res_pname,
+        sr.res_level,
+        sr.res_icon,
+        sr.seq,
+        sr.state,
+        sr.create_time,
+        sr.create_id
+        from sys_resource sr
+        LEFT JOIN sys_resource sp on sp.res_pid != sp.res_id AND sr.res_pid = sp.res_id
+        <where>
+            <if test="resId != null and !&quot;&quot;.equals(resId)">(sr.res_pid = #{resId} or sr.res_id = #{resId})</if>
+            <if test="resType != null and !&quot;&quot;.equals(resType)">and sr.res_type like concat('%',#{resType},'%')</if>
+            <if test="resCode != null and !&quot;&quot;.equals(resCode)">and sr.res_code like concat('%',#{resCode},'%')</if>
+            <if test="resName != null and !&quot;&quot;.equals(resName)">and sr.res_name like concat('%',#{resName},'%')</if>
+            <if test="resPid != null and !&quot;&quot;.equals(resPid)">and sr.res_pid = #{resPid}</if>
+            <if test="resLevel != null and !&quot;&quot;.equals(resLevel)">and sr.res_level = #{resLevel}</if>
+            <if test="resIcon != null and !&quot;&quot;.equals(resIcon)">and sr.res_icon like concat('%',#{resIcon},'%')</if>
+            <if test="seq != null and !&quot;&quot;.equals(seq)">and sr.seq = #{seq}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and sr.state = #{state}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(sr.create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and sr.create_id = #{createId}</if>
+        </where>
+    </select>
+
 
     <!-- 查询用户所有授权菜单列表 -->
     <select id="findAllMenuList" resultMap="BaseUserMenuMap">
@@ -79,7 +102,7 @@
             FROM sys_user_role sur
             JOIN sys_role sr ON sr.role_id = sur.role_id AND sr.state = 1
             JOIN sys_role_resource srr ON srr.role_id = sr.role_id
-            JOIN sys_resource sre ON sre.res_id = srr.res_id AND res_type = 'menu'
+            JOIN sys_resource sre ON sre.res_pid != sre.res_id AND sre.res_id = srr.res_id AND res_type = 'menu'
             JOIN sys_permission sp ON sp.res_code = sre.res_code AND sp.perm_id = srr.perm_id AND perm_code = 'view'
             <where>
                 sre.state = 1 AND sp.state = 1 and user_id = #{userId}
@@ -89,22 +112,20 @@
             FROM sys_resource sre
             JOIN sys_permission sp ON sp.res_code = sre.res_code AND sp.perm_code = 'view'
             <where>
-                res_type = 'menu' and
-                sre.state = 1 AND sp.state = 1
+                sre.res_pid != sre.res_id AND res_type = 'menu' and sre.state = 1 AND sp.state = 1
             </where>
         </if>
         ORDER BY sre.res_pid, sre.seq
     </select>
 
-    <!-- 递归查询所有资源树 -->
-    <select id="getRecursionTree" resultMap="ResourceTreeMap">
+    <!-- 查询所有资源列表 -->
+    <select id="findAllResourceList" resultMap="BaseResultMap">
         SELECT
             sr.res_id,
             sr.res_type,
             sr.res_code,
             sr.res_name,
             sr.res_pid,
-            ps.res_name res_pname,
             sr.res_level,
             sr.res_icon,
             sr.seq,
@@ -112,7 +133,6 @@
             sr.create_time,
             sr.create_id
         FROM sys_resource sr
-            LEFT JOIN sys_resource ps ON ps.res_id = sr.res_pid
         ORDER BY sr.res_pid, sr.seq
     </select>
 
@@ -131,112 +151,7 @@
     </update>
 
     <!--  ******************************************分割线*****************************************  -->
-    <delete id="delete">
-        DELETE
-        FROM sys_resource
-        WHERE
-            res_id = #{resId}
-    </delete>
-
-    <delete id="deleteArray">
-        delete
-        from sys_resource
-        where
-        res_id in
-        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-    </delete>
-
-    <delete id="deleteList">
-        delete
-        from sys_resource
-        where
-        res_id in
-        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
-            #{item.resId}
-        </foreach>
-    </delete>
-
-    <select id="findOne" resultMap="BaseResultMap">
-        SELECT
-            sr.res_id,
-            sr.res_type,
-            sr.res_code,
-            sr.res_name,
-            sr.res_pid,
-            ps.res_name res_pname,
-            sr.res_level,
-            sr.res_icon,
-            sr.seq,
-            sr.state,
-            sr.create_time,
-            sr.create_id
-        FROM sys_resource sr
-            LEFT JOIN sys_resource ps ON ps.res_id = sr.res_pid
-        WHERE sr.res_id = #{resId}
-    </select>
-
-    <select id="findAll" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_resource
-    </select>
-
-    <select id="findList" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_resource
-        <include refid="Base_Where_SQL"/>
-    </select>
-
-    <select id="findPage" resultMap="BaseResultMap">
-        SELECT *
-        from
-        (SELECT
-        sr.res_id,
-        sr.res_type,
-        sr.res_code,
-        sr.res_name,
-        sr.res_pid,
-        case sr.res_pid when 0 then '/root' else ps.res_name end res_pname,
-        sr.res_level,
-        sr.res_icon,
-        sr.seq,
-        sr.state,
-        sr.create_time,
-        sr.create_id
-        FROM sys_resource sr
-        LEFT JOIN sys_resource ps ON ps.res_id = sr.res_pid
-        <where>
-            <if test="null != resId">sr.res_id = #{resId} or sr.res_pid = #{resId}</if>
-            <if test="null != resType">and sr.res_type like concat('%',#{resType},'%')</if>
-            <if test="null != resCode">and sr.res_code like concat('%',#{resCode},'%')</if>
-            <if test="null != resName">and sr.res_name like concat('%',#{resName},'%')</if>
-            <if test="null != resPid">and sr.res_pid like concat('%',#{resPid},'%')</if>
-            <if test="null != resLevel">and sr.res_level like concat('%',#{resLevel},'%')</if>
-            <if test="null != resIcon">and sr.res_icon like concat('%',#{resIcon},'%')</if>
-            <if test="null != seq">and sr.seq like concat('%',#{seq},'%')</if>
-            <if test="null != state">and sr.state like concat('%',#{state},'%')</if>
-            <if test="null != createTime">and sr.create_time like concat('%',#{createTime},'%')</if>
-            <if test="null != createId">and sr.create_id like concat('%',#{createId},'%')</if>
-        </where>
-        ) as sprirtrcrnrprprlrissctci
-    </select>
-
-    <select id="count" resultType="int">
-        select
-        count(*)
-        from sys_resource
-        <include refid="Base_Where_SQL"/>
-    </select>
-    <select id="exsit" resultType="boolean">
-        select
-        count(*)
-        from sys_resource
-        <include refid="Base_Where_SQL"/>
-    </select>
-
+    <!-- 插入一条记录 -->
     <insert id="save" keyProperty="resId" useGeneratedKeys="true">
         insert into sys_resource
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -266,6 +181,7 @@
         </trim>
     </insert>
 
+    <!-- 更新一条记录 -->
     <update id="update">
         update sys_resource
         <set>
@@ -282,5 +198,67 @@
         </set>
         where res_id = #{resId}
     </update>
+
+    <!-- 删除给定主键的记录 -->
+    <delete id="delete">
+        DELETE
+        FROM sys_resource
+        WHERE
+            res_id = #{resId}
+    </delete>
+
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
+        delete
+        from sys_resource
+        where
+        res_id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 多个实体批量删除记录 -->
+    <delete id="deleteList">
+        delete
+        from sys_resource
+        where
+        res_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.resId}
+        </foreach>
+    </delete>
+
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_resource
+        where res_id = #{resId}
+    </select>
+
+    <!-- 查询多条 -->
+    <select id="findList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_resource
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
+        select
+        count(*)
+        from sys_resource
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录是否存在 -->
+    <select id="exsit" resultType="boolean">
+        select
+        count(*)
+        from sys_resource
+        <include refid="Base_Where_SQL"/>
+    </select>
 
 </mapper>

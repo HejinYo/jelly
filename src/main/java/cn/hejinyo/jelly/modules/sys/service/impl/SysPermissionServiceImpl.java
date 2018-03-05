@@ -2,14 +2,24 @@ package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.consts.Constant;
+import cn.hejinyo.jelly.common.exception.InfoException;
+import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
+import cn.hejinyo.jelly.modules.sys.model.SysResource;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
+import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
+import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
+import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -17,6 +27,11 @@ import java.util.Set;
  */
 @Service
 public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, SysPermission, Integer> implements SysPermissionService {
+
+    @Autowired
+    private SysResourceService sysResourceService;
+    @Autowired
+    private SysRoleResourceService sysRoleResourceService;
 
     @Override
     public Set<String> getUserPermisSet(int userId) {
@@ -32,7 +47,20 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
         SysPermission permission = new SysPermission();
         permission.setPermCode(sysPermission.getPermCode());
         permission.setResCode(sysPermission.getResCode());
+        permission.setResId(sysPermission.getResId());
         return baseDao.exsit(permission);
+    }
+
+    @Override
+    public int save(SysPermission sysPermission) {
+        SysResource sysResource = sysResourceService.findOne(sysPermission.getResId());
+        if (sysResource == null) {
+            throw new InfoException("资源不存在");
+        }
+        sysPermission.setResCode(sysResource.getResCode());
+        sysPermission.setCreateTime(new Date());
+        sysPermission.setCreateId(ShiroUtils.getUserId());
+        return baseDao.save(sysPermission);
     }
 
     @Override
@@ -44,20 +72,75 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
      * 递归获得资源权限树
      */
     @Override
-    public RolePermissionTreeDTO getResourcePermissionTree(RolePermissionTreeDTO rolePerm) {
+    public List<RolePermissionTreeDTO> getResourcePermissionTree() {
+        List<RolePermissionTreeDTO> resourceList = new CopyOnWriteArrayList<>(baseDao.findAllResourceList());
+        List<RolePermissionTreeDTO> permissionList = new CopyOnWriteArrayList<>(baseDao.findAllPermissionList());
+        return recursionRes(0, resourceList, permissionList);
+    }
 
-        List<RolePermissionTreeDTO> resourceList = baseDao.findResourceList(rolePerm.getResId());
-        List<RolePermissionTreeDTO> permissionList = baseDao.findPermissionList(rolePerm.getResCode());
-
-        for (RolePermissionTreeDTO permission : permissionList) {
-            resourceList.add(0, permission);
+    @Override
+    public int update(SysPermission sysPermission) {
+        SysPermission oldPermission = baseDao.findOne(sysPermission.getPermId());
+        if (oldPermission == null) {
+            throw new InfoException("权限不存在");
         }
-
-        rolePerm.setChildrenRes(resourceList);
-        for (int i = permissionList.size(); i < resourceList.size(); i++) {
-            getResourcePermissionTree(resourceList.get(i));
+        if (!oldPermission.getPermCode().equals(sysPermission.getPermCode()) || !oldPermission.getResId().equals(sysPermission.getResId())) {
+            if (isExist(sysPermission)) {
+                throw new InfoException("资源权限已经存在");
+            }
         }
-        return rolePerm;
+        SysResource sysResource = sysResourceService.findOne(sysPermission.getResId());
+        if (sysResource == null) {
+            throw new InfoException("资源不存在");
+        }
+        sysPermission.setResCode(sysResource.getResCode());
+        return super.update(sysPermission);
+    }
+
+    @Override
+    public int delete(Integer permId) {
+        //删除角色资源表数据
+        sysRoleResourceService.deleteRolePrem(permId);
+        return baseDao.delete(permId);
+    }
+
+    /**
+     * 删除资源对应权限数据
+     */
+    @Override
+    public int deletePermByResCode(String resCode) {
+        return baseDao.deletePermByResCode(resCode);
+    }
+
+    /**
+     * 递归生成授权树
+     */
+    private List<RolePermissionTreeDTO> recursionRes(Integer parentId, List<RolePermissionTreeDTO> resList, List<RolePermissionTreeDTO> permList) {
+        List<RolePermissionTreeDTO> result = new ArrayList<>();
+        resList.forEach(value -> {
+            if (parentId.equals(value.getResPid())) {
+                List<RolePermissionTreeDTO> child = recursionRes(value.getResId(), resList, permList);
+                List<RolePermissionTreeDTO> childPerm = recursionPerm(value.getResId(), permList);
+                if (childPerm.size() > 0) {
+                    child.addAll(0, childPerm);
+                }
+                value.setChildren(child);
+                result.add(value);
+                resList.remove(value);
+            }
+        });
+        return result;
+    }
+
+    private List<RolePermissionTreeDTO> recursionPerm(Integer parentId, List<RolePermissionTreeDTO> list) {
+        List<RolePermissionTreeDTO> result = new ArrayList<>();
+        list.forEach(value -> {
+            if (parentId.equals(value.getResId())) {
+                result.add(value);
+                list.remove(value);
+            }
+        });
+        return result;
     }
 
 }

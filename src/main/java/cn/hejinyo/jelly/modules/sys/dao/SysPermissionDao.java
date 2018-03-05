@@ -32,10 +32,15 @@ public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
     /**
      * 查询指定resPid的资源
      */
-    List<RolePermissionTreeDTO> findResourceList(int resPid);
+    List<RolePermissionTreeDTO> findAllResourceList();
 
     /**
      * 查询指定resCode的权限
      */
-    List<RolePermissionTreeDTO> findPermissionList(String resCode);
+    List<RolePermissionTreeDTO> findAllPermissionList();
+
+    /**
+     * 删除资源对应权限数据
+     */
+    int deletePermByResCode(String resCode);
 }

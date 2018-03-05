@@ -2,9 +2,9 @@ package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysResource;
-import cn.hejinyo.jelly.modules.sys.model.dto.ResourceTreeDTO;
 import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,7 +28,7 @@ public interface SysResourceService extends BaseService<SysResource, Integer> {
     /**
      * 递归获得所有资源树
      */
-    List<ResourceTreeDTO> getRecursionTree();
+    HashMap<String, List<SysResource>> getRecursionTree();
 
     /**
      * 资源编码是否存在

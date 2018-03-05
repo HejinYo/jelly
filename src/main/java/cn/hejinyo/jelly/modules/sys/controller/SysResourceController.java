@@ -1,11 +1,12 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
+import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
+import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysResource;
-import cn.hejinyo.jelly.modules.sys.model.dto.ResourceTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -27,14 +26,26 @@ public class SysResourceController extends BaseController {
     @Autowired
     private SysResourceService sysResourceService;
 
+    /**
+     * 获得一个资源信息
+     */
+    @GetMapping(value = "/{roleId}")
+    @RequiresPermissions("role:view")
+    public Result get(@PathVariable(value = "roleId") Integer roleId) {
+        SysResource sysResource = sysResourceService.findOne(roleId);
+        if (sysResource == null) {
+            return Result.error("资源不存在");
+        }
+        return Result.ok(sysResource);
+    }
 
     /**
      * 分页查询
      */
-    @GetMapping(value = "/listPage")
+    @RequestMapping(value = "/listPage")
     @RequiresPermissions("resource:view")
-    public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysResource> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(paramers)));
+    public Result list(@RequestParam HashMap<String, Object> pageParam) {
+        PageInfo<SysResource> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(pageParam)));
         return Result.ok(resourcePageInfo);
     }
 
@@ -82,15 +93,12 @@ public class SysResourceController extends BaseController {
     /**
      * 删除
      */
+    @SysLogger("删除资源")
     @DeleteMapping(value = "/{resId}")
-    @Transactional
     @RequiresPermissions("resource:delete")
+    @Transactional
     public Result delete(@PathVariable("resId") Integer resId) {
-        SysResource sysResource = sysResourceService.findOne(resId);
-        if (sysResource == null) {
-            return Result.error("资源不存在");
-        }
-        int result = sysResourceService.delete(sysResource.getResId());
+        int result = sysResourceService.delete(resId);
         if (result > 0) {
             return Result.ok("删除成功");
         }

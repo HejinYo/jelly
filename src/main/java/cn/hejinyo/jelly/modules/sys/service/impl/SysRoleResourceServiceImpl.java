@@ -18,6 +18,14 @@ import java.util.List;
 public class SysRoleResourceServiceImpl extends BaseServiceImpl<SysRoleResourceDao, SysRoleResource, Integer> implements SysRoleResourceService {
 
     /**
+     * 删除角色原来所有权限
+     */
+    @Override
+    public int deleteRolePermission(int roleId) {
+        return baseDao.deleteRolePermission(roleId);
+    }
+
+    /**
      * 保存角色权限
      */
     @Override
@@ -26,5 +34,22 @@ public class SysRoleResourceServiceImpl extends BaseServiceImpl<SysRoleResourceD
         param.put("roleId", roleId);
         param.put("permission", list);
         return baseDao.saveRolePermission(param);
+    }
+
+    /**
+     * 删除资源时删除角色授权资源
+     */
+    @Override
+    public int deleteRoleRes(Integer resId) {
+        return baseDao.deleteRoleRes(resId);
+    }
+
+
+    /**
+     * 删除角色权限
+     */
+    @Override
+    public int deleteRolePrem(Integer permId) {
+        return baseDao.deleteRolePrem(permId);
     }
 }

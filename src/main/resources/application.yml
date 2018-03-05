@@ -23,15 +23,10 @@ spring:
   aop:
     proxy-target-class: true
 mybatis:
-  type-aliases-package: cn.hejinyo
+  #type-aliases-package: cn.hejinyo
   mapper-locations: classpath*:cn/hejinyo/jelly/modules/*/dao/*Dao.xml
   configuration:
-    use-generated-keys: true
     map-underscore-to-camel-case: true
-    lazy-loading-enabled: true
-    aggressive-lazy-loading: false
-    auto-mapping-behavior: full
-    default-statement-timeout: 3600
 
 pagehelper:
     helperDialect: mysql

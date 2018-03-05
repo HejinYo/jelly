@@ -23,16 +23,6 @@ public interface SysRoleDao extends BaseDao<SysRole, Integer> {
     Set<String> getUserRoleSet(int userId);
 
     /**
-     * 查询角色权限列表
-     */
-    List<RoleResourceDTO> findPageForRoleResource(PageQuery pageQuery);
-
-    /**
-     * 删除角色原来所有权限
-     */
-    int deleteRolePermission(int roleId);
-
-    /**
      * 角色列表下拉选择select
      */
     List<SysRole> roleSelect();

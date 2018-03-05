@@ -11,7 +11,7 @@ public class Result extends HashMap<String, Object> {
     private static final int SUCCESS = StatusCode.SUCCESS.getCode();
     private static final int ERROR = StatusCode.FAILURE.getCode();
     private static final int INITIAL = 4;
-    private static final String MESSAGE = "message";
+    private static final String MESSAGE = "msg";
     private static final String CODE = "code";
     private static final String RESUTLT = "result";
 

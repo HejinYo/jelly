@@ -213,7 +213,7 @@
     </update>
 
     <!-- 执行登录，查询用户登录信息 -->
-    <select id="getCurrentUser" resultType="currentuserdto">
+    <select id="getCurrentUser" resultType="cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO">
         SELECT
         <include refid="Base_Column_List"/>
         FROM sys_user

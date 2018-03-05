@@ -20,6 +20,11 @@ public class RolePermissionTreeDTO implements Serializable {
     private Integer resId;
 
     /**
+     * 父资源编号
+     */
+    private Integer resPid;
+
+    /**
      * 资源编码
      */
     private String resCode;
@@ -53,5 +58,6 @@ public class RolePermissionTreeDTO implements Serializable {
      * 子资源
      */
     @JSONField(deserialize = false)
-    private List<RolePermissionTreeDTO> childrenRes;
+
+    private List<RolePermissionTreeDTO> children;
 }

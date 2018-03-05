@@ -12,7 +12,7 @@
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
     </resultMap>
 
-    <resultMap id="RoleResourceResultMap" type="roleResourceDTO">
+    <resultMap id="RoleResourceResultMap" type="cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="role_id" jdbcType="INTEGER" property="roleId"/>
         <result column="res_id" jdbcType="VARCHAR" property="resId"/>
@@ -50,36 +50,6 @@
         WHERE
             ur.user_id = #{userId}
     </select>
-
-    <!-- 查询角色权限列表 -->
-    <select id="findPageForRoleResource" resultMap="RoleResourceResultMap">
-        SELECT
-        srr.id,
-        srr.res_id,
-        srr.role_id,
-        srr.perm_id,
-        sr.role_code,
-        sre.res_name,
-        sp.res_code,
-        sp.perm_code,
-        sp.perm_name
-        FROM
-        sys_role_resource srr
-        LEFT JOIN sys_role sr ON sr.role_id = srr.role_id
-        LEFT JOIN sys_resource sre ON sre.res_id = srr.res_id
-        LEFT JOIN sys_permission sp ON sp.perm_id = srr.perm_id
-        <where>
-            <if test="null != roleCode">role_code = #{roleCode}</if>
-        </where>
-    </select>
-
-    <!-- 删除角色所有授权 -->
-    <delete id="deleteRolePermission">
-        DELETE
-        FROM sys_role_resource
-        WHERE
-            role_id = #{roleId}
-    </delete>
 
     <!-- 保存角色权限 -->
     <insert id="saveRolePermission">

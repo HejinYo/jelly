@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class JellyApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(JellyApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(JellyApplication.class, args);
+    }
 }

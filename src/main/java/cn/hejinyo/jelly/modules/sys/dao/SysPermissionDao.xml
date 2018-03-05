@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao">
-    <resultMap id="BaseResultMap" type="sysPermission">
+
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysPermission">
         <id column="perm_id" jdbcType="INTEGER" property="permId"/>
+        <result column="res_id" jdbcType="INTEGER" property="resId"/>
         <result column="res_code" jdbcType="VARCHAR" property="resCode"/>
         <result column="perm_code" jdbcType="VARCHAR" property="permCode"/>
         <result column="perm_name" jdbcType="VARCHAR" property="permName"/>
@@ -12,8 +15,28 @@
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
     </resultMap>
 
-    <resultMap id="RolePermissionResultMap" type="rolePermissionTreeDTO">
-        <result column="red_id" jdbcType="INTEGER" property="redId"/>
+    <!-- 表基本列 -->
+    <sql id="Base_Column_List">
+        perm_id, res_id, res_code, perm_code, perm_name, perm_url, state, create_time, create_id
+    </sql>
+
+    <!-- 通用查询sql -->
+    <sql id="Base_Where_SQL">
+        <where>
+            <if test="resId != null and !&quot;&quot;.equals(resId)">and res_id = #{resId}</if>
+            <if test="resCode != null and !&quot;&quot;.equals(resCode)">and res_code = #{resCode}</if>
+            <if test="permCode != null and !&quot;&quot;.equals(permCode)">and perm_code = #{permCode}</if>
+            <if test="permName != null and !&quot;&quot;.equals(permName)">and perm_name = #{permName}</if>
+            <if test="permUrl != null and !&quot;&quot;.equals(permUrl)">and perm_url = #{permUrl}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+        </where>
+    </sql>
+
+    <resultMap id="RolePermissionResultMap" type="cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO">
+        <result column="res_id" jdbcType="INTEGER" property="resId"/>
+        <result column="res_pid" jdbcType="INTEGER" property="resPid"/>
         <result column="perm_id" jdbcType="INTEGER" property="permId"/>
         <result column="res_code" jdbcType="VARCHAR" property="resCode"/>
         <result column="perm_code" jdbcType="VARCHAR" property="permCode"/>
@@ -21,22 +44,6 @@
         <result column="perm_name" jdbcType="VARCHAR" property="permName"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
     </resultMap>
-
-    <sql id="Base_Column_List">
-        perm_id, res_code, perm_code, perm_name, perm_url, state, create_time, create_id
-    </sql>
-
-    <sql id="Base_Where_SQL">
-        <where>
-            <if test="null != resCode">and res_code = #{resCode}</if>
-            <if test="null != permCode">and perm_code = #{permCode}</if>
-            <if test="null != permName">and perm_name = #{permName}</if>
-            <if test="null != permUrl">and perm_url = #{permUrl}</if>
-            <if test="null != state">and state = #{state}</if>
-            <if test="null != createTime">and create_time = #{createTime}</if>
-            <if test="null != createId">and create_id = #{createId}</if>
-        </where>
-    </sql>
 
     <!-- 根据用户Id获得权限列表字符串 -->
     <select id="getUserPermisSet" resultType="String">
@@ -62,114 +69,49 @@
         FROM sys_permission sp
     </select>
 
-    <select id="findResourceList" resultMap="RolePermissionResultMap">
+    <select id="findAllResourceList" resultMap="RolePermissionResultMap">
         SELECT
             res_id,
             res_code,
             res_name,
+            res_pid,
             'resource' type
         FROM sys_resource
-        WHERE res_pid = #{resPid}
         ORDER BY res_pid, seq
     </select>
 
-    <select id="findPermissionList" resultMap="RolePermissionResultMap">
+    <select id="findAllPermissionList" resultMap="RolePermissionResultMap">
         SELECT
             concat(sp.res_code, ':', sp.perm_code) res_code,
             'permission'                           type,
             sp.perm_name                           res_name,
             sp.perm_name,
             sr.res_id,
+            sr.res_pid,
             sp.perm_id,
             sp.perm_code
         FROM sys_permission sp
             LEFT JOIN sys_resource sr ON sr.res_code = sp.res_code AND sr.res_code IS NOT NULL
-        WHERE sp.res_code = #{resCode}
+        WHERE sr.res_pid IS NOT NULL
         ORDER BY sr.res_pid, sr.seq
     </select>
+
+    <!--删除资源对应权限数据-->
+    <delete id="deletePermByResCode">
+        DELETE
+        FROM sys_permission
+        WHERE
+            res_code = #{resCode}
+    </delete>
 
 
     <!-- *******************************************分割线***********************************************************-->
 
-    <delete id="delete">
-        DELETE
-        FROM sys_permission
-        WHERE
-            perm_id = #{permId}
-    </delete>
-
-    <delete id="deleteArray">
-        delete
-        from sys_permission
-        where
-        perm_id in
-        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
-    </delete>
-
-    <delete id="deleteList">
-        delete
-        from sys_permission
-        where
-        perm_id in
-        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
-            #{item.permId}
-        </foreach>
-    </delete>
-
-    <select id="findOne" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_permission
-        where perm_id = #{permId}
-    </select>
-
-    <select id="findAll" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_permission
-    </select>
-
-    <select id="findList" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_permission
-        <include refid="Base_Where_SQL"/>
-    </select>
-
-    <select id="findPage" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_permission
-        <where>
-            <if test="null != resCode">and res_code = #{resCode}</if>
-            <if test="null != permCode">and perm_code like concat('%',#{permCode},'%')</if>
-            <if test="null != permName">and perm_name like concat('%',#{permName},'%')</if>
-            <if test="null != permUrl">and perm_url like concat('%',#{permUrl},'%')</if>
-            <if test="null != state">and state like concat('%',#{state},'%')</if>
-            <if test="null != createTime">and create_time like concat('%',#{createTime},'%')</if>
-            <if test="null != createId">and create_id like concat('%',#{createId},'%')</if>
-        </where>
-    </select>
-
-    <select id="count">
-        select
-        count(*)
-        from sys_permission
-        <include refid="Base_Where_SQL"/>
-    </select>
-
-    <select id="exsit" resultType="boolean">
-        select
-        count(*)
-        from sys_permission
-        <include refid="Base_Where_SQL"/>
-    </select>
-
+    <!-- 插入一条记录 -->
     <insert id="save" keyProperty="permId" useGeneratedKeys="true">
         insert into sys_permission
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != resId">res_id,</if>
             <if test="null != resCode">res_code,</if>
             <if test="null != permCode">perm_code,</if>
             <if test="null != permName">perm_name,</if>
@@ -180,6 +122,7 @@
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != resId">#{resId},</if>
             <if test="null != resCode">#{resCode},</if>
             <if test="null != permCode">#{permCode},</if>
             <if test="null != permName">#{permName},</if>
@@ -190,9 +133,11 @@
         </trim>
     </insert>
 
+    <!-- 更新一条记录 -->
     <update id="update">
         update sys_permission
         <set>
+            <if test="null != resId">res_id = #{resId},</if>
             <if test="null != resCode">res_code = #{resCode},</if>
             <if test="null != permCode">perm_code = #{permCode},</if>
             <if test="null != permName">perm_name = #{permName},</if>
@@ -203,5 +148,84 @@
         </set>
         where perm_id = #{permId}
     </update>
+
+    <!-- 删除给定主键的记录 -->
+    <delete id="delete">
+        DELETE
+        FROM sys_permission
+        WHERE
+            perm_id = #{permId}
+    </delete>
+
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
+        delete
+        from sys_permission
+        where
+        perm_id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 多个实体批量删除记录 -->
+    <delete id="deleteList">
+        delete
+        from sys_permission
+        where
+        perm_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.permId}
+        </foreach>
+    </delete>
+
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_permission
+        where perm_id = #{permId}
+    </select>
+
+    <!-- 查询多条 -->
+    <select id="findList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_permission
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_permission
+        <where>
+            <if test="resId != null and !&quot;&quot;.equals(resId)">and res_id = #{resId}</if>
+            <if test="resCode != null and !&quot;&quot;.equals(resCode)">and res_code like concat('%',#{resCode},'%')</if>
+            <if test="permCode != null and !&quot;&quot;.equals(permCode)">and perm_code like concat('%',#{permCode},'%')</if>
+            <if test="permName != null and !&quot;&quot;.equals(permName)">and perm_name like concat('%',#{permName},'%')</if>
+            <if test="permUrl != null and !&quot;&quot;.equals(permUrl)">and perm_url like concat('%',#{permUrl},'%')</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+        </where>
+    </select>
+
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
+        select
+        count(*)
+        from sys_permission
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录是否存在 -->
+    <select id="exsit" resultType="boolean">
+        select
+        count(*)
+        from sys_permission
+        <include refid="Base_Where_SQL"/>
+    </select>
 
 </mapper>

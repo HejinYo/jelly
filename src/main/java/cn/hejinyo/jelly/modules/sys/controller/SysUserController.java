@@ -57,7 +57,7 @@ public class SysUserController extends BaseController {
      * 增加一个用户
      */
     @PostMapping
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("user:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUser sysUser) {
         if (sysUserService.isExistUserName(sysUser.getUserName())) {
@@ -85,9 +85,9 @@ public class SysUserController extends BaseController {
      * 更新一个用户
      */
     @SysLogger("更新用户")
+    @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("user:update")
     @PutMapping(value = "/{userId}")
-    @Transactional
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysUser sysUser, @PathVariable("userId") Integer userId) {
         if (1 == userId && getUserId() != Constant.SUPER_ADMIN) {
             return Result.error("admin不允许修改");
@@ -106,6 +106,7 @@ public class SysUserController extends BaseController {
     @SysLogger("删除用户")
     @RequiresPermissions("user:delete")
     @DeleteMapping(value = "/{userIdList}")
+    @Transactional(rollbackFor = Exception.class)
     public Result delete(@PathVariable("userIdList") Integer[] ids) {
         for (int userId : ids) {
             if (Constant.SUPER_ADMIN == userId) {

@@ -1,15 +1,17 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
-import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
-import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
+import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
+import cn.hejinyo.jelly.modules.sys.model.SysUserRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
+import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
@@ -26,6 +28,11 @@ import java.util.Date;
 public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Integer> implements SysUserService {
     @Autowired
     private RedisUtils redisUtils;
+
+    @Autowired
+    private SysUserRoleService sysUserRoleService;
+    @Autowired
+    private SysRoleService sysRoleService;
 
     @Override
     public CurrentUserDTO getCurrentUser(String userName) {
@@ -55,8 +62,13 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
         newUser.setState(sysUser.getState());
         int result = baseDao.save(newUser);
         if (result > 0) {
-            newUser.setRoleId(sysUser.getRoleId());
-            baseDao.saveUserRole(newUser);
+            //保存角色关系
+            SysRole sysRole = sysRoleService.findOne(sysUser.getRoleId());
+            if (sysRole != null) {
+                sysUserRoleService.save(new SysUserRole(newUser.getUserId(), sysRole.getRoleId()));
+            } else {
+                throw new InfoException("所选角色不存在，请刷新后重试");
+            }
         }
         return result;
     }
@@ -166,10 +178,9 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
 
     @Override
     public int deleteBatch(Integer[] ids) {
-        /*  for (int userId : ids) {
-            //删除用户角色表记录
+        //删除用户角色表记录
+        sysUserRoleService.deleteListByUserId(ids);
 
-        }*/
         return baseDao.deleteBatch(ids);
     }
 }
