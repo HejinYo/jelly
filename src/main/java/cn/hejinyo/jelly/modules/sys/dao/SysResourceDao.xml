@@ -75,7 +75,7 @@
             <if test="resIcon != null and !&quot;&quot;.equals(resIcon)">and sr.res_icon like concat('%',#{resIcon},'%')</if>
             <if test="seq != null and !&quot;&quot;.equals(seq)">and sr.seq = #{seq}</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and sr.state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(sr.create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(sr.create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
             <if test="createId != null and !&quot;&quot;.equals(createId)">and sr.create_id = #{createId}</if>
         </where>
     </select>

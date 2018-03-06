@@ -7,7 +7,7 @@ import cn.hejinyo.jelly.modules.sys.model.SysConfig;
  * @author : HejinYo   hejinyo@gmail.com
  * @date :  2018/1/29 22:16
  */
-public interface SysConfigService extends BaseService<SysConfig, Long> {
+public interface SysConfigService extends BaseService<SysConfig, Integer> {
 
     /**
      * 根据key，更新value

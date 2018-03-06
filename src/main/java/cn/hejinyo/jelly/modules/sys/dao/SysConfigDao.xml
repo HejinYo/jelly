@@ -1,39 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysConfigDao">
-    <select id="findOne" resultType="cn.hejinyo.jelly.modules.sys.model.SysConfig">
-        SELECT *
-        FROM sys_config
-        WHERE id = #{id}
-    </select>
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysConfig">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="key" jdbcType="VARCHAR" property="key"/>
+        <result column="value" jdbcType="VARCHAR" property="value"/>
+        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+    </resultMap>
 
-    <select id="findList" parameterType="map" resultType="cn.hejinyo.jelly.modules.sys.model.SysConfig">
-        select * from sys_config where status = 1
-        <if test="key != null and key.trim() != ''">
-            and `key` like concat('%',#{key},'%')
-        </if>
-        <if test="offset != null and limit != null">
-            limit #{offset}, #{limit}
-        </if>
-    </select>
+    <!-- 表基本列 -->
+    <sql id="Base_Column_List">
+        id, `key`, `value`, `status`, remark
+    </sql>
 
-    <select id="findTotal" parameterType="map" resultType="int">
-        select count(*) from sys_config where status = 1
-        <if test="key != null and key.trim() != ''">
-            and `key` like concat('%',#{key},'%')
-        </if>
-    </select>
-
-    <insert id="save" parameterType="cn.hejinyo.jelly.modules.sys.model.SysConfig">
-        INSERT INTO sys_config (`key`, `value`, remark)
-        VALUES (#{key}, #{value}, #{remark})
-    </insert>
-
-    <update id="update" parameterType="cn.hejinyo.jelly.modules.sys.model.SysConfig">
-        UPDATE sys_config
-        SET `key` = #{key}, `value` = #{value}, remark = #{remark}
-        WHERE id = #{id}
-    </update>
+    <!-- 通用查询sql -->
+    <sql id="Base_Where_SQL">
+        <where>
+            <if test="key != null and !&quot;&quot;.equals(key)">and key = #{key}</if>
+            <if test="value != null and !&quot;&quot;.equals(value)">and value = #{value}</if>
+            <if test="status != null and !&quot;&quot;.equals(status)">and status = #{status}</if>
+            <if test="remark != null and !&quot;&quot;.equals(remark)">and remark = #{remark}</if>
+        </where>
+    </sql>
 
     <!-- 根据key，更新value -->
     <update id="updateValueByKey" parameterType="map">
@@ -49,12 +39,110 @@
         WHERE `key` = #{key}
     </select>
 
-    <delete id="deleteBatch" parameterType="int">
-        delete from sys_config where id in
-        <foreach item="id" collection="array" open="(" separator="," close=")">
-            #{id}
+    <!-- 插入一条记录 -->
+    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+        insert into sys_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != key">`key`,</if>
+            <if test="null != value">`value`,</if>
+            <if test="null != status">`status`,</if>
+            <if test="null != remark">remark,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != key">#{key},</if>
+            <if test="null != value">#{value},</if>
+            <if test="null != status">#{status},</if>
+            <if test="null != remark">#{remark},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新一条记录 -->
+    <update id="update">
+        update sys_config
+        <set>
+            <if test="null != key">`key` = #{key},</if>
+            <if test="null != value">`value` = #{value},</if>
+            <if test="null != status">`status` = #{status},</if>
+            <if test="null != remark">remark = #{remark},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 删除给定主键的记录 -->
+    <delete id="delete">
+        DELETE
+        FROM sys_config
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
+        delete
+        from sys_config
+        where
+        id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
         </foreach>
     </delete>
+
+    <!-- 多个实体批量删除记录 -->
+    <delete id="deleteList">
+        delete
+        from sys_config
+        where
+        id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </delete>
+
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_config
+        where id = #{id}
+    </select>
+
+    <!-- 查询多条 -->
+    <select id="findList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_config
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_config
+        <where>
+            status = 1
+            <if test="key != null and !&quot;&quot;.equals(key)">and `key` like concat('%',#{key},'%')</if>
+            <if test="value != null and !&quot;&quot;.equals(value)">and `value` like concat('%',#{value},'%')</if>
+            <if test="remark != null and !&quot;&quot;.equals(remark)">and remark like concat('%',#{remark},'%')</if>
+        </where>
+    </select>
+
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
+        select
+        count(*)
+        from sys_config
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录是否存在 -->
+    <select id="exsit" resultType="boolean">
+        select
+        count(*)
+        from sys_config
+        <include refid="Base_Where_SQL"/>
+    </select>
 
 
 </mapper>

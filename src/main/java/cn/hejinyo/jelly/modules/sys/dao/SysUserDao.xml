@@ -80,10 +80,10 @@
             <if test="email != null and !&quot;&quot;.equals(email)">and email like concat('%',#{email},'%')</if>
             <if test="phone != null and !&quot;&quot;.equals(phone)">and phone like concat('%',#{phone},'%')</if>
             <if test="loginIp != null and !&quot;&quot;.equals(loginIp)">and login_ip like concat('%',#{loginIp},'%')</if>
-            <if test="loginTime != null and !&quot;&quot;.equals(loginTime)">and DATE_FORMAT(login_time,'%Y-%m-%d') = STR_TO_DATE(#{loginTime},'%Y-%m-%d'))</if>
+            <if test="loginTime != null and !&quot;&quot;.equals(loginTime)">and DATE_FORMAT(login_time,'%Y-%m-%d') = STR_TO_DATE(#{loginTime},'%Y-%m-%d')</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
-            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and su.create_id = #{createId}</if>
         </where>
     </select>
 

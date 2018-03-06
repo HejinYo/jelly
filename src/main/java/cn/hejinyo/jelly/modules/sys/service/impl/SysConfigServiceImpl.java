@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @date :  2018/1/29 22:16
  */
 @Service
-public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfig, Long> implements SysConfigService {
+public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfig, Integer> implements SysConfigService {
     @Autowired
     private RedisUtils redisUtils;
 
@@ -48,8 +48,8 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteBatch(Long[] ids) {
-        for (Long id : ids) {
+    public int deleteBatch(Integer[] ids) {
+        for (Integer id : ids) {
             SysConfig config = findOne(id);
             redisUtils.delete(config.getKey());
         }

@@ -1,5 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.model;
 
+import cn.hejinyo.jelly.common.validator.RestfulValid;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -11,20 +12,31 @@ import java.io.Serializable;
  */
 @Data
 public class SysConfig implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private Integer id;
 
-    @NotBlank(message = "参数名不能为空")
+    /**
+     * key key
+     **/
+    @NotBlank(message = "参数名不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private String key;
 
-    @NotBlank(message = "参数值不能为空")
+    /**
+     * value value
+     **/
+    @NotBlank(message = "参数值不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private String value;
-
-    private String remark;
 
     /**
      * 状态   0：隐藏   1：显示 status
-     */
-    private Byte status;
+     **/
+    private Integer status;
+
+    /**
+     * 备注 remark
+     **/
+    private String remark;
+
 }

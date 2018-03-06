@@ -123,7 +123,7 @@
             <if test="method != null and !&quot;&quot;.equals(method)">and method like concat('%',#{method},'%')</if>
             <if test="params != null and !&quot;&quot;.equals(params)">and params like concat('%',#{params},'%')</if>
             <if test="ip != null and !&quot;&quot;.equals(ip)">and ip like concat('%',#{ip},'%')</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
         </where>
     </select>
 

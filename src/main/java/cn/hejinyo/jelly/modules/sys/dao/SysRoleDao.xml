@@ -80,7 +80,7 @@
             <if test="roleName != null and !&quot;&quot;.equals(roleName)">and role_name like concat('%',#{roleName},'%')</if>
             <if test="roleDescription != null and !&quot;&quot;.equals(roleDescription)">and role_description like concat('%',#{roleDescription},'%')</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
             <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
         </where>
     </select>

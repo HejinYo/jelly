@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
  * @date :  2018/1/29 22:15
  */
 @Mapper
-public interface SysConfigDao extends BaseDao<SysConfig, Long> {
+public interface SysConfigDao extends BaseDao<SysConfig, Integer> {
 
     /**
      * 根据key，查询value

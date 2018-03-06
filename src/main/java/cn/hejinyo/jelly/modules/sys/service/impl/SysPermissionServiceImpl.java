@@ -3,6 +3,8 @@ package cn.hejinyo.jelly.modules.sys.service.impl;
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
+import cn.hejinyo.jelly.common.utils.RedisKeys;
+import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
@@ -32,6 +34,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     private SysResourceService sysResourceService;
     @Autowired
     private SysRoleResourceService sysRoleResourceService;
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     public Set<String> getUserPermisSet(int userId) {
@@ -60,6 +64,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
         sysPermission.setResCode(sysResource.getResCode());
         sysPermission.setCreateTime(new Date());
         sysPermission.setCreateId(ShiroUtils.getUserId());
+        //清除redis中的权限缓存
+        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return baseDao.save(sysPermission);
     }
 
@@ -94,6 +100,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
             throw new InfoException("资源不存在");
         }
         sysPermission.setResCode(sysResource.getResCode());
+        //清除redis中的权限缓存
+        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return super.update(sysPermission);
     }
 
@@ -101,6 +109,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     public int delete(Integer permId) {
         //删除角色资源表数据
         sysRoleResourceService.deleteRolePrem(permId);
+        //清除redis中的权限缓存
+        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return baseDao.delete(permId);
     }
 
@@ -109,6 +119,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
      */
     @Override
     public int deletePermByResCode(String resCode) {
+        //清除redis中的权限缓存
+        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return baseDao.deletePermByResCode(resCode);
     }
 
@@ -117,6 +129,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
      */
     @Override
     public int updateResCodeByResId(SysPermission permission) {
+        //清除redis中的权限缓存
+        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return baseDao.updateResCodeByResId(permission);
     }
 

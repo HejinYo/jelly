@@ -215,7 +215,7 @@
             <if test="permName != null and !&quot;&quot;.equals(permName)">and perm_name like concat('%',#{permName},'%')</if>
             <if test="permUrl != null and !&quot;&quot;.equals(permUrl)">and perm_url like concat('%',#{permUrl},'%')</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
             <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
         </where>
     </select>
