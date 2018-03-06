@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.utils.Result;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -41,6 +42,11 @@ public class ExceptionHandle {
     @ExceptionHandler({UnauthorizedException.class})
     public Result shiroException(UnauthorizedException ex, HttpServletResponse response) {
         return Result.error(-1, "无此权限");
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public Result handleDuplicateKeyException(DuplicateKeyException e) {
+        return Result.error("数据库中已存在该记录");
     }
 
     /**
