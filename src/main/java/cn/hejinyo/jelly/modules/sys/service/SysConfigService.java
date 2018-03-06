@@ -12,14 +12,14 @@ public interface SysConfigService extends BaseService<SysConfig, Long> {
     /**
      * 根据key，更新value
      */
-    public int updateValueByKey(String key, String value);
+    int updateValueByKey(String key, String value);
 
     /**
      * 根据key，获取配置的value值
      *
      * @param key key
      */
-    public String getValue(String key);
+    String getValue(String key);
 
     /**
      * 根据key，获取value的Object对象SysConfigServiceImpl
@@ -27,6 +27,6 @@ public interface SysConfigService extends BaseService<SysConfig, Long> {
      * @param key   key
      * @param clazz Object对象
      */
-    public <T> T getConfigObject(String key, Class<T> clazz);
+    <T> T getConfigObject(String key, Class<T> clazz);
 
 }

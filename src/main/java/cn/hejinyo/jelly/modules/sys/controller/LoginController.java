@@ -90,6 +90,17 @@ public class LoginController extends BaseController {
     }
 
     /**
+     * 解锁屏幕，验证密码
+     */
+    @PostMapping("/unlock")
+    public Result lockScreen(@RequestBody CurrentUserDTO loginUser) {
+        if (getCurrentUser().getUserPwd().equals(ShiroUtils.userPassword(loginUser.getUserPwd(), getCurrentUser().getUserSalt()))) {
+            return Result.ok();
+        }
+        return Result.error("密码错误");
+    }
+
+    /**
      * 单文件上传获取token
      */
  /*   @GetMapping(value = "/fileUploadToken")
