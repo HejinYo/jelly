@@ -160,7 +160,7 @@ public class GenPlugin extends PluginAdapter {
                 whereList.append("\t\t<if test=\"").append(javaProperty).append(" != null and !&quot;&quot;.equals(").append(javaProperty).append(")\">");
                 if ("like".equals(type)) {
                     if ("TIMESTAMP".equalsIgnoreCase(introspectedColumn.getJdbcTypeName())) {
-                        whereList.append("and DATE_FORMAT(").append(columnName).append(",'%Y-%m-%d') = STR_TO_DATE(#{").append(javaProperty).append("},'%Y-%m-%d'))</if>\n");
+                        whereList.append("and DATE_FORMAT(").append(columnName).append(",'%Y-%m-%d') = STR_TO_DATE(#{").append(javaProperty).append("},'%Y-%m-%d')</if>\n");
                     } else if ("VARCHAR".equalsIgnoreCase(introspectedColumn.getJdbcTypeName())) {
                         whereList.append("and ").append(columnName).append(" like concat('%',#{").append(javaProperty).append("},'%')</if>\n");
                     } else {
