@@ -51,10 +51,10 @@ public class SysUserController extends BaseController {
     /**
      * 分页查询用户信息
      */
-    @GetMapping(value = "/listPage")
+    @RequestMapping(value = "/listPage")
     @RequiresPermissions("user:view")
-    public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(paramers)));
+    public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
+        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam, queryParam)));
         return Result.ok(userPageInfo);
     }
 
