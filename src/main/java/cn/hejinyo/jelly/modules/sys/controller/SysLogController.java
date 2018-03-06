@@ -1,5 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
+import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
@@ -43,14 +44,15 @@ public class SysLogController {
      */
     @GetMapping(value = "/listPage")
     @RequiresPermissions("log:view")
-    public Result list(@RequestParam HashMap<String, Object> paramers) {
-        cn.hejinyo.jelly.common.utils.PageInfo<SysLog> sysLogPageInfo = new cn.hejinyo.jelly.common.utils.PageInfo<>(sysLogService.findPage(PageQuery.build(paramers)));
+    public Result list(@RequestParam HashMap<String, Object> param) {
+        PageInfo<SysLog> sysLogPageInfo = new PageInfo<>(sysLogService.findPage(PageQuery.build(param)));
         return Result.ok(sysLogPageInfo);
     }
 
     /**
      * 增加一个日志
      */
+    @SysLogger("增加日志")
     @PostMapping
     @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("log:create")

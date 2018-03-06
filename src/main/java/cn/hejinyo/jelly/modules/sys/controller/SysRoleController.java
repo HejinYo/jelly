@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
+import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO;
@@ -54,6 +55,7 @@ public class SysRoleController extends BaseController {
     /**
      * 增加
      */
+    @SysLogger("增加角色")
     @PostMapping
     @RequiresPermissions("role:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysRole sysRole) {
@@ -67,6 +69,7 @@ public class SysRoleController extends BaseController {
     /**
      * 更新
      */
+    @SysLogger("更新角色")
     @PutMapping(value = "/{roleId}")
     @RequiresPermissions("role:update")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysRole sysRole, @PathVariable("roleId") Integer roleId) {
@@ -81,6 +84,7 @@ public class SysRoleController extends BaseController {
     /**
      * 删除
      */
+    @SysLogger("删除角色")
     @DeleteMapping(value = "/{roleIdList}")
     @RequiresPermissions("role:delete")
     public Result delete(@PathVariable("roleIdList") Integer[] ids) {
@@ -94,6 +98,7 @@ public class SysRoleController extends BaseController {
     /**
      * 授权
      */
+    @SysLogger("角色授权")
     @PostMapping(value = "/authorization/{roleId}")
     @Transactional
     @RequiresPermissions("role:auth")

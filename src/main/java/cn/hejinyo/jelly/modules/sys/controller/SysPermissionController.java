@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
+import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
@@ -53,6 +54,7 @@ public class SysPermissionController extends BaseController {
     /**
      * 增加
      */
+    @SysLogger("增加权限")
     @PostMapping
     @RequiresPermissions("resource:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysPermission sysPermission) {
@@ -72,6 +74,7 @@ public class SysPermissionController extends BaseController {
     /**
      * 更新
      */
+    @SysLogger("更新权限")
     @PutMapping(value = "/{permId}")
     @RequiresPermissions("resource:update")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysPermission sysPermission, @PathVariable("permId") int permId) {
@@ -86,6 +89,7 @@ public class SysPermissionController extends BaseController {
     /**
      * 删除
      */
+    @SysLogger("删除权限")
     @DeleteMapping(value = "/{permId}")
     @RequiresPermissions("resource:delete")
     @Transactional(rollbackFor = Exception.class)

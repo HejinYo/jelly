@@ -61,6 +61,7 @@ public class SysResourceController extends BaseController {
     /**
      * 增加
      */
+    @SysLogger("删除资源")
     @PostMapping
     @Transactional
     @RequiresPermissions("resource:create")
@@ -78,6 +79,7 @@ public class SysResourceController extends BaseController {
     /**
      * 更新
      */
+    @SysLogger("更新资源")
     @PutMapping(value = "/{resId}")
     @Transactional
     @RequiresPermissions("resource:update")

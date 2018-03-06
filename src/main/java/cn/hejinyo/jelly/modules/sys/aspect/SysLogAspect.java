@@ -86,7 +86,7 @@ public class SysLogAspect {
         //sysLog.setUserName(username.orElse("outline"));
         sysLog.setUserName(ShiroUtils.getSubject().isAuthenticated() ? ShiroUtils.getCurrentUser().getUserName() : "visitor");
 
-        logger.debug("SysLogger={}", "[" + request.getRequestURL().toString() + "]" + JsonUtils.toJSONString(syslog));
+        /*logger.debug("SysLogger={}", "[" + request.getRequestURL().toString() + "]" + JsonUtils.toJSONString(syslog));*/
         //保存系统日志
         sysLogService.save(sysLog);
     }

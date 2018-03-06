@@ -107,7 +107,6 @@ public class TestController {
     /**
      * 删除云存储文件
      */
-
     @PostMapping("/filedelete")
     public Result deleteFile(@RequestBody Map<String, Object> param) {
         Configuration cfg = new Configuration(Zone.zone0());
