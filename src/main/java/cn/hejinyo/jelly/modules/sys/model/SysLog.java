@@ -16,36 +16,39 @@ import java.util.Date;
 public class SysLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 日志编号 id
+     **/
     private Integer id;
 
     /**
-     * 用户名
-     */
+     * 用户名 user_name
+     **/
     private String userName;
 
     /**
-     * 用户操作
-     */
+     * 用户操作 operation
+     **/
     private String operation;
 
     /**
-     * 请求方法
-     */
+     * 请求方法 method
+     **/
     private String method;
 
     /**
-     * 请求参数
-     */
+     * 请求参数 params
+     **/
     private String params;
 
     /**
-     * IP地址
-     */
+     * IP地址 ip
+     **/
     private String ip;
 
     /**
-     * 创建时间
-     */
+     * 创建时间 create_time
+     **/
     @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 

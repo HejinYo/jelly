@@ -42,11 +42,6 @@ public class UserMenuDTO implements Serializable {
     private Integer pid;
 
     /**
-     * 菜单级别
-     */
-    private Integer mlevel;
-
-    /**
      * 菜单显示顺序
      */
     private Integer seq;

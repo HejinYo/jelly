@@ -43,4 +43,9 @@ public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
      * 删除资源对应权限数据
      */
     int deletePermByResCode(String resCode);
+
+    /**
+     * 根据resId更新resCode
+     */
+    int updateResCodeByResId(SysPermission permission);
 }

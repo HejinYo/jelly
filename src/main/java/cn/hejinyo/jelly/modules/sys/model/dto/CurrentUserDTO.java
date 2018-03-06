@@ -28,6 +28,11 @@ public class CurrentUserDTO implements Serializable {
     private String userName;
 
     /**
+     * 头像地址
+     */
+    private String avatar;
+
+    /**
      * 密码
      */
     @JSONField(serialize = false)

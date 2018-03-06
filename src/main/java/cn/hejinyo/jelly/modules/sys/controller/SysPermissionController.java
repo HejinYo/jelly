@@ -56,6 +56,9 @@ public class SysPermissionController extends BaseController {
     @PostMapping
     @RequiresPermissions("resource:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysPermission sysPermission) {
+        if (sysPermission.getResId() == 0) {
+            return Result.error("资源根节点不允许添加权限");
+        }
         if (sysPermissionService.isExist(sysPermission)) {
             return Result.error("资源权限已经存在");
         }

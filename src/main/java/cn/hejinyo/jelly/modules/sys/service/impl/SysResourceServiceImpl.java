@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.modules.sys.dao.SysResourceDao;
+import cn.hejinyo.jelly.modules.sys.model.SysPermission;
 import cn.hejinyo.jelly.modules.sys.model.SysResource;
 import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
@@ -113,7 +114,6 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
         newResource.setSeq(sysResource.getSeq());
         newResource.setCreateId(ShiroUtils.getUserId());
         newResource.setState(sysResource.getState());
-        newResource.setResLevel(sysResource.getResLevel());
         return super.save(newResource);
     }
 
@@ -122,13 +122,14 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
         int resid = sysResource.getResId();
         int resPid = sysResource.getResPid();
         SysResource oldResource = findOne(resid);
-        if (null == oldResource) {
-            throw new InfoException("资源不存在");
-        }
         if (resPid == resid) {
             throw new InfoException("不能选择自己作为上级资源");
         }
+        if (null == oldResource) {
+            throw new InfoException("资源不存在");
+        }
         SysResource newResource = new SysResource();
+
         newResource.setResId(resid);
         newResource.setResType(sysResource.getResType());
         newResource.setResCode(sysResource.getResCode());
@@ -138,14 +139,11 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
         newResource.setSeq(sysResource.getSeq());
         newResource.setState(sysResource.getState());
         newResource.setCreateTime(sysResource.getCreateTime());
-        newResource.setResLevel(sysResource.getResLevel());
         if (resPid != oldResource.getResPid()) {
             //上级资源改变，原上级资源seq减修改
             baseDao.updateSubtractionSeq(oldResource);
             //新的上级资源seq加修改
             baseDao.updateAdditionSeq(newResource);
-            //递归修改子资源级别
-            updateChildLevel(newResource.getResId(), newResource.getResLevel());
         } else {
             if (!sysResource.getSeq().equals(oldResource.getSeq())) {
                 //原上级资源seq减修改
@@ -154,7 +152,16 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
                 baseDao.updateAdditionSeq(newResource);
             }
         }
-        return super.update(newResource);
+
+        int count = super.update(newResource);
+        //资源编码改变，同步修改权限表的resCode
+        if (count > 0 && !sysResource.getResCode().equals(oldResource.getResCode())) {
+            SysPermission permission = new SysPermission();
+            permission.setResId(newResource.getResId());
+            permission.setResCode(newResource.getResCode());
+            sysPermissionService.updateResCodeByResId(permission);
+        }
+        return count;
     }
 
     @Override
@@ -184,21 +191,6 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
             baseDao.updateSubtractionSeq(sysResource);
         }
         return result;
-    }
-
-    /**
-     * 递归修改子资源级别
-     */
-    private void updateChildLevel(int resId, int level) {
-        //查询子资源
-        SysResource resource = new SysResource();
-        resource.setResPid(resId);
-        List<SysResource> childRes = baseDao.findList(resource);
-        for (SysResource s : childRes) {
-            s.setResLevel(level + 1);
-            baseDao.update(s);
-            updateChildLevel(s.getResId(), s.getResLevel());
-        }
     }
 
 }

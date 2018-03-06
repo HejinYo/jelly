@@ -56,8 +56,8 @@
         </javaClientGenerator>
 
         <!-- 要生成那些表(更改tableName和domainObjectName就可以) -->
-        <table tableName="sys_permission" domainObjectName="SysPermission"
-               mapperName="SysPermissionDao"
+        <table tableName="sys_log" domainObjectName="SysLog"
+               mapperName="SysLogDao"
                enableInsert="false"
                enableSelectByPrimaryKey="true"
                enableDeleteByPrimaryKey="false"

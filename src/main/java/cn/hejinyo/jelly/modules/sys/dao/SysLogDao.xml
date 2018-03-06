@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysLogDao">
 
-    <resultMap id="BaseLogMap" type="cn.hejinyo.jelly.modules.sys.model.SysLog">
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysLog">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="operation" jdbcType="VARCHAR" property="operation"/>
@@ -12,18 +13,134 @@
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
     </resultMap>
 
-    <sql id="Base_SysLog_List">
+    <!-- 表基本列 -->
+    <sql id="Base_Column_List">
         id, user_name, operation, method, params, ip, create_time
     </sql>
 
-    <insert id="save" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO sys_log (id, user_name, operation, method, params, ip, create_time)
-        VALUES (#{id}, #{userName}, #{operation}, #{method}, #{params}, #{ip}, #{createTime})
+    <!-- 通用查询sql -->
+    <sql id="Base_Where_SQL">
+        <where>
+            <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name = #{userName}</if>
+            <if test="operation != null and !&quot;&quot;.equals(operation)">and operation = #{operation}</if>
+            <if test="method != null and !&quot;&quot;.equals(method)">and method = #{method}</if>
+            <if test="params != null and !&quot;&quot;.equals(params)">and params = #{params}</if>
+            <if test="ip != null and !&quot;&quot;.equals(ip)">and ip = #{ip}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+        </where>
+    </sql>
+
+    <!-- 插入一条记录 -->
+    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+        insert into sys_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != userName">user_name,</if>
+            <if test="null != operation">operation,</if>
+            <if test="null != method">method,</if>
+            <if test="null != params">params,</if>
+            <if test="null != ip">ip,</if>
+            <if test="null != createTime">create_time,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != userName">#{userName},</if>
+            <if test="null != operation">#{operation},</if>
+            <if test="null != method">#{method},</if>
+            <if test="null != params">#{params},</if>
+            <if test="null != ip">#{ip},</if>
+            <if test="null != createTime">#{createTime},</if>
+        </trim>
     </insert>
 
-    <select id="listPage">
-        SELECT *
+    <!-- 更新一条记录 -->
+    <update id="update">
+        update sys_log
+        <set>
+            <if test="null != userName">user_name = #{userName},</if>
+            <if test="null != operation">operation = #{operation},</if>
+            <if test="null != method">method = #{method},</if>
+            <if test="null != params">params = #{params},</if>
+            <if test="null != ip">ip = #{ip},</if>
+            <if test="null != createTime">create_time = #{createTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!-- 删除给定主键的记录 -->
+    <delete id="delete">
+        DELETE
         FROM sys_log
+        WHERE
+            id = #{id}
+    </delete>
+
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
+        delete
+        from sys_log
+        where
+        id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 多个实体批量删除记录 -->
+    <delete id="deleteList">
+        delete
+        from sys_log
+        where
+        id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </delete>
+
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_log
+        where id = #{id}
+    </select>
+
+    <!-- 查询多条 -->
+    <select id="findList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_log
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_log
+        <where>
+            <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name like concat('%',#{userName},'%')</if>
+            <if test="operation != null and !&quot;&quot;.equals(operation)">and operation like concat('%',#{operation},'%')</if>
+            <if test="method != null and !&quot;&quot;.equals(method)">and method like concat('%',#{method},'%')</if>
+            <if test="params != null and !&quot;&quot;.equals(params)">and params like concat('%',#{params},'%')</if>
+            <if test="ip != null and !&quot;&quot;.equals(ip)">and ip like concat('%',#{ip},'%')</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d'))</if>
+        </where>
+    </select>
+
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
+        select
+        count(*)
+        from sys_log
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录是否存在 -->
+    <select id="exsit" resultType="boolean">
+        select
+        count(*)
+        from sys_log
+        <include refid="Base_Where_SQL"/>
     </select>
 
 </mapper>

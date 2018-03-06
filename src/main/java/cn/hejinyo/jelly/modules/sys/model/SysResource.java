@@ -48,11 +48,6 @@ public class SysResource implements Serializable {
     private String resPname;
 
     /**
-     * 资源级别
-     */
-    private Integer resLevel;
-
-    /**
      * 显示图标
      */
     private String resIcon;

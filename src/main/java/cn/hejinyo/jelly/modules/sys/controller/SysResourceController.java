@@ -82,6 +82,9 @@ public class SysResourceController extends BaseController {
     @Transactional
     @RequiresPermissions("resource:update")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysResource sysResource, @PathVariable("resId") Integer resId) {
+        if (resId == 0 && sysResource.getResPid() != -1) {
+            return Result.error("资源根节点不允许修改所属资源");
+        }
         sysResource.setResId(resId);
         int result = sysResourceService.update(sysResource);
         if (result > 0) {
@@ -98,6 +101,9 @@ public class SysResourceController extends BaseController {
     @RequiresPermissions("resource:delete")
     @Transactional
     public Result delete(@PathVariable("resId") Integer resId) {
+        if (resId == 0) {
+            return Result.error("资源根节点不允许删除");
+        }
         int result = sysResourceService.delete(resId);
         if (result > 0) {
             return Result.ok("删除成功");

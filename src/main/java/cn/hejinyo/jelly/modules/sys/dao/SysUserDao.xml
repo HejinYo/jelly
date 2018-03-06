@@ -45,6 +45,7 @@
         SELECT
             su.user_id,
             su.user_name,
+            su.avatar,
             su.user_pwd,
             su.user_salt,
             su.email,
@@ -62,7 +63,6 @@
             LEFT JOIN sys_role sr ON sr.role_id = sur.role_id
         WHERE su.user_id = #{userId}
     </select>
-
 
     <select id="findPage" resultMap="BaseResultMap">
         select * from
@@ -99,7 +99,6 @@
         SET role_id = #{roleId}
         WHERE user_id = #{userId}
     </insert>
-
 
     <!-- 删除给定主键的记录 -->
     <delete id="delete">

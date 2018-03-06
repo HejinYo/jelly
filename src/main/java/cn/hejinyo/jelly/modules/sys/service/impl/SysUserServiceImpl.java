@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
+import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
@@ -14,11 +15,13 @@ import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -183,4 +186,93 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
 
         return baseDao.deleteBatch(ids);
     }
+
+
+    /**
+     * 修改密码
+     */
+    @Override
+    public int updatePassword(HashMap<String, Object> param) {
+        String oldPassword = MapUtils.getString(param, "oldPass");
+        String newPassword = MapUtils.getString(param, "newPass");
+        if (StringUtils.isEmpty(oldPassword)) {
+            throw new InfoException("旧密码不能为空");
+        }
+        if (StringUtils.isEmpty(newPassword)) {
+            throw new InfoException("新密码不能为空");
+        }
+
+        SysUser sysUserOld = baseDao.findOne(ShiroUtils.getUserId());
+        //旧密码错误
+        if (!sysUserOld.getUserPwd().equals(ShiroUtils.userPassword(oldPassword, sysUserOld.getUserSalt()))) {
+            throw new InfoException("原密码错误");
+        }
+        //新密码与原密码
+        if (oldPassword.equals(newPassword)) {
+            throw new InfoException("密码未修改");
+        }
+        //用户盐,随机数
+        String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
+        SysUser newUser = new SysUser();
+        newUser.setUserId(sysUserOld.getUserId());
+        newUser.setUserSalt(salt);
+        //加密密码
+        newUser.setUserPwd(ShiroUtils.userPassword(newPassword, salt));
+        return baseDao.update(newUser);
+    }
+
+    /**
+     * 修改个人信息
+     */
+    @Override
+    public int updateUserInfo(SysUser sysUser) {
+        //用户原来信息
+        SysUser sysUserOld = baseDao.findOne(ShiroUtils.getUserId());
+        //修改标志
+        boolean flag = Boolean.FALSE;
+        //新的PO
+        SysUser newUser = new SysUser();
+        newUser.setUserId(sysUser.getUserId());
+        String email = sysUser.getEmail();
+        String phone = sysUser.getPhone();
+        //邮箱是否修改
+        if (!email.equals(sysUserOld.getEmail())) {
+            newUser.setEmail(email);
+            flag = true;
+        }
+        //手机是否修改
+        if (!phone.equals(sysUserOld.getPhone())) {
+            newUser.setPhone(phone);
+            flag = true;
+        }
+        if (flag) {
+            return baseDao.update(newUser);
+        }
+        return 0;
+    }
+
+
+    /**
+     * 修改头像
+     */
+    @Override
+    public int updateUserAvatar(SysUser sysUser) {
+        return baseDao.update(sysUser);
+    }
+
+
+    /**
+     * 更新用户redis信息
+     */
+    @Override
+    public void updateUserRedisInfo() {
+        CurrentUserDTO oldUser = ShiroUtils.getCurrentUser();
+        CurrentUserDTO userDTO = getCurrentUser(oldUser.getUserName());
+        userDTO.setUserToken(oldUser.getUserToken());
+        userDTO.setLoginIp(oldUser.getLoginIp());
+        userDTO.setLoginTime(oldUser.getLoginTime());
+        //token写入缓存
+        redisUtils.set(RedisKeys.getTokenCacheKey(userDTO.getUserName()), userDTO, 1800);
+    }
+
 }

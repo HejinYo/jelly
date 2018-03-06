@@ -4,12 +4,16 @@ import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
+import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
+import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.crypto.hash.Hash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 
 /**
@@ -121,6 +126,40 @@ public class SysUserController extends BaseController {
     }
 
     /**
+     * 查询个人信息
+     */
+    @GetMapping(value = "/info")
+    public Result getUserInfo() {
+        return Result.ok(sysUserService.findOne(getUserId()));
+    }
+
+    /**
+     * 修改密码
+     */
+    @PutMapping(value = "/updatePassword")
+    public Result updatePassword(@RequestBody HashMap<String, Object> param) {
+        int result = sysUserService.updatePassword(param);
+        if (result > 0) {
+            sysUserService.updateUserRedisInfo();
+            return Result.ok("密码修改成功");
+        }
+        return Result.error("密码修改失败");
+    }
+
+    /**
+     * 修改用户信息
+     */
+    @PutMapping(value = "/updateUserInfo")
+    public Result updateUserInfo(@RequestBody SysUser sysUser) {
+        int result = sysUserService.updateUserInfo(sysUser);
+        if (result > 0) {
+            sysUserService.updateUserRedisInfo();
+            return Result.ok("修改成功");
+        }
+        return Result.error("未作任何修改");
+    }
+
+    /**
      * 头像上传
      */
     @PostMapping(value = "/avatar")
@@ -128,11 +167,19 @@ public class SysUserController extends BaseController {
         // 获得原始文件名
         String fileName = file.getOriginalFilename();
         System.out.println("fileName:" + fileName);
-        String key = "avatar/" + getCurrentUser().getUserName() + ".png";
+        String key = "avatar/" + getCurrentUser().getUserName() + "/" + LocalDateTime.now().toString() + ".png";
         if (!file.isEmpty()) {
             try {
-                String result = OSSFactory.build(key).upload(file.getInputStream(), key);
-                return Result.ok(result);
+                String avatarUrl = OSSFactory.build(key).upload(file.getInputStream(), key);
+                SysUser sysUser = new SysUser();
+                sysUser.setUserId(getUserId());
+                sysUser.setAvatar(avatarUrl);
+                int count = sysUserService.updateUserAvatar(sysUser);
+                if (count > 0) {
+                    sysUserService.updateUserRedisInfo();
+                    return Result.ok(avatarUrl);
+                }
+                return Result.error("上传成功，但是修改失败");
             } catch (IOException e) {
                 e.printStackTrace();
             }

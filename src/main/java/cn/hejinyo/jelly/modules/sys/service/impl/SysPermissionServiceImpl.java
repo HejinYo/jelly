@@ -113,6 +113,15 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     }
 
     /**
+     * 根据resId更新resCode
+     */
+    @Override
+    public int updateResCodeByResId(SysPermission permission) {
+        return baseDao.updateResCodeByResId(permission);
+    }
+
+
+    /**
      * 递归生成授权树
      */
     private List<RolePermissionTreeDTO> recursionRes(Integer parentId, List<RolePermissionTreeDTO> resList, List<RolePermissionTreeDTO> permList) {
