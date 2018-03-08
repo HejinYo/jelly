@@ -1,5 +1,6 @@
 package cn.hejinyo.jelly.modules.wechat.controller;
 
+import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.modules.wechat.model.ReplyMessage;
 import cn.hejinyo.jelly.modules.wechat.model.TextMessage;
@@ -23,6 +24,11 @@ public class WechatController {
 
     @Autowired
     private WechatJokeService wechatJokeService;
+
+    @RequestMapping("/findOne")
+    public Result joke() {
+        return Result.ok(wechatJokeService.getRandomWechatJoke());
+    }
 
     @RequestMapping(method = {RequestMethod.GET}, produces = "text/html;charset=UTF-8")
     public String joinWechat(@RequestParam String signature, @RequestParam String timestamp, @RequestParam String nonce, @RequestParam String echostr) {
