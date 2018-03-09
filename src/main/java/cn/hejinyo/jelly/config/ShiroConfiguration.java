@@ -100,6 +100,7 @@ public class ShiroConfiguration {
         filterMap.put("/login/**", "anon");
         filterMap.put("/druid/**", "anon");
         filterMap.put("/wechat/**", "anon");
+        filterMap.put("/app/**", "anon");
         filterMap.put("/favicon.ico", "anon");
 
         filterMap.put("/logout", "logout");
