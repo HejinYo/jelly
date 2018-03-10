@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hejinyo.jelly.modules.applets.dao.WeUserDao">
+
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.applets.model.WeUser">
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="open_id" jdbcType="VARCHAR" property="openId"/>
+        <result column="nick_name" jdbcType="VARCHAR" property="nickName"/>
+        <result column="gender" jdbcType="TINYINT" property="gender"/>
+        <result column="avatar_url" jdbcType="VARCHAR" property="avatarUrl"/>
+        <result column="country" jdbcType="VARCHAR" property="country"/>
+        <result column="province" jdbcType="VARCHAR" property="province"/>
+        <result column="city" jdbcType="VARCHAR" property="city"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+    </resultMap>
+
+    <!-- 表基本列 -->
+    <sql id="Base_Column_List">
+        user_id, open_id, nick_name, gender, avatar_url, country, province, city, create_time,
+        state
+    </sql>
+
+    <!-- 通用查询sql -->
+    <sql id="Base_Where_SQL">
+        <where>
+            <if test="openId != null and !&quot;&quot;.equals(openId)">and open_id = #{openId}</if>
+            <if test="nickName != null and !&quot;&quot;.equals(nickName)">and nick_name = #{nickName}</if>
+            <if test="gender != null and !&quot;&quot;.equals(gender)">and gender = #{gender}</if>
+            <if test="avatarUrl != null and !&quot;&quot;.equals(avatarUrl)">and avatar_url = #{avatarUrl}</if>
+            <if test="country != null and !&quot;&quot;.equals(country)">and country = #{country}</if>
+            <if test="province != null and !&quot;&quot;.equals(province)">and province = #{province}</if>
+            <if test="city != null and !&quot;&quot;.equals(city)">and city = #{city}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+        </where>
+    </sql>
+
+    <!-- 主键openId一条记录 -->
+    <select id="findOneByOpenId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from w_user
+        where open_id = #{openId}
+    </select>
+
+
+    <!-- 插入一条记录 -->
+    <insert id="save" keyProperty="userId" useGeneratedKeys="true">
+        insert into w_user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != openId">open_id,</if>
+            <if test="null != nickName">nick_name,</if>
+            <if test="null != gender">gender,</if>
+            <if test="null != avatarUrl">avatar_url,</if>
+            <if test="null != country">country,</if>
+            <if test="null != province">province,</if>
+            <if test="null != city">city,</if>
+            <if test="null != createTime">create_time,</if>
+            <if test="null != state">state,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != openId">#{openId},</if>
+            <if test="null != nickName">#{nickName},</if>
+            <if test="null != gender">#{gender},</if>
+            <if test="null != avatarUrl">#{avatarUrl},</if>
+            <if test="null != country">#{country},</if>
+            <if test="null != province">#{province},</if>
+            <if test="null != city">#{city},</if>
+            <if test="null != createTime">#{createTime},</if>
+            <if test="null != state">#{state},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新一条记录 -->
+    <update id="update">
+        update w_user
+        <set>
+            <if test="null != openId">open_id = #{openId},</if>
+            <if test="null != nickName">nick_name = #{nickName},</if>
+            <if test="null != gender">gender = #{gender},</if>
+            <if test="null != avatarUrl">avatar_url = #{avatarUrl},</if>
+            <if test="null != country">country = #{country},</if>
+            <if test="null != province">province = #{province},</if>
+            <if test="null != city">city = #{city},</if>
+            <if test="null != createTime">create_time = #{createTime},</if>
+            <if test="null != state">state = #{state},</if>
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <!-- 删除给定主键的记录 -->
+    <delete id="delete">
+        DELETE
+        FROM w_user
+        WHERE
+            user_id = #{userId}
+    </delete>
+
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
+        delete
+        from w_user
+        where
+        user_id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 多个实体批量删除记录 -->
+    <delete id="deleteList">
+        delete
+        from w_user
+        where
+        user_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.userId}
+        </foreach>
+    </delete>
+
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from w_user
+        where user_id = #{userId}
+    </select>
+
+    <!-- 查询多条 -->
+    <select id="findList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from w_user
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from w_user
+        <where>
+            <if test="openId != null and !&quot;&quot;.equals(openId)">and open_id like concat('%',#{openId},'%')</if>
+            <if test="nickName != null and !&quot;&quot;.equals(nickName)">and nick_name like concat('%',#{nickName},'%')</if>
+            <if test="gender != null and !&quot;&quot;.equals(gender)">and gender = #{gender}</if>
+            <if test="avatarUrl != null and !&quot;&quot;.equals(avatarUrl)">and avatar_url like concat('%',#{avatarUrl},'%')</if>
+            <if test="country != null and !&quot;&quot;.equals(country)">and country like concat('%',#{country},'%')</if>
+            <if test="province != null and !&quot;&quot;.equals(province)">and province like concat('%',#{province},'%')</if>
+            <if test="city != null and !&quot;&quot;.equals(city)">and city like concat('%',#{city},'%')</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+        </where>
+    </select>
+
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
+        select
+        count(*)
+        from w_user
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录是否存在 -->
+    <select id="exsit" resultType="boolean">
+        select
+        count(*)
+        from w_user
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+
+</mapper>
