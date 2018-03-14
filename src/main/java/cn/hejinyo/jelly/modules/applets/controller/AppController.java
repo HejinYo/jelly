@@ -84,8 +84,12 @@ public class AppController {
                 weUserService.update(weUser);
             }
             //生成UserToken，并返回
-            String token = Tools.createToken(2, weUser.getUserId(), weUser.getNickName(), tokenKey);
-            return Result.ok(token);
+            int expries = 2;
+            String token = Tools.createToken(expries, weUser.getUserId(), weUser.getNickName(), tokenKey);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("token", token);
+            map.put("expries", 2 * 60 * 60);
+            return Result.ok(map);
         }
         //{"session_key":"dphgiRox+mngPanYpkmUvA==","openid":"orXbq4l36DC9HSZRV9jsIqvkJMNM"}
         logger.debug("获得用户session失败:{}", JsonUtils.toJSONString(sessionDTO));
