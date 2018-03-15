@@ -128,4 +128,17 @@ public class Result extends HashMap<String, Object> {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
+    public Result add(String key, Object value) {
+        Object object = super.getOrDefault(RESUTLT, new HashMap<>());
+        try {
+            HashMap<String, Object> result = (HashMap<String, Object>) object;
+            result.put(key, value);
+            super.put(RESUTLT, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
 }

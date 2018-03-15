@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.modules.applets.controller;
 
 import cn.hejinyo.jelly.common.utils.*;
+import cn.hejinyo.jelly.modules.applets.model.ShopCart;
 import cn.hejinyo.jelly.modules.applets.model.WeUser;
 import cn.hejinyo.jelly.modules.applets.model.dto.JscodeToSessionDTO;
 import cn.hejinyo.jelly.modules.applets.service.WeUserService;
@@ -14,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author : heshuangshuang
@@ -89,7 +93,7 @@ public class AppController {
             HashMap<String, Object> map = new HashMap<>();
             map.put("token", token);
             map.put("expries", 2 * 60 * 60);
-            return Result.ok(map);
+            return Result.ok().add("token", token).add("expries", 2 * 60 * 60);
         }
         //{"session_key":"dphgiRox+mngPanYpkmUvA==","openid":"orXbq4l36DC9HSZRV9jsIqvkJMNM"}
         logger.debug("获得用户session失败:{}", JsonUtils.toJSONString(sessionDTO));
@@ -101,14 +105,23 @@ public class AppController {
      *
      * @return
      */
-    @RequestMapping("/test")
-    public Result test(@RequestParam HashMap<String, Object> params) {
-        /**
-         *
-         {"jsCode":"0012VG0V0mujKU1x7E2V0g311V02VG0l","nickName":"HejinYo","sign":"e1cc51ce628144f097e123c609e3b171","time":"20180310150920"}
-         */
-        System.out.println(JSONUtils.toJSONString(params));
-        return Result.ok(params);
+    @RequestMapping("/goodsCart/list")
+    public Result test() {
+        List<ShopCart> list = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            ShopCart shopCart = new ShopCart();
+            shopCart.setId(i + 1);
+            shopCart.setGoodsId("food_" + i);
+            shopCart.setGoodsName("GoodsName_" + i);
+            shopCart.setGoodsSkuValName("GoodsSkuValName_" + i);
+            shopCart.setIschecked(true);
+            shopCart.setNum(10 + i);
+            shopCart.setThumLogo("http://sujiefs.com/upload/images/20171021/201710211711048036279_thumbnail.jpg");
+            shopCart.setType(1);
+            shopCart.setPrice(new BigDecimal(100.01).setScale(4, BigDecimal.ROUND_HALF_UP));
+            list.add(shopCart);
+        }
+        return Result.ok().add("totalPrice", 1000).add("list", list);
     }
 
 
