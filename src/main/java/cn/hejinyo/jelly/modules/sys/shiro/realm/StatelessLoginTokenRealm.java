@@ -1,7 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.shiro.realm;
 
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
-import cn.hejinyo.jelly.modules.sys.service.SysUserService;
+import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessLoginToken;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class StatelessLoginTokenRealm extends AuthorizingRealm {
 
     @Autowired
-    private SysUserService sysUserService;
+    private ShiroService shiroService;
 
     @Override
     public boolean supports(AuthenticationToken token) {
@@ -33,7 +33,7 @@ public class StatelessLoginTokenRealm extends AuthorizingRealm {
         //从Token中获取身份信息
         String username = loginToken.getUsername();
         //根据登录名查询用户信息
-        CurrentUserDTO currentUserDTO = sysUserService.getCurrentUser(username);
+        CurrentUserDTO currentUserDTO = shiroService.getCurrentUser(username);
         // 如果无相关用户或已删除则返回null
         if (null == currentUserDTO || -1 == currentUserDTO.getState()) {
             return null;

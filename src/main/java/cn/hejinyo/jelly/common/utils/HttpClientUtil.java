@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.common.utils;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -14,8 +15,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +26,8 @@ import java.util.Map;
  * @author : HejinYo   hejinyo@gmail.com
  * @date :  2018/1/19 22:55
  */
+@Slf4j
 public class HttpClientUtil {
-    private static final Logger logger = LoggerFactory.getLogger(HttpClientUtil.class);
     private RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(15000).setConnectTimeout(15000).setConnectionRequestTimeout(15000).build();
     private static HttpClientUtil instance = null;
 
@@ -96,7 +95,7 @@ public class HttpClientUtil {
                 httpClient.close();
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            log.error(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -108,7 +107,7 @@ public class HttpClientUtil {
      * @param params  String参数
      */
     public String sendHttpPost(String httpUrl, String params) {
-        logger.info("sendHttpPost:" + httpUrl + "," + params);
+        log.info("sendHttpPost:" + httpUrl + "," + params);
         // 创建httpPost
         HttpPost httpPost = new HttpPost(httpUrl);
         this.setParam(httpPost, params);
@@ -119,7 +118,7 @@ public class HttpClientUtil {
      * 发送Map参数 post请求
      */
     public String sendHttpPost(String httpUrl, Map<String, String> params) {
-        logger.info("sendHttpPost:" + httpUrl + ", " + JSON.toJSONString(params));
+        log.info("sendHttpPost:" + httpUrl + ", " + JSON.toJSONString(params));
         // 创建httpPost
         HttpPost httpPost = new HttpPost(httpUrl);
         // 创建参数队列
@@ -191,7 +190,7 @@ public class HttpClientUtil {
      * 发送 get请求
      */
     public String sendHttpGet(String httpUrl) {
-        logger.info("sendHttpGet:" + httpUrl);
+        log.info("sendHttpGet:" + httpUrl);
         // 创建get请求
         HttpGet httpGet = new HttpGet(httpUrl);
         return sendHttp(httpGet);
@@ -201,7 +200,7 @@ public class HttpClientUtil {
      * get 请求直接返回InputStream
      */
     public InputStream sendGet(String httpUrl) {
-        logger.info("sendHttpGet:" + httpUrl);
+        log.info("sendHttpGet:" + httpUrl);
         HttpGet httpGet = new HttpGet(httpUrl);
         CloseableHttpClient httpClient = null;
         CloseableHttpResponse response = null;
@@ -228,7 +227,7 @@ public class HttpClientUtil {
      * get CloseableHttpResponse
      */
     public CloseableHttpResponse sendPost(String httpUrl) {
-        logger.info("sendPost:" + httpUrl);
+        log.info("sendPost:" + httpUrl);
         // 创建httpPost
         HttpPost httpPost = new HttpPost(httpUrl);
         CloseableHttpClient httpClient = null;

@@ -2,16 +2,11 @@ package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author HejinYo hejinyo@gmail.com
  */
 public abstract class BaseController {
-
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
-
     /**
      * 获得当前用户
      */

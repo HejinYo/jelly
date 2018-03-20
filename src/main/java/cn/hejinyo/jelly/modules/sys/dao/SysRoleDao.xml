@@ -40,17 +40,6 @@
             <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
         </where>
     </sql>
-
-    <!-- 查找用户编号对应的角色编码字符串 -->
-    <select id="getUserRoleSet" resultType="String">
-        SELECT role_code
-        FROM
-            sys_role r
-            LEFT JOIN sys_user_role ur ON ur.role_id = r.role_id
-        WHERE
-            ur.user_id = #{userId} AND r.state = 0
-    </select>
-
     <!-- 保存角色权限 -->
     <insert id="saveRolePermission">
         INSERT INTO sys_role_resource (role_id, res_id, perm_id)

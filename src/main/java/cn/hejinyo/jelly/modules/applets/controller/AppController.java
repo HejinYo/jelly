@@ -6,10 +6,8 @@ import cn.hejinyo.jelly.modules.applets.model.WeUser;
 import cn.hejinyo.jelly.modules.applets.model.dto.JscodeToSessionDTO;
 import cn.hejinyo.jelly.modules.applets.service.WeUserService;
 import com.alibaba.druid.support.json.JSONUtils;
-import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.MapUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,8 +25,8 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/app")
+@Slf4j
 public class AppController {
-    private static final Logger logger = LoggerFactory.getLogger(AppController.class);
     private static final String tokenKey = "hejinyo";
 
     @Autowired
@@ -49,7 +47,7 @@ public class AppController {
         param.put("js_code", code);
         param.put("grant_type", authorization_code);
         String result = HttpClientUtil.getInstance().sendHttpPost(url, param);
-        logger.debug(JsonUtils.toJSONString(result));
+        log.debug(JsonUtils.toJSONString(result));
         return Result.error(result);
     }
 
@@ -96,7 +94,7 @@ public class AppController {
             return Result.ok().add("token", token).add("expries", 2 * 60 * 60);
         }
         //{"session_key":"dphgiRox+mngPanYpkmUvA==","openid":"orXbq4l36DC9HSZRV9jsIqvkJMNM"}
-        logger.debug("获得用户session失败:{}", JsonUtils.toJSONString(sessionDTO));
+        log.debug("获得用户session失败:{}", JsonUtils.toJSONString(sessionDTO));
         return Result.error(sessionDTO.getErrmsg());
     }
 

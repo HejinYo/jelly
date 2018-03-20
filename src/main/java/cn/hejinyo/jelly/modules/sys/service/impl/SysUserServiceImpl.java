@@ -4,13 +4,13 @@ import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
-import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.model.SysUserRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
@@ -19,6 +19,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -31,18 +32,15 @@ import java.util.HashMap;
 public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Integer> implements SysUserService {
     @Autowired
     private RedisUtils redisUtils;
-
+    @Autowired
+    private ShiroService shiroService;
     @Autowired
     private SysUserRoleService sysUserRoleService;
     @Autowired
     private SysRoleService sysRoleService;
 
     @Override
-    public CurrentUserDTO getCurrentUser(String userName) {
-        return baseDao.getCurrentUser(userName);
-    }
-
-    @Override
+    @Transactional(rollbackFor = Exception.class)
     public int save(SysUser sysUser) {
         //创建新的 PO
         SysUser newUser = new SysUser();
@@ -88,6 +86,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int update(SysUser sysUser) {
         //用户原来信息
         SysUser sysUserOld = baseDao.findOne(sysUser.getUserId());
@@ -180,6 +179,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteBatch(Integer[] ids) {
         //删除用户角色表记录
         sysUserRoleService.deleteListByUserId(ids);
@@ -267,7 +267,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
     @Override
     public void updateUserRedisInfo() {
         CurrentUserDTO oldUser = ShiroUtils.getCurrentUser();
-        CurrentUserDTO userDTO = getCurrentUser(oldUser.getUserName());
+        CurrentUserDTO userDTO = shiroService.getCurrentUser(oldUser.getUserName());
         userDTO.setUserToken(oldUser.getUserToken());
         userDTO.setLoginIp(oldUser.getLoginIp());
         userDTO.setLoginTime(oldUser.getLoginTime());

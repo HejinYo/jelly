@@ -15,19 +15,9 @@ import java.util.Set;
 @Mapper
 public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
     /**
-     * 查找用户编号对应的权限编码字符串
-     */
-    Set<String> getUserPermisSet(int userId);
-
-    /**
      * 查找角色编号对应的权限编码字符串
      */
     Set<String> getRolePermissionSet(int roleId);
-
-    /**
-     * 根据查询所有权限列表字符串
-     */
-    Set<String> getAllPermisSet();
 
     /**
      * 查询指定resPid的资源

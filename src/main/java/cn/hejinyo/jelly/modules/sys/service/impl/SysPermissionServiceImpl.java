@@ -1,11 +1,9 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
-import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
-import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
 import cn.hejinyo.jelly.modules.sys.model.SysResource;
@@ -16,6 +14,7 @@ import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,15 +35,6 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     private SysRoleResourceService sysRoleResourceService;
     @Autowired
     private RedisUtils redisUtils;
-
-    @Override
-    public Set<String> getUserPermisSet(int userId) {
-        //管理员获得所有权限
-        if (userId == Constant.SUPER_ADMIN) {
-            return baseDao.getAllPermisSet();
-        }
-        return baseDao.getUserPermisSet(userId);
-    }
 
     @Override
     public boolean isExist(SysPermission sysPermission) {
@@ -106,6 +96,7 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int delete(Integer permId) {
         //删除角色资源表数据
         sysRoleResourceService.deleteRolePrem(permId);

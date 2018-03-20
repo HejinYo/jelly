@@ -1,7 +1,6 @@
 package cn.hejinyo.jelly.common.utils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -10,8 +9,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@Slf4j
 public class WebUtils extends org.springframework.web.util.WebUtils {
-    private static final Logger logger = LoggerFactory.getLogger(WebUtils.class);
 
     public static HttpServletRequest getHttpServletRequest() {
         return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -42,7 +41,7 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
      */
     public static String getIpAddr(HttpServletRequest request) {
         String ip = null;
-        logger.debug("request.getRemoteHost():" + request.getRemoteHost());
+        log.debug("request.getRemoteHost():" + request.getRemoteHost());
       /*  //取得全部头信息
         Enumeration enu = request.getHeaderNames();
         //以此取出头信息
@@ -79,7 +78,7 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
                 }
             }
         } catch (Exception e) {
-            logger.error("IPUtils ERROR ", e);
+            log.error("IPUtils ERROR ", e);
         }
         return ip;
     }

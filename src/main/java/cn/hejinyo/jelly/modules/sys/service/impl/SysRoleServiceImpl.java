@@ -2,24 +2,20 @@ package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.exception.InfoException;
-import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysRoleDao;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.SysUserRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
-import cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
-import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -37,17 +33,10 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRole, Int
     private SysUserRoleService sysUserRoleService;
 
     /**
-     * 查找用户编号对应的角色编码字符串
-     */
-    @Override
-    public Set<String> getUserRoleSet(int userId) {
-        return baseDao.getUserRoleSet(userId);
-    }
-
-    /**
      * 角色授权
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int operationPermission(int roleId, List<RolePermissionTreeDTO> rolePermissionList) {
         //清除redis中的权限缓存
         redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));

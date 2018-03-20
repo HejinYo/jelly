@@ -1,9 +1,8 @@
 package cn.hejinyo.jelly.common.exception;
 
 import cn.hejinyo.jelly.common.utils.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.UnauthorizedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,9 +20,8 @@ import javax.servlet.http.HttpServletResponse;
  * @apiNote :
  */
 @RestControllerAdvice
+@Slf4j
 public class ExceptionHandle {
-    private static Logger logger = LoggerFactory.getLogger(ExceptionHandle.class.getName());
-
 
     /**
      * infoException，返回消息
@@ -74,7 +72,7 @@ public class ExceptionHandle {
         } else {
             ex.printStackTrace();
         }
-        logger.error("系统发生未知错误异常", ex);
+        log.error("系统发生未知错误异常", ex);
         return Result.error("未知错误:" + ex.getMessage());
     }
 }

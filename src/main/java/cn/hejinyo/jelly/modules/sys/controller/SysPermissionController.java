@@ -6,11 +6,9 @@ import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysPermission;
-import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +24,6 @@ public class SysPermissionController extends BaseController {
 
     @Autowired
     private SysPermissionService sysPermissionService;
-
 
     /**
      * 获得一个权限信息
@@ -92,7 +89,6 @@ public class SysPermissionController extends BaseController {
     @SysLogger("删除权限")
     @DeleteMapping(value = "/{permId}")
     @RequiresPermissions("resource:delete")
-    @Transactional(rollbackFor = Exception.class)
     public Result delete(@PathVariable("permId") int permId) {
         SysPermission sysPermission = sysPermissionService.findOne(permId);
         if (sysPermission == null) {

@@ -8,6 +8,7 @@ import cn.hejinyo.jelly.modules.sys.shiro.realm.ModularRealm;
 import cn.hejinyo.jelly.modules.sys.shiro.realm.StatelessAuthcTokenRealm;
 import cn.hejinyo.jelly.modules.sys.shiro.realm.StatelessLoginTokenRealm;
 import cn.hejinyo.jelly.modules.sys.shiro.subject.StatelessSubjectFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.mgt.SecurityManager;
@@ -16,8 +17,6 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.config.MethodInvokingFactoryBean;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -35,8 +34,8 @@ import java.util.*;
  */
 
 @Configuration
+@Slf4j
 public class ShiroConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(ShiroConfiguration.class);
 
     /**
      * EhCache缓存管理器
@@ -107,7 +106,7 @@ public class ShiroConfiguration {
         filterMap.put("/**", "url,authc");
         factoryBean.setFilterChainDefinitionMap(filterMap);
 
-        logger.debug("注入ShiroFilterFactoryBean成功");
+        log.debug("注入ShiroFilterFactoryBean成功");
         return factoryBean;
     }
 

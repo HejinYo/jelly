@@ -9,7 +9,6 @@ import cn.hejinyo.jelly.modules.sys.model.SysLog;
 import cn.hejinyo.jelly.modules.sys.service.SysLogService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +53,6 @@ public class SysLogController {
      */
     @SysLogger("增加日志")
     @PostMapping
-    @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("log:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysLog sysLog) {
         int result = sysLogService.save(sysLog);
@@ -68,7 +66,6 @@ public class SysLogController {
      * 更新一个日志
      */
     @SysLogger("更新日志")
-    @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("log:update")
     @PutMapping(value = "/{sysLogId}")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysLog sysLog, @PathVariable("sysLogId") Integer sysLogId) {
@@ -86,7 +83,6 @@ public class SysLogController {
     @SysLogger("删除日志")
     @RequiresPermissions("log:delete")
     @DeleteMapping(value = "/{sysLogIdList}")
-    @Transactional(rollbackFor = Exception.class)
     public Result delete(@PathVariable("sysLogIdList") Integer[] ids) {
         int result = sysLogService.deleteBatch(ids);
         if (result > 0) {

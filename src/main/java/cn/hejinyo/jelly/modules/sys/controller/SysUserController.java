@@ -4,18 +4,13 @@ import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
-import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
-import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.crypto.hash.Hash;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,7 +57,6 @@ public class SysUserController extends BaseController {
      * 增加一个用户
      */
     @PostMapping
-    @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("user:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUser sysUser) {
         if (sysUserService.isExistUserName(sysUser.getUserName())) {
@@ -90,7 +84,6 @@ public class SysUserController extends BaseController {
      * 更新一个用户
      */
     @SysLogger("更新用户")
-    @Transactional(rollbackFor = Exception.class)
     @RequiresPermissions("user:update")
     @PutMapping(value = "/{userId}")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysUser sysUser, @PathVariable("userId") Integer userId) {
@@ -111,7 +104,6 @@ public class SysUserController extends BaseController {
     @SysLogger("删除用户")
     @RequiresPermissions("user:delete")
     @DeleteMapping(value = "/{userIdList}")
-    @Transactional(rollbackFor = Exception.class)
     public Result delete(@PathVariable("userIdList") Integer[] ids) {
         for (int userId : ids) {
             if (Constant.SUPER_ADMIN == userId) {

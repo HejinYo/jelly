@@ -11,10 +11,9 @@ import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,8 +27,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Service
 public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysResource, Integer> implements SysResourceService {
-
-    private static final Logger logger = LoggerFactory.getLogger(SysResourceServiceImpl.class);
 
     @Autowired
     private SysRoleResourceService sysRoleResourceService;
@@ -102,6 +99,7 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int save(SysResource sysResource) {
         SysResource newResource = new SysResource();
         baseDao.updateAdditionSeq(sysResource);
@@ -118,6 +116,7 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int update(SysResource sysResource) {
         int resid = sysResource.getResId();
         int resPid = sysResource.getResPid();
@@ -165,6 +164,7 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int delete(Integer resId) {
         SysResource sysResource = baseDao.findOne(resId);
         if (sysResource == null) {

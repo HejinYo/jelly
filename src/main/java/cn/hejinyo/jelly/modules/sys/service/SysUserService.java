@@ -11,15 +11,6 @@ import java.util.HashMap;
  * @date : 2017/6/17 17:04
  */
 public interface SysUserService extends BaseService<SysUser, Integer> {
-
-    /**
-     * 执行登录，查询用户登录信息
-     *
-     * @param userName
-     * @return
-     */
-    CurrentUserDTO getCurrentUser(String userName);
-
     /**
      * 用户名是否存在
      *

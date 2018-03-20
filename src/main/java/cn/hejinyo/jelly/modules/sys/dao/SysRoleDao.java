@@ -1,14 +1,10 @@
 package cn.hejinyo.jelly.modules.sys.dao;
 
 import cn.hejinyo.jelly.common.base.BaseDao;
-import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
-import cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -16,12 +12,6 @@ import java.util.Set;
  */
 @Mapper
 public interface SysRoleDao extends BaseDao<SysRole, Integer> {
-
-    /**
-     * 查找用户编号对应的角色编码字符串
-     */
-    Set<String> getUserRoleSet(int userId);
-
     /**
      * 角色列表下拉选择select
      */

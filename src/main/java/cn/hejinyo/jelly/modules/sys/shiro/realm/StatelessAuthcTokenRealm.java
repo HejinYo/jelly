@@ -3,8 +3,7 @@ package cn.hejinyo.jelly.modules.sys.shiro.realm;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
-import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
-import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
+import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessAuthcToken;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -17,6 +16,7 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,12 +27,11 @@ import java.util.Set;
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:09
  */
+@Component
 public class StatelessAuthcTokenRealm extends AuthorizingRealm {
 
     @Autowired
-    private SysRoleService sysRoleService;
-    @Autowired
-    private SysPermissionService sysPermissionService;
+    private ShiroService shiroService;
     @Autowired
     private RedisUtils redisUtils;
 
@@ -74,10 +73,10 @@ public class StatelessAuthcTokenRealm extends AuthorizingRealm {
             permissionsSet = list.get("permissions");
         } else {
             list = new HashMap<>();
-            roleSet = sysRoleService.getUserRoleSet(userId);
+            roleSet = shiroService.getUserRoleSet(userId);
             list.put("role", roleSet);
             //获得权限信息
-            permissionsSet = sysPermissionService.getUserPermisSet(userId);
+            permissionsSet = shiroService.getUserPermisSet(userId);
             list.put("permissions", permissionsSet);
             redisUtils.set(RedisKeys.getAuthCacheKey(username), list, 600);
         }

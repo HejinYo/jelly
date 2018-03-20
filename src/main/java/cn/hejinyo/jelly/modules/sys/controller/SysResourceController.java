@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
-import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
@@ -10,7 +9,6 @@ import cn.hejinyo.jelly.modules.sys.model.SysResource;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,7 +61,6 @@ public class SysResourceController extends BaseController {
      */
     @SysLogger("删除资源")
     @PostMapping
-    @Transactional
     @RequiresPermissions("resource:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysResource sysResource) {
         if (sysResourceService.isExistResCode(sysResource.getResCode())) {
@@ -81,7 +78,6 @@ public class SysResourceController extends BaseController {
      */
     @SysLogger("更新资源")
     @PutMapping(value = "/{resId}")
-    @Transactional
     @RequiresPermissions("resource:update")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysResource sysResource, @PathVariable("resId") Integer resId) {
         if (resId == 0 && sysResource.getResPid() != -1) {
@@ -101,7 +97,6 @@ public class SysResourceController extends BaseController {
     @SysLogger("删除资源")
     @DeleteMapping(value = "/{resId}")
     @RequiresPermissions("resource:delete")
-    @Transactional
     public Result delete(@PathVariable("resId") Integer resId) {
         if (resId == 0) {
             return Result.error("资源根节点不允许删除");

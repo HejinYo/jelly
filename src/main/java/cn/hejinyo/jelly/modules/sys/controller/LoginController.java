@@ -7,6 +7,7 @@ import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessLoginToken;
 import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.ExcessiveAttemptsException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
@@ -22,6 +23,7 @@ import java.util.Map;
 //@CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/")
+@Slf4j
 public class LoginController extends BaseController {
 
     @Autowired
@@ -54,7 +56,7 @@ public class LoginController extends BaseController {
             return Result.ok(StatusCode.SUCCESS, userDTO);
         } catch (Exception e) {
             //登录失败
-            logger.error("[{}] 登录失败：{}", loginUser.getUserName(), e.getMessage());
+            log.error("[{}] 登录失败：{}", loginUser.getUserName(), e.getMessage());
             if (e instanceof UnknownAccountException) {
                 return Result.error(StatusCode.LOGIN_USER_NOEXIST);
             }

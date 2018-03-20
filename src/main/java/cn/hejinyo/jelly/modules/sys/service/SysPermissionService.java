@@ -12,15 +12,6 @@ import java.util.Set;
  * @date : 2017/6/17 17:06
  */
 public interface SysPermissionService extends BaseService<SysPermission, Integer> {
-
-    /**
-     * 查找用户编号对应的权限编码字符串
-     *
-     * @param userId
-     * @return
-     */
-    Set<String> getUserPermisSet(int userId);
-
     /**
      * 权限资源是否存在
      *

@@ -5,9 +5,8 @@ import cn.hejinyo.jelly.common.consts.UserToken;
 import cn.hejinyo.jelly.common.utils.*;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessAuthcToken;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.web.filter.AccessControlFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletRequest;
@@ -18,8 +17,8 @@ import javax.servlet.http.HttpServletRequest;
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:05
  */
+@Slf4j
 public class StatelessAuthcFilter extends AccessControlFilter {
-    private static final Logger logger = LoggerFactory.getLogger(StatelessAuthcFilter.class);
 
     private static final String DEFAULT_AUTHOR_PARAM = "Authorization";
 
@@ -48,14 +47,14 @@ public class StatelessAuthcFilter extends AccessControlFilter {
                     getSubject(request, response).login(new StatelessAuthcToken(username, userToken, userDTO));
                 } catch (Exception e) {
                     //userToken验证失败
-                    logger.debug("[ username:" + username + "] userToken验证失败：" + userToken);
+                    log.debug("[ username:" + username + "] userToken验证失败：" + userToken);
                     ResponseUtils.response(response, Result.error(StatusCode.TOKEN_OVERDUE));
                     return false;
                 }
                 return true;
             }
         } catch (Exception e) {
-            logger.debug("非法的userToken：" + userToken);
+            log.debug("非法的userToken：" + userToken);
         }
         ResponseUtils.response(response, Result.error(StatusCode.TOKEN_OVERDUE));
         return false;

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hejinyo.jelly.modules.sys.dao.ShiroDao">
+
+    <!-- 表基本列 -->
+    <sql id="Sys_User_Column_List">
+        user_id, user_name, user_pwd, user_salt, avatar, email, phone, login_ip, login_time,
+        state, create_time, create_id
+    </sql>
+
+    <!-- 执行登录，查询用户登录信息 -->
+    <select id="getCurrentUser" resultType="cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO">
+        SELECT
+        <include refid="Sys_User_Column_List"/>
+        FROM sys_user
+        WHERE
+        user_name = #{username}
+    </select>
+
+    <!-- 查找用户编号对应的角色编码字符串 -->
+    <select id="getUserRoleSet" resultType="String">
+        SELECT role_code
+        FROM
+            sys_role r
+            LEFT JOIN sys_user_role ur ON ur.role_id = r.role_id
+        WHERE
+            ur.user_id = #{userId} AND r.state = 0
+    </select>
+
+    <!-- 根据用户Id获得权限列表字符串 -->
+    <select id="getUserPermisSet" resultType="String">
+        SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
+        FROM sys_user_role sur
+            LEFT JOIN sys_role sr ON sr.role_id = sur.role_id AND sr.state = 0
+            LEFT JOIN sys_role_resource srr ON srr.role_id = sr.role_id
+            LEFT JOIN sys_permission sp ON sp.perm_id = srr.perm_id
+        WHERE sur.user_id = #{userId} AND sp.state = 0
+    </select>
+
+    <!-- 根据查询所有权限列表字符串 -->
+    <select id="getAllPermisSet" resultType="String">
+        SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
+        FROM sys_permission sp
+    </select>
+
+
+</mapper>

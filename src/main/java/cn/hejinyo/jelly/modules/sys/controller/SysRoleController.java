@@ -7,11 +7,9 @@ import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
-import cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -100,7 +98,6 @@ public class SysRoleController extends BaseController {
      */
     @SysLogger("角色授权")
     @PostMapping(value = "/authorization/{roleId}")
-    @Transactional
     @RequiresPermissions("role:auth")
     public Result operationPermission(@PathVariable("roleId") Integer roleId, @RequestBody List<RolePermissionTreeDTO> rolePermissionList) {
         int result = sysRoleService.operationPermission(roleId, rolePermissionList);

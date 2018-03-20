@@ -1,8 +1,7 @@
 package cn.hejinyo.jelly.common.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.beans.BeanCopier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,9 +14,8 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/22 21:24
  */
+@Slf4j
 public class PojoConvertUtil {
-    private static Logger logger = LoggerFactory.getLogger(PojoConvertUtil.class);
-
     private static Lock initLock = new ReentrantLock();
 
     private static Map<String, BeanCopier> beanCopierMap = new HashMap<>();
@@ -65,7 +63,7 @@ public class PojoConvertUtil {
             return target;
 
         } catch (Exception e) {
-            logger.error("对象拷贝失败,{}", e);
+            log.error("对象拷贝失败,{}", e);
             throw new RuntimeException("对象拷贝失败" + source + "_" + targetClass);
         }
     }
@@ -88,7 +86,7 @@ public class PojoConvertUtil {
             }
             return result;
         } catch (Exception e) {
-            logger.error("对象拷贝失败,{}", e);
+            log.error("对象拷贝失败,{}", e);
             throw new RuntimeException("对象拷贝失败" + source + "_" + targetClass);
         }
     }
