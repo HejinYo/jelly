@@ -94,13 +94,19 @@ public class ShiroConfiguration {
         // 拦截器链
         Map<String, String> filterMap = new LinkedHashMap<>();
 
-        filterMap.put("/test/**", "anon");
         filterMap.put("/", "anon");
         filterMap.put("/login/**", "anon");
+        filterMap.put("/favicon.ico", "anon");
         filterMap.put("/druid/**", "anon");
+
+        filterMap.put("/swagger-ui.html", "anon");
+        filterMap.put("/webjars/**", "anon");
+        filterMap.put("/swagger-resources/**", "anon");
+        filterMap.put("/v2/api-docs", "anon");
+
+        filterMap.put("/test/**", "anon");
         filterMap.put("/wechat/**", "anon");
         filterMap.put("/app/**", "anon");
-        filterMap.put("/favicon.ico", "anon");
 
         filterMap.put("/logout", "logout");
         filterMap.put("/**", "url,authc");

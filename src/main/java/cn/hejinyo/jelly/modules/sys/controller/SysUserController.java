@@ -9,6 +9,10 @@ import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -23,6 +27,7 @@ import java.util.HashMap;
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/17 22:29
  */
+@Api(tags = "用户管理", description = "SysUserController")
 @RestController
 @RequestMapping("/user")
 public class SysUserController extends BaseController {
@@ -33,6 +38,8 @@ public class SysUserController extends BaseController {
     /**
      * 获得一个用户信息
      */
+    @ApiOperation(value = "获得一个用户信息", notes = "根据路徑參數来获得一个用户信息")
+    @ApiImplicitParam(paramType = "path", name = "userId", value = "用户ID", required = true, dataType = "int")
     @GetMapping(value = "/{userId}")
     @RequiresPermissions("user:view")
     public Result get(@PathVariable(value = "userId") Integer userId) {
@@ -46,9 +53,25 @@ public class SysUserController extends BaseController {
     /**
      * 分页查询用户信息
      */
-    @RequestMapping(value = "/listPage")
+    @ApiOperation(value = "分页查询用户信息", notes = "支持分页，排序和查询；POST请求高级查询，GET请求普通查询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
+    })
+    @GetMapping(value = "/listPage")
     @RequiresPermissions("user:view")
-    public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
+    public Result getList(@RequestParam HashMap<String, Object> pageParam) {
+        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam)));
+        return Result.ok(userPageInfo);
+    }
+
+    @ApiOperation(value = "分页查询用户信息", notes = "支持分页，排序和查询；POST请求高级查询，GET请求普通查询")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
+            @ApiImplicitParam(paramType = "body", name = "queryParam", value = "高级查询参数", dataType = "object")
+    })
+    @PostMapping(value = "/listPage")
+    @RequiresPermissions("user:view")
+    public Result postList(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam, queryParam)));
         return Result.ok(userPageInfo);
     }
@@ -56,6 +79,8 @@ public class SysUserController extends BaseController {
     /**
      * 增加一个用户
      */
+    @ApiOperation(value = "增加一个用户", notes = "增加一个用户")
+    @ApiImplicitParam(paramType = "body", name = "sysUser", value = "用户参数", required = true, dataType = "SysUser")
     @PostMapping
     @RequiresPermissions("user:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUser sysUser) {
@@ -72,6 +97,8 @@ public class SysUserController extends BaseController {
     /**
      * 用户名是否已经存在
      */
+    @ApiOperation(value = "用户名是否已经存在", notes = "用户名是否已经存在")
+    @ApiImplicitParam(paramType = "path", name = "userName", value = "用户名", required = true, dataType = "String")
     @RequestMapping(value = "/isExistUserName/{userName}", method = RequestMethod.GET)
     public Result isExistUserName(@PathVariable("userName") String userName) {
         if (sysUserService.isExistUserName(userName)) {
@@ -83,6 +110,11 @@ public class SysUserController extends BaseController {
     /**
      * 更新一个用户
      */
+    @ApiOperation(value = "更新用户详细信息", notes = "根据url的id来指定更新对象，并根据传过来的user信息来更新用户详细信息")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", name = "sysUser", value = "用户详细实体user", required = true, dataType = "SysUser"),
+            @ApiImplicitParam(paramType = "path", name = "userId", value = "用户ID", required = true, dataType = "Integer")
+    })
     @SysLogger("更新用户")
     @RequiresPermissions("user:update")
     @PutMapping(value = "/{userId}")
@@ -101,6 +133,8 @@ public class SysUserController extends BaseController {
     /**
      * 删除
      */
+    @ApiOperation(value = "删除用户", notes = "删除用户")
+    @ApiImplicitParam(paramType = "path", name = "userIdList", value = "用户ID数组", required = true, dataType = "array")
     @SysLogger("删除用户")
     @RequiresPermissions("user:delete")
     @DeleteMapping(value = "/{userIdList}")

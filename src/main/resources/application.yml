@@ -35,10 +35,4 @@ pagehelper:
     params: pageNum=start;pageSize=limit;pageSizeZero=zero;reasonable=heli;count=contsql
     row-bounds-with-count: true
 
-logging:
-  path: /var/logs/
-  file: jelly.log
-  level:
-    root: DEBUG
-    cn:
-      hejinyo: DEBUG
+
