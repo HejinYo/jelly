@@ -158,6 +158,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Linux可注册为服务 -->
+                    <executable>true</executable>
+                </configuration>
             </plugin>
             <!-- 跳过单元测试 -->
             <plugin>
