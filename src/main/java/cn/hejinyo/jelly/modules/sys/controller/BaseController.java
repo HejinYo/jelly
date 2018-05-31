@@ -1,7 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
-import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 
 /**
  * @author HejinYo hejinyo@gmail.com

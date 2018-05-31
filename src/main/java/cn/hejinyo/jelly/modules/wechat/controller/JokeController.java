@@ -1,10 +1,10 @@
 package cn.hejinyo.jelly.modules.wechat.controller;
 
+import cn.hejinyo.jelly.common.annotation.SysLogger;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
-import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
 import cn.hejinyo.jelly.modules.wechat.model.WechatJoke;
 import cn.hejinyo.jelly.modules.wechat.service.WechatJokeService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;

@@ -1,4 +1,4 @@
-package cn.hejinyo.jelly.modules.sys.annotation;
+package cn.hejinyo.jelly.common.annotation;
 
 import java.lang.annotation.*;
 

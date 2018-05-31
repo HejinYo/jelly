@@ -11,7 +11,7 @@ import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
-import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

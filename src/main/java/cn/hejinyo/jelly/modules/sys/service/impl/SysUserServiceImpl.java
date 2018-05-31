@@ -14,7 +14,7 @@ import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
-import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;

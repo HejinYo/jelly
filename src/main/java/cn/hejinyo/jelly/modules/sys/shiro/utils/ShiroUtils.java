@@ -1,4 +1,4 @@
-package cn.hejinyo.jelly.modules.sys.utils;
+package cn.hejinyo.jelly.modules.sys.shiro.utils;
 
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 import org.apache.shiro.SecurityUtils;

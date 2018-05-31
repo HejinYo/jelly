@@ -1,3 +1,5 @@
+package http;
+
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;

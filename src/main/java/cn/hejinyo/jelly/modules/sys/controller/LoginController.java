@@ -6,7 +6,7 @@ import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessLoginToken;
-import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.ExcessiveAttemptsException;

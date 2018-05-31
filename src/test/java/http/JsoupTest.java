@@ -1,3 +1,5 @@
+package http;
+
 import cn.hejinyo.jelly.common.exception.InfoException;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;

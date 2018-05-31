@@ -1,11 +1,11 @@
-package cn.hejinyo.jelly.modules.sys.aspect;
+package cn.hejinyo.jelly.common.aspect;
 
-import cn.hejinyo.jelly.modules.sys.annotation.SysLogger;
+import cn.hejinyo.jelly.common.annotation.SysLogger;
 import cn.hejinyo.jelly.common.utils.JsonUtils;
 import cn.hejinyo.jelly.common.utils.WebUtils;
 import cn.hejinyo.jelly.modules.sys.model.SysLog;
 import cn.hejinyo.jelly.modules.sys.service.SysLogService;
-import cn.hejinyo.jelly.modules.sys.utils.ShiroUtils;
+import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import org.apache.catalina.session.StandardSessionFacade;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
@@ -38,7 +38,7 @@ public class SysLogAspect {
     private SysLogService sysLogService;
 
     /*@Pointcut("execution(public * cn.hejinyo.skyeboot.controller.SysLogController.add(..))")*/
-    @Pointcut("@annotation(cn.hejinyo.jelly.modules.sys.annotation.SysLogger)")
+    @Pointcut("@annotation(cn.hejinyo.jelly.common.annotation.SysLogger)")
     public void logPointCut() {
 
     }
