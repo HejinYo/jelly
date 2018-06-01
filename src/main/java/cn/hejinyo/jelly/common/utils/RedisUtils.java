@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.common.utils;
 
-import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
@@ -30,7 +29,6 @@ public class RedisUtils {
     @Autowired
     private ZSetOperations<String, Object> zSetOperations;
 
-    private final static Gson GSON = new Gson();
     /**
      * 默认过期时长，单位：秒
      */
@@ -58,7 +56,7 @@ public class RedisUtils {
         if (expire != NOT_EXPIRE) {
             redisTemplate.expire(key, expire, TimeUnit.SECONDS);
         }
-        return value == null ? null : fromJson(value, clazz);
+        return value == null ? null : JsonUtil.fromJson(value, clazz);
     }
 
     public <T> T get(String key, Class<T> clazz) {
@@ -89,14 +87,7 @@ public class RedisUtils {
                 object instanceof Double || object instanceof Boolean || object instanceof String) {
             return String.valueOf(object);
         }
-        return GSON.toJson(object);
-    }
-
-    /**
-     * JSON数据，转成Object
-     */
-    private <T> T fromJson(String json, Class<T> clazz) {
-        return GSON.fromJson(json, clazz);
+        return JsonUtil.toJson(object);
     }
 
     /**

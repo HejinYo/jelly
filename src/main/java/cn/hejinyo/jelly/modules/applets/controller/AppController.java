@@ -46,8 +46,8 @@ public class AppController {
         param.put("secret", secret);
         param.put("js_code", code);
         param.put("grant_type", authorization_code);
-        String result = HttpClientUtil.getInstance().sendHttpPost(url, param);
-        log.debug(JsonUtils.toJSONString(result));
+        String result = HttpClientUtil.getInstance().sendHttpPost(url, param, String.class);
+        log.debug(JsonUtil.toJSONString(result));
         return Result.error(result);
     }
 
@@ -69,13 +69,13 @@ public class AppController {
         param.put("secret", secret);
         param.put("js_code", code);
         param.put("grant_type", authorization_code);
-        String result = HttpClientUtil.getInstance().sendHttpPost(url, param);
-        JscodeToSessionDTO sessionDTO = JsonUtils.toObject(result, JscodeToSessionDTO.class);
+        String result = HttpClientUtil.getInstance().sendHttpPost(url, param, String.class);
+        JscodeToSessionDTO sessionDTO = JsonUtil.toObject(result, JscodeToSessionDTO.class);
         if (StringUtils.isNotEmpty(sessionDTO.getOpenid())) {
             WeUser weUser = weUserService.findOneByOpenId(sessionDTO.getOpenid());
             if (weUser == null) {
                 //创建新用户，绑定微信
-                weUser = JsonUtils.toObject(MapUtils.getString(params, "userInfo"), WeUser.class);
+                weUser = JsonUtil.toObject(MapUtils.getString(params, "userInfo"), WeUser.class);
                 weUser.setOpenId(sessionDTO.getOpenid());
                 weUser.setCreateTime(new Date());
                 weUser.setState(0);
@@ -94,7 +94,7 @@ public class AppController {
             return Result.ok().add("token", token).add("expries", 2 * 60 * 60);
         }
         //{"session_key":"dphgiRox+mngPanYpkmUvA==","openid":"orXbq4l36DC9HSZRV9jsIqvkJMNM"}
-        log.debug("获得用户session失败:{}", JsonUtils.toJSONString(sessionDTO));
+        log.debug("获得用户session失败:{}", JsonUtil.toJSONString(sessionDTO));
         return Result.error(sessionDTO.getErrmsg());
     }
 

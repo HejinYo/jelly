@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * @author : HejinYo   hejinyo@gmail.com
  * @date :  2018/5/7 20:09
  */
-@Component
+//@Component
 public class MqttConfig {
     @Bean
     public MqttPahoClientFactory mqttClientFactory() {

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  * @author : HejinYo   hejinyo@gmail.com
  * @date :  2018/5/7 20:10
  */
-@Component
+//@Component
 public class Consumer {
     @Autowired
     private MqttPahoClientFactory mqttClientFactory;

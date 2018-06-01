@@ -21,9 +21,15 @@ public class PageQuery extends HashMap<String, Object> {
     //排序方式
     private static final String SORT = "sort";
 
+    // 最大分页大小为100
+    private static final Integer MAX_PAGE_Size = 100;
+
     //简单查询
     private static final String QUERY_KEY = "queryKey";
     private static final String QUERY_VALUE = "queryValue";
+    //管理树点击的查询条件
+    private static final String TREE_KEY = "treeKey";
+    private static final String TREE_VALUE = "treeValue";
 
     private int pageNum;
     private int pageSize;
@@ -46,7 +52,8 @@ public class PageQuery extends HashMap<String, Object> {
         pageQuery.pageNum = MapUtils.getInteger(pageParam, PAGENUM, 1);
         pageQuery.pageSize = MapUtils.getInteger(pageParam, PAGESIZE, 10);
         pageQuery.put(PAGENUM, pageQuery.pageNum);
-        pageQuery.put(PAGESIZE, pageQuery.pageSize);
+
+        pageQuery.put(PAGESIZE, pageQuery.pageSize > MAX_PAGE_Size ? MAX_PAGE_Size : pageQuery.pageSize);
 
         String sidx = StringUtils.underscoreName(MapUtils.getString(pageParam, SIDX, ""));
         if (StringUtils.isNotBlank(sidx)) {
@@ -64,6 +71,12 @@ public class PageQuery extends HashMap<String, Object> {
         String queryValue = MapUtils.getString(pageParam, QUERY_VALUE);
         if (StringUtils.isNotBlank(queryValue)) {
             pageQuery.put(MapUtils.getString(pageParam, QUERY_KEY), queryValue);
+        }
+
+        // 管理树点击的查询条件
+        String treeValue = MapUtils.getString(pageParam, TREE_VALUE);
+        if (StringUtils.isNotBlank(treeValue)) {
+            pageQuery.put(MapUtils.getString(pageParam, TREE_KEY), treeValue);
         }
 
         return pageQuery;

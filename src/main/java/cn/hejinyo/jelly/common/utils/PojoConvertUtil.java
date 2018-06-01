@@ -2,7 +2,13 @@ package cn.hejinyo.jelly.common.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import net.sf.cglib.beans.BeanCopier;
+import org.apache.commons.beanutils.BeanUtils;
 
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +25,51 @@ public class PojoConvertUtil {
     private static Lock initLock = new ReentrantLock();
 
     private static Map<String, BeanCopier> beanCopierMap = new HashMap<>();
+
+
+    /**
+     * 将一个map映射成一个JavaBean
+     */
+    public static <T> T map2Bean(Map<String, Object> params, Class<T> beanClass) {
+        try {
+            T bean = beanClass.newInstance();
+            BeanUtils.populate(bean, params);
+            return bean;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 将一个bean映射成一个map
+     */
+    public static Map<String, Object> convertBean(Object bean) {
+        try {
+            Class type = bean.getClass();
+            Map<String, Object> returnMap = new HashMap<>();
+            BeanInfo beanInfo = Introspector.getBeanInfo(type);
+
+            PropertyDescriptor[] propertyDescriptors = beanInfo.getPropertyDescriptors();
+            for (PropertyDescriptor descriptor : propertyDescriptors) {
+                String propertyName = descriptor.getName();
+                if (!"class".equals(propertyName)) {
+                    Method readMethod = descriptor.getReadMethod();
+                    Object result = readMethod.invoke(bean);
+                    // 不转换值为空的字段
+                    if (result != null) {
+                        returnMap.put(propertyName, result);
+                    } /*else {
+                        returnMap.put(propertyName, "");
+                    }*/
+                }
+            }
+            return returnMap;
+        } catch (ReflectiveOperationException | IntrospectionException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     /**
      * 初始化 BeanCopier

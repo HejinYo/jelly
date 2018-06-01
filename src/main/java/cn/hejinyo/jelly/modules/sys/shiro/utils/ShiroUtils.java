@@ -4,16 +4,12 @@ import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:07
  */
 public class ShiroUtils {
-    private static final Logger logger = LoggerFactory.getLogger(ShiroUtils.class);
-
     /**
      * 生成用户密码
      */

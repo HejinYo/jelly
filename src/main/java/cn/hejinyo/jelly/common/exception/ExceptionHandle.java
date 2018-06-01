@@ -1,5 +1,6 @@
 package cn.hejinyo.jelly.common.exception;
 
+import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -39,12 +40,15 @@ public class ExceptionHandle {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler({UnauthorizedException.class})
     public Result shiroException(UnauthorizedException ex, HttpServletResponse response) {
-        return Result.error(-1, "无此权限");
+        return Result.error(StatusCode.USER_UNAUTHORIZED);
     }
 
+    /**
+     * 数据库唯一主键冲突
+     */
     @ExceptionHandler(DuplicateKeyException.class)
     public Result handleDuplicateKeyException(DuplicateKeyException e) {
-        return Result.error("数据库中已存在该记录");
+        return Result.error(StatusCode.DATABASE_DUPLICATEKEY);
     }
 
     /**

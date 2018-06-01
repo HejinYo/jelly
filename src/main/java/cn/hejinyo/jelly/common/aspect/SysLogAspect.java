@@ -1,25 +1,26 @@
 package cn.hejinyo.jelly.common.aspect;
 
 import cn.hejinyo.jelly.common.annotation.SysLogger;
-import cn.hejinyo.jelly.common.utils.JsonUtils;
+import cn.hejinyo.jelly.common.utils.JsonUtil;
 import cn.hejinyo.jelly.common.utils.WebUtils;
 import cn.hejinyo.jelly.modules.sys.model.SysLog;
 import cn.hejinyo.jelly.modules.sys.service.SysLogService;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.session.StandardSessionFacade;
+import org.apache.shiro.SecurityUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.HashMap;
 
 
 /**
@@ -27,12 +28,11 @@ import java.util.Date;
  *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/12 22:19
- * @Description :
  */
 @Aspect
 @Component
+@Slf4j
 public class SysLogAspect {
-    private final static Logger logger = LoggerFactory.getLogger(SysLogAspect.class);
 
     @Resource
     private SysLogService sysLogService;
@@ -60,16 +60,17 @@ public class SysLogAspect {
         sysLog.setMethod(signature.getDeclaringTypeName() + "." + signature.getName() + "()");
 
         //请求的参数
-        StringBuilder params = new StringBuilder();
         Object[] parameter = joinPoint.getArgs();
         String[] paramNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
+        HashMap<String, String> paramMap = new HashMap<>(16);
         for (int i = 0; i < parameter.length; i++) {
             if (!(parameter[i] instanceof ServletRequest) && !(parameter[i] instanceof StandardSessionFacade)) {
-                String parm = JsonUtils.toJSONString(parameter[i]);
-                params.append(paramNames[i]).append(":").append(parm).append(";");
+                paramMap.put(paramNames[i], JsonUtil.toJson(parameter[i]));
             }
         }
-        sysLog.setParams(params.toString());
+        if (paramMap.size() > 0) {
+            sysLog.setParams(JsonUtil.toJson(paramMap));
+        }
 
         //设置IP地址
         sysLog.setIp(WebUtils.getIpAddr(request));
@@ -77,16 +78,14 @@ public class SysLogAspect {
         //日志时间
         sysLog.setCreateTime(new Date());
 
-       /*
-        //method POST GET PUT
-        String method = request.getMethod();*/
+        if (SecurityUtils.getSubject().isAuthenticated()) {
+            //用户名
+            String username = ShiroUtils.getCurrentUser().getUserName();
+            sysLog.setUserName(username);
+        } else {
+            sysLog.setUserName(sysLog.getIp());
+        }
 
-        //用户名
-        //Optional<String> username = Optional.ofNullable(ShiroUtils.getCurrentUser().getUserName());
-        //sysLog.setUserName(username.orElse("outline"));
-        sysLog.setUserName(ShiroUtils.getSubject().isAuthenticated() ? ShiroUtils.getCurrentUser().getUserName() : "visitor");
-
-        /*logger.debug("SysLogger={}", "[" + request.getRequestURL().toString() + "]" + JsonUtils.toJSONString(syslog));*/
         //保存系统日志
         sysLogService.save(sysLog);
     }

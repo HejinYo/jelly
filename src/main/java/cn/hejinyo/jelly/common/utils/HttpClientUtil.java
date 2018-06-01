@@ -1,8 +1,8 @@
 package cn.hejinyo.jelly.common.utils;
 
-import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -10,30 +10,34 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date :  2018/1/19 22:55
  */
 @Slf4j
-public class HttpClientUtil {
+public class HttpClientUtil implements AutoCloseable {
     private RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(15000).setConnectTimeout(15000).setConnectionRequestTimeout(15000).build();
     private static HttpClientUtil instance = null;
 
     private HttpClientUtil() {
     }
 
+    /**
+     * 获取实例
+     */
     public static HttpClientUtil getInstance() {
         if (instance == null) {
             instance = new HttpClientUtil();
@@ -42,205 +46,164 @@ public class HttpClientUtil {
     }
 
     /**
-     * 发送请求
+     * 执行请求，返回HttpEntity
      */
-    private String sendHttp(HttpRequestBase http) {
-        CloseableHttpClient httpClient = null;
-        CloseableHttpResponse response = null;
-        HttpEntity entity;
-        String responseContent = null;
+    private HttpEntity getEntity(HttpRequestBase request) {
         try {
-            // 创建默认的httpClient实例.
-            httpClient = HttpClients.createDefault();
-            http.setConfig(requestConfig);
+            request.setConfig(requestConfig);
             // 执行请求
-            response = httpClient.execute(http);
-            entity = response.getEntity();
-            if (null != entity) {
-                responseContent = EntityUtils.toString(entity, "UTF-8");
-            }
-        } catch (Exception e) {
+            Optional<CloseableHttpResponse> rep = Optional.ofNullable(HttpClients.createDefault().execute(request));
+            return rep.map(HttpResponse::getEntity).orElse(null);
+        } catch (IOException e) {
+            log.error("请求网络资源发生异常：{}", e.getMessage());
             e.printStackTrace();
-        } finally {
-            this.close(response, httpClient);
         }
-        return responseContent;
+        return null;
     }
 
     /**
-     * 设置参数
+     * HttpEntity 转 指定类型
      */
-    private void setParam(HttpPost httpPost, String param) {
+    @SuppressWarnings("unchecked")
+    private static <T> T entityToClass(HttpEntity httpEntity, Class<T> clazz) {
         try {
-            //设置参数
-            StringEntity stringEntity = new StringEntity(param, "UTF-8");
-            stringEntity.setContentType("application/x-www-form-urlencoded");
-            httpPost.setEntity(stringEntity);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     * 关闭连接
-     */
-    private void close(CloseableHttpResponse response, CloseableHttpClient httpClient) {
-        try {
-            // 关闭连接,释放资源
-            if (response != null) {
-                response.close();
-            }
-            if (httpClient != null) {
-                httpClient.close();
+            switch (clazz.getSimpleName()) {
+                case "String":
+                    return (T) EntityUtils.toString(httpEntity, "UTF-8");
+                case "byte[]":
+                    return (T) EntityUtils.toByteArray(httpEntity);
+                default:
+                    String result = EntityUtils.toString(httpEntity, "UTF-8");
+                    if (StringUtils.isNotEmpty(result)) {
+                        return JsonUtil.fromJson(result, clazz);
+                    }
             }
         } catch (IOException e) {
-            log.error(e.getMessage());
             e.printStackTrace();
         }
+        return null;
     }
 
     /**
-     * 发送String参数 post请求
-     *
-     * @param httpUrl url
-     * @param params  String参数
+     * 拼接url参数，返回带参数的URL
      */
-    public String sendHttpPost(String httpUrl, String params) {
-        log.info("sendHttpPost:" + httpUrl + "," + params);
-        // 创建httpPost
-        HttpPost httpPost = new HttpPost(httpUrl);
-        this.setParam(httpPost, params);
-        return sendHttp(httpPost);
+    public static String buildUrl(String url, Map<String, Object> params) {
+        if (params != null && params.size() > 0) {
+            StringBuilder arg = new StringBuilder(url + (url.indexOf("?") > 0 ? "&" : "?"));
+            params.forEach((key, value) -> {
+                //key去空额
+                arg.append(key.trim()).append("=").append(value).append("&");
+            });
+            //此处为了兼容case内容为空
+            return arg.deleteCharAt(arg.length() - 1).toString();
+        }
+        return url;
     }
 
     /**
-     * 发送Map参数 post请求
+     * 构建cookie字符串
      */
-    public String sendHttpPost(String httpUrl, Map<String, String> params) {
-        log.info("sendHttpPost:" + httpUrl + ", " + JSON.toJSONString(params));
-        // 创建httpPost
-        HttpPost httpPost = new HttpPost(httpUrl);
-        // 创建参数队列
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-        for (String key : params.keySet()) {
-            nameValuePairs.add(new BasicNameValuePair(key, params.get(key)));
+    public static String buildCookie(Map<String, Object> cookies) {
+        if (cookies != null && cookies.size() > 0) {
+            StringBuilder sb = new StringBuilder();
+            cookies.forEach((key, value) -> {
+                sb.append(key.trim()).append("=").append(value).append("; ");
+            });
+            return sb.deleteCharAt(sb.length() - 1).toString();
         }
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return sendHttp(httpPost);
-    }
-
-
-    /**
-     * httpPost 带head
-     */
-    public String sendHttpPost(String httpUrl, Map<String, String> params, Map<String, String> heads) {
-        // 创建httpPost
-        HttpPost httpPost = new HttpPost(httpUrl);
-        //设置head
-        for (String key : heads.keySet()) {
-            httpPost.setHeader(key, heads.get(key));
-        }
-        // 创建参数队列
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-        for (String key : params.keySet()) {
-            nameValuePairs.add(new BasicNameValuePair(key, params.get(key)));
-        }
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return sendHttp(httpPost);
+        return "";
     }
 
     /**
-     * 方法名称: sendPost
+     * get请求，返回结果InputStream
      */
-    public String sendPost(String url, Map<String, String> params, String tokenType, String token) {
-        //创建post方式请求对象
-        HttpPost httpPost = new HttpPost(url);
-        httpPost.setConfig(requestConfig);
-        //设置参数到请求对象中// 创建参数队列
-        List<NameValuePair> nameValuePairs = new ArrayList<>();
-        for (String key : params.keySet()) {
-            nameValuePairs.add(new BasicNameValuePair(key, params.get(key)));
-        }
-        try {
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs, "UTF-8"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //指定报文头【Content-type】、【User-Agent】
-        httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
-        httpPost.setHeader("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
-        //添加http请求证书
-        if (tokenType != null && !"".equals(tokenType)) {
-            httpPost.setHeader("Authorization", tokenType + " " + token);
-        }
-        return sendHttp(httpPost);
-    }
-
-
-    /**
-     * 发送 get请求
-     */
-    public String sendHttpGet(String httpUrl) {
-        log.info("sendHttpGet:" + httpUrl);
+    private InputStream sendGet(String url) {
         // 创建get请求
-        HttpGet httpGet = new HttpGet(httpUrl);
-        return sendHttp(httpGet);
+        log.info("sendHttpGet  :" + url);
+        HttpGet httpGet = new HttpGet(url);
+        Optional<HttpEntity> httpEntity = Optional.ofNullable(getEntity(httpGet));
+        try {
+            if (httpEntity.isPresent()) {
+                return httpEntity.get().getContent();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
-     * get 请求直接返回InputStream
+     * get请求，返回结果为指定类型
      */
-    public InputStream sendGet(String httpUrl) {
-        log.info("sendHttpGet:" + httpUrl);
-        HttpGet httpGet = new HttpGet(httpUrl);
-        CloseableHttpClient httpClient = null;
-        CloseableHttpResponse response = null;
-        HttpEntity httpEntity;
-        InputStream inputStream = null;
-        try {
-            // 创建默认的httpClient实例.
-            httpClient = HttpClients.createDefault();
-            httpGet.setConfig(requestConfig);
-            // 执行请求
-            response = httpClient.execute(httpGet);
-            httpEntity = response.getEntity();
-            inputStream = httpEntity.getContent();
-            System.out.println("--------" + response.getStatusLine());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            this.close(response, httpClient);
-        }
-        return inputStream;
+    private <T> T sendGet(String url, Class<T> clazz) {
+        // 创建get请求
+        log.info("sendHttpGet  :" + url);
+        HttpGet httpGet = new HttpGet(url);
+        Optional<HttpEntity> httpEntity = Optional.ofNullable(getEntity(httpGet));
+        return httpEntity.map(httpEntity1 -> entityToClass(httpEntity1, clazz)).orElse(null);
     }
 
     /**
-     * get CloseableHttpResponse
+     * get带参数请求，返回结果为指定类型
      */
-    public CloseableHttpResponse sendPost(String httpUrl) {
-        log.info("sendPost:" + httpUrl);
-        // 创建httpPost
-        HttpPost httpPost = new HttpPost(httpUrl);
-        CloseableHttpClient httpClient = null;
-        CloseableHttpResponse response = null;
+    private <T> T sendGet(String url, Map<String, Object> params, Class<T> clazz) {
+        // 创建get请求
+        String paramsUrl = HttpClientUtil.buildUrl(url, params);
+        return sendGet(paramsUrl, clazz);
+    }
+
+
+    /**
+     * 创建请求体
+     */
+    private UrlEncodedFormEntity buildEntity(List<NameValuePair> list) {
         try {
-            httpClient = HttpClients.createDefault();
-            response = httpClient.execute(httpPost);
-        } catch (Exception e) {
+            return new UrlEncodedFormEntity(list, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
-        } finally {
-            this.close(response, httpClient);
         }
-        return response;
+        return null;
+    }
+
+    /**
+     * get请求，返回结果为指定类型
+     */
+    private <T> T sendPost(String url, Class<T> clazz) {
+        log.info("sendHttpPost  url:{}", url);
+        HttpPost httpPost = new HttpPost(url);
+        Optional<HttpEntity> httpEntity = Optional.ofNullable(getEntity(httpPost));
+        return httpEntity.map(httpEntity1 -> entityToClass(httpEntity1, clazz)).orElse(null);
+    }
+
+
+    /**
+     * 发送 post请求,带参数
+     */
+    public <T> T sendHttpPost(String url, Map<String, ? extends Serializable> params, Class<T> clazz) {
+        log.info("sendHttpPost  url:{},param:{}", url, JsonUtil.toJson(params));
+        HttpPost httpPost = new HttpPost(url);
+        // 创建参数队列
+        List<NameValuePair> list = new ArrayList<>();
+        params.forEach((key, value) -> {
+            list.add(new BasicNameValuePair(key, String.valueOf(value)));
+        });
+        httpPost.setEntity(buildEntity(list));
+        Optional<HttpEntity> httpEntity = Optional.ofNullable(getEntity(httpPost));
+        return httpEntity.map(httpEntity1 -> entityToClass(httpEntity1, clazz)).orElse(null);
+    }
+
+
+    /**
+     * 自动关闭资源
+     */
+    @Override
+    public void close() throws Exception {
+
+    }
+
+    public static void main(String[] args) {
+        String result = HttpClientUtil.getInstance().sendGet("http://www.hejinyo.cn", String.class);
+        System.out.println(result);
     }
 
 }

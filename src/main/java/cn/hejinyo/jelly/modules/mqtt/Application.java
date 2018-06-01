@@ -15,10 +15,8 @@
  */
 package cn.hejinyo.jelly.modules.mqtt;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
@@ -38,10 +36,10 @@ import org.springframework.messaging.MessageHandler;
  *
  * @author Gary Russell
  */
-@SpringBootApplication
+//@SpringBootApplication
+@Slf4j
 public class Application {
 
-    private static final Log LOGGER = LogFactory.getLog(Application.class);
 
     /**
      * Load the Spring Integration Application Context
@@ -50,7 +48,7 @@ public class Application {
      */
     public static void main(final String... args) {
 
-        LOGGER.info("\n========================================================="
+        log.info("\n========================================================="
                 + "\n                                                         "
                 + "\n          Welcome to Spring Integration!                 "
                 + "\n                                                         "
@@ -59,7 +57,7 @@ public class Application {
                 + "\n                                                         "
                 + "\n=========================================================");
 
-        LOGGER.info("\n========================================================="
+        log.info("\n========================================================="
                 + "\n                                                          "
                 + "\n    This is the MQTT Sample -                             "
                 + "\n                                                          "

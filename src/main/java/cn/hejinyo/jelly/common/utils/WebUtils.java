@@ -87,32 +87,4 @@ public class WebUtils extends org.springframework.web.util.WebUtils {
         return getIpAddr((HttpServletRequest) request);
     }
 
-
-    /**
-     * 读取cookie
-     */
-    public static String getCookieValue(HttpServletRequest request, String name) {
-        Cookie cookie = getCookie(request, name);
-        return cookie != null ? cookie.getValue() : null;
-    }
-
-    /**
-     * 设置cookie
-     */
-    public static void setCookie(HttpServletResponse response, String name, String value, int maxAgeInSeconds) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAgeInSeconds);
-        cookie.setHttpOnly(true);
-        response.addCookie(cookie);
-    }
-
-    /**
-     * 清除 某个指定的cookie
-     */
-    public static void removeCookie(HttpServletResponse response, String key) {
-        setCookie(response, key, null, 0);
-    }
-
-
 }

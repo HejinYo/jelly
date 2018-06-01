@@ -25,7 +25,7 @@ public class ResponseUtils {
         httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
         //告诉所有的缓存机制是否可以缓存及哪种类型
         httpResponse.setHeader("Cache-Control", "no-cache");
-        String json = JsonUtils.toJSONString(returns);
+        String json = JsonUtil.toJSONString(returns);
         try {
             httpResponse.getWriter().write(json);
             httpResponse.getWriter().flush();
