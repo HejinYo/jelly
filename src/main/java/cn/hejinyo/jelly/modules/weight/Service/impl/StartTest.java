@@ -14,10 +14,10 @@ public class StartTest {
 
     public void test() {
 
-        for (int i = 10; i < 30; i++) {
+        for (int i = 10; i < 20; i++) {
             int finalI = i;
             Thread test = new Thread(() -> {
-                for (int j = finalI * 1000; j < (finalI * 1000) + 150; j++) {
+                for (int j = finalI * 1000; j < (finalI * 1000) + 300; j++) {
                     weightRoundService.weater(j);
                 }
             });

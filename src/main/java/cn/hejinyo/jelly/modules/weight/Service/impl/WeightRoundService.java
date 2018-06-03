@@ -97,20 +97,21 @@ public class WeightRoundService {
             initSort();
         }
 
+        // 检查数据初始化状态，如果需要对排序序列进行初始化，需要修改此标识，让所有线程进行等待，对排序序列重操作以后，恢复
+        Boolean initStatus = redisTemplate.hasKey(INIT_STATUS);
+        while (initStatus) {
+            initStatus = redisTemplate.hasKey(INIT_STATUS);
+            // 休眠，然后检查团队初始状态，重复以上步骤，直到拿到锁或者初始状态可用为止
+            log.info("等待排序序列操作完成");
+            try {
+                Thread.sleep(LOCK_SLEEP);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         //获取并记录当前局版本号 TODO
         while (true) {
-            // 检查数据初始化状态，如果需要对排序序列进行初始化，需要修改此标识，让所有线程进行等待，对排序序列重操作以后，恢复
-            Boolean initStatus = redisTemplate.hasKey(INIT_STATUS);
-            while (initStatus) {
-                initStatus = redisTemplate.hasKey(INIT_STATUS);
-                // 休眠，然后检查团队初始状态，重复以上步骤，直到拿到锁或者初始状态可用为止
-                log.info("等待排序序列操作完成");
-                try {
-                    Thread.sleep(LOCK_SLEEP);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
 
 
             //队列右出对获得一个人员，并将它进行左入队
@@ -141,8 +142,6 @@ public class WeightRoundService {
                 return user;
             }
 
-            //如果分配以后大于固定权限，说明已经有另外的线程分配了，此人已经超过分配限制，原子减一
-            valueOperations.increment(getCwtKey(user.getUserId()), -1L);
             //把分配满了的放进set集合中，然后对比set集合长度和当前人员list长度，如果相等或者大于，说明都已经排满，进行数据初始化
             setOperations.add(FULL_SET, String.valueOf(user.getUserId()));
             long listSize = listOperations.size(SORT_LIST);
