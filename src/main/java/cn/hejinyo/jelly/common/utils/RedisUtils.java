@@ -40,8 +40,9 @@ public class RedisUtils {
 
 
     public void set(String key, Object value) {
+        // Key不在，超时返回-2
         Long expire = redisTemplate.getExpire(key);
-        set(key, value, expire != null ? expire : DEFAULT_EXPIRE);
+        set(key, value, expire != -2 ? expire : DEFAULT_EXPIRE);
     }
 
     public void set(String key, Object value, long expire) {
