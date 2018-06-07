@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.common.consts.StatusCode;
+import cn.hejinyo.jelly.common.consts.UserToken;
 import cn.hejinyo.jelly.common.utils.*;
 import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
@@ -19,8 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-
-//@CrossOrigin(origins = "http://localhost:8080")
+/**
+ * 系统用户登录控制器
+ *
+ * @author : HejinYo   hejinyo@gmail.com
+ * @date : 2017/8/16 22:14
+ */
 @RestController
 @RequestMapping("/")
 @Slf4j
@@ -40,6 +45,10 @@ public class LoginController extends BaseController {
     @PostMapping(value = "/login")
     public Result login(@RequestBody CurrentUserDTO loginUser, HttpServletRequest request) {
         try {
+
+
+
+
             StatelessLoginToken loginToken = new StatelessLoginToken(loginUser.getUserName(), loginUser.getUserPwd());
             //委托给Realm进行登录
             SecurityUtils.getSubject().login(loginToken);
@@ -71,6 +80,33 @@ public class LoginController extends BaseController {
             }
             return Result.error(StatusCode.LOGIN_FAILURE);
         }
+    }
+
+    /**
+     * 获得当前用户redis中的用户信息
+     */
+    @GetMapping(value = "/logout")
+    public Result logout(HttpServletRequest request) {
+        String userToken = request.getHeader("Authorization");
+        if (userToken != null) {
+            //token中获取用户名
+            String username = Tools.getTokenInfo(userToken, UserToken.USERNAME.getValue());
+            //查询缓存中的用户信息
+            CurrentUserDTO userDTO = redisUtils.get(RedisKeys.getTokenCacheKey(username), CurrentUserDTO.class, 1800);
+            if (null != userDTO) {
+                try {
+                    //验证token是否有效
+                    Tools.verifyToken(userToken, userDTO.getUserPwd());
+                    //清除token缓存
+                    redisUtils.delete(RedisKeys.getTokenCacheKey(userDTO.getUserName()));
+                    //清除授权缓存
+                    redisUtils.delete(RedisKeys.getAuthCacheKey(userDTO.getUserName()));
+                } catch (Exception ignored) {
+
+                }
+            }
+        }
+        return Result.ok();
     }
 
     /**

@@ -6,6 +6,8 @@ import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
 
 /**
+ * Shiro工具类
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:07
  */

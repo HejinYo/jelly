@@ -11,6 +11,8 @@ import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
+ * 系统用户登录帐号验证的业务逻辑
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/30 11:48
  */

@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.config;
 
-import cn.hejinyo.jelly.modules.sys.shiro.filter.LogoutFilter;
 import cn.hejinyo.jelly.modules.sys.shiro.filter.StatelessAuthcFilter;
 import cn.hejinyo.jelly.modules.sys.shiro.filter.URLFilter;
 import cn.hejinyo.jelly.modules.sys.shiro.realm.CredentialsMatcher;
@@ -30,24 +29,10 @@ import java.util.*;
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/8/17 23:22
- * @Description :
  */
-
 @Configuration
 @Slf4j
 public class ShiroConfiguration {
-
-    /**
-     * EhCache缓存管理器
-     *
-     * @return
-     */
-   /* @Bean
-    public EhCacheManager ehCacheManager() {
-        EhCacheManager cacheManager = new EhCacheManager();
-        cacheManager.setCacheManagerConfigFile("classpath:shiro-ehcache.xml");
-        return cacheManager;
-    }*/
 
     /**
      * Redis缓存管理器，保留，还不太会用，生存时间不会设置
@@ -74,8 +59,6 @@ public class ShiroConfiguration {
         securityManager.setRealms(realms);
         //自定义 ModularRealm
         securityManager.setAuthenticator(defaultModularRealm(realms));
-        //缓存管理器
-        //securityManager.setCacheManager(ehCacheManager());
         return securityManager;
     }
 
@@ -85,9 +68,9 @@ public class ShiroConfiguration {
         factoryBean.setSecurityManager(securityManager);
 
         // 注入自定义拦截器,注意拦截器自注入问题
-        Map<String, Filter> filters = new HashMap<>();
+        Map<String, Filter> filters = new HashMap<>(16);
         filters.put("url", new URLFilter());
-        filters.put("logout", logoutFilter());
+        //访问验证拦截器
         filters.put("authc", authcFilter());
         factoryBean.setFilters(filters);
 
@@ -96,6 +79,7 @@ public class ShiroConfiguration {
 
         filterMap.put("/", "anon");
         filterMap.put("/login/**", "anon");
+        filterMap.put("/logout", "anon");
         filterMap.put("/favicon.ico", "anon");
         filterMap.put("/druid/**", "anon");
 
@@ -108,7 +92,6 @@ public class ShiroConfiguration {
         filterMap.put("/wechat/**", "anon");
         filterMap.put("/app/**", "anon");
 
-        filterMap.put("/logout", "logout");
         filterMap.put("/**", "url,authc");
         factoryBean.setFilterChainDefinitionMap(filterMap);
 
@@ -146,8 +129,6 @@ public class ShiroConfiguration {
         StatelessLoginTokenRealm loginRealm = new StatelessLoginTokenRealm();
         //自定义凭证匹配器
         loginRealm.setCredentialsMatcher(credentialsMatcher());
-        //登录不启用缓存，默认false
-        //loginRealm.setCachingEnabled(false);
         return loginRealm;
     }
 
@@ -156,10 +137,6 @@ public class ShiroConfiguration {
      */
     @Bean
     public StatelessAuthcTokenRealm statelessAuthcRealm() {
-        //authcRealm.setCachingEnabled(true);
-        //启用授权缓存
-        //authcRealm.setAuthorizationCachingEnabled(true);
-        //authcRealm.setAuthorizationCacheName("authCache");
         return new StatelessAuthcTokenRealm();
     }
 
@@ -185,22 +162,6 @@ public class ShiroConfiguration {
     @Bean
     public FilterRegistrationBean registrationAuthcFilterBean(StatelessAuthcFilter authcFilter) {
         FilterRegistrationBean registration = new FilterRegistrationBean(authcFilter);
-        //取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
-        registration.setEnabled(false);
-        return registration;
-    }
-
-    @Bean
-    public LogoutFilter logoutFilter() {
-        return new LogoutFilter();
-    }
-
-    /**
-     * 解决自定义拦截器混乱问题
-     */
-    @Bean
-    public FilterRegistrationBean registrationLogoutFilterBean(LogoutFilter logoutFilter) {
-        FilterRegistrationBean registration = new FilterRegistrationBean(logoutFilter);
         //取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
         registration.setEnabled(false);
         return registration;

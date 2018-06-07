@@ -26,11 +26,13 @@ public class CredentialsMatcher extends HashedCredentialsMatcher {
         String username = (String) token.getPrincipal();
         String cacheName = RedisKeys.getLoginRecordCacheKey(username);
         AtomicInteger retryCount = redisUtils.get(cacheName, AtomicInteger.class);
-        if (retryCount == null) {//如果缓存中没有，就为用户创建一个
+        //如果缓存中没有，就为用户创建一个
+        if (retryCount == null) {
             retryCount = new AtomicInteger(0);
             redisUtils.set(cacheName, retryCount, 1800);
         }
-        if (retryCount.incrementAndGet() > 5) {//每次执行登录增加一次，大于5次，抛出异常
+        //每次执行登录增加一次，大于5次，抛出异常
+        if (retryCount.incrementAndGet() > 5) {
             if (6 == retryCount.get()) {
                 redisUtils.set(cacheName, retryCount, 1800);
                 redisUtils.delete(RedisKeys.getTokenCacheKey(username));
@@ -40,7 +42,8 @@ public class CredentialsMatcher extends HashedCredentialsMatcher {
             throw new ExcessiveAttemptsException();
         }
         boolean matches = super.doCredentialsMatch(token, info);
-        if (matches) {//认证成功，清除登陆执行次数
+        if (matches) {
+            //认证成功，清除登陆执行次数
             redisUtils.delete(cacheName);
         } else {
             redisUtils.set(cacheName, retryCount);

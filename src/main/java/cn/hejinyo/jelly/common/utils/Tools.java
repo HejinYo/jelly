@@ -92,7 +92,6 @@ public class Tools {
             byte[] doFinal = sha256_HMAC.doFinal(content.getBytes("utf-8"));
             //16进制内容
             // byte[] hexB = new Hex().encode(doFinal);
-            //base64编码内容
             return base64Encode(doFinal);
         } catch (Exception e) {
             throw new RuntimeException(e);

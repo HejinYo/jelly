@@ -5,6 +5,8 @@ import org.apache.shiro.subject.SubjectContext;
 import org.apache.shiro.web.mgt.DefaultWebSubjectFactory;
 
 /**
+ * 禁用了session的SubjectFactory
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:04
  */

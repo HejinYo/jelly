@@ -21,7 +21,6 @@ public class ShiroCache<K, V> implements Cache<K, V> {
     private String cacheKey;
     private RedisTemplate<K, V> redisTemplate;
 
-    @SuppressWarnings("rawtypes")
     ShiroCache(String name, RedisTemplate client) {
         this.cacheKey = REDIS_SHIRO_CACHE + name + ":";
         this.redisTemplate = client;
@@ -29,7 +28,8 @@ public class ShiroCache<K, V> implements Cache<K, V> {
 
     @Override
     public V get(K key) throws CacheException {
-        long globExpire = 30;//shiro缓存超时时间
+        //shiro缓存超时时间
+        long globExpire = 30;
         redisTemplate.boundValueOps(getCacheKey(key)).expire(globExpire, TimeUnit.MINUTES);
         return redisTemplate.boundValueOps(getCacheKey(key)).get();
     }

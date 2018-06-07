@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.config;
 
-import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
@@ -13,9 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * SpringMVC配置
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/8/16 23:38
- * @Description :
  */
 @Configuration
 public class WebMvcConfigurer extends WebMvcConfigurerAdapter {

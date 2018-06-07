@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.modules.sys.shiro.realm;
 
-import cn.hejinyo.jelly.modules.sys.shiro.token.BaseToken;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -25,11 +24,10 @@ public class ModularRealm extends ModularRealmAuthenticator {
         Collection<Realm> realms = getRealms();
         // 登录类型对应的所有Realm
         Collection<Realm> typeRealms = new ArrayList<>();
-        //强制转换Token
-        String tokenType = ((BaseToken) authenticationToken).getTokenType();
+        // 强制转换Token
         for (Realm realm : realms) {
             //根据token类型指定realm
-            if (realm.getName().contains(tokenType)) {
+            if (realm.supports(authenticationToken)) {
                 typeRealms.add(realm);
             }
         }

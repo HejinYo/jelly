@@ -1,22 +1,19 @@
 package cn.hejinyo.jelly.modules.sys.shiro.token;
 
+import org.apache.shiro.authc.AuthenticationToken;
+
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:07
  */
-public class StatelessLoginToken extends BaseToken {
+public class StatelessLoginToken implements AuthenticationToken {
 
     private String username;
     private String password;
 
-    public StatelessLoginToken(final String tokenType, final String username, final String password) {
-        super.tokenType = tokenType;
+    public StatelessLoginToken(final String username, final String password) {
         this.username = username;
         this.password = password;
-    }
-
-    public StatelessLoginToken(final String username, final String password) {
-        this(StatelessLoginToken.class.getSimpleName(), username, password);
     }
 
     public String getUsername() {
@@ -35,10 +32,5 @@ public class StatelessLoginToken extends BaseToken {
     @Override
     public Object getCredentials() {
         return getPassword();
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getName() + " - " + super.tokenType + username;
     }
 }

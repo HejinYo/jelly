@@ -60,9 +60,5 @@ public class StatelessAuthcFilter extends AccessControlFilter {
         return false;
     }
 
-    protected String getHost(ServletRequest request) {
-        return request.getRemoteHost();
-    }
-
 }
 
