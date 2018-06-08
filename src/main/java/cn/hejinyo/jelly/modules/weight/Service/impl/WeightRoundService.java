@@ -50,11 +50,11 @@ public class WeightRoundService {
     @Autowired
     private ValueOperations<String, String> valueOperations;
     @Autowired
-    private ListOperations<String, Object> listOperations;
+    private ListOperations<String, String> listOperations;
     @Autowired
-    private SetOperations<String, Object> setOperations;
+    private SetOperations<String, String> setOperations;
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
     @Autowired
     private SysLogDao sysLogDao;
 

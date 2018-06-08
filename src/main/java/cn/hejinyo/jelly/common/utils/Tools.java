@@ -1,9 +1,8 @@
 package cn.hejinyo.jelly.common.utils;
 
-import cn.hejinyo.jelly.common.consts.UserToken;
+import cn.hejinyo.jelly.common.consts.Constant;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
 import jodd.util.Base64;
 
 import javax.crypto.Mac;
@@ -54,7 +53,6 @@ public class Tools {
         String path = "C:/java/tools/JDK/";
         String druid = "druid-1.0.16.jar com.alibaba.druid.filter.config.ConfigTools ";
         String fileInfo = "java -cp " + path + druid + password + " ;exit;";
-        System.out.println(fileInfo);
         String pw[] = new String[3];
         try {
             Process proc = Runtime.getRuntime().exec(fileInfo);
@@ -116,8 +114,15 @@ public class Tools {
 
     /**
      * 创建jwt token
-     *
-     * @param expires n小时后失效
+     * 默认失效时间
+     */
+    public static String createToken(int userId, String username, String password) {
+        return createToken(Constant.JWT_EXPIRES_DEFAULT, userId, username, password);
+    }
+
+    /**
+     * 创建jwt token
+     * expires n小时后失效
      */
     public static String createToken(int expires, int userId, String username, String password) {
         String token = "";
@@ -125,8 +130,8 @@ public class Tools {
             token = JWT.create().
                     withIssuedAt(new Date()).
                     withExpiresAt(new Date(System.currentTimeMillis() + (expires * 60 * 60 * 1000))).
-                    withClaim(UserToken.USERID.getValue(), userId).
-                    withClaim(UserToken.USERNAME.getValue(), username).
+                    withClaim(Constant.JWT_TOKEN_USERID, userId).
+                    withClaim(Constant.JWT_TOKEN_USERNAME, username).
                     sign(Algorithm.HMAC256(password));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -137,9 +142,12 @@ public class Tools {
     /**
      * 获得token 信息
      */
-    public static String getTokenInfo(String token, String key) {
-        DecodedJWT dJWT = JWT.decode(token);
-        return dJWT.getClaim(key).asString();
+    public static String tokenInfoStr(String token, String key) {
+        return JWT.decode(token).getClaim(key).asString();
+    }
+
+    public static Integer tokenInfoInt(String token, String key) {
+        return JWT.decode(token).getClaim(key).asInt();
     }
 
     /**

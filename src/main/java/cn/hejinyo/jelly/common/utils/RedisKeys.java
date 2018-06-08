@@ -4,6 +4,18 @@ package cn.hejinyo.jelly.common.utils;
  * Redis所有Keys
  */
 public class RedisKeys {
+    private static final String PREFIX = "jelly";
+    public static final String USER_TOKEN = "token";
+    public static final String USER_PERM = "perm";
+    public static final String USER_ROLE = "role";
+
+    private static String buildKey(Object... key) {
+        StringBuilder sb = new StringBuilder();
+        for (Object o : key) {
+            sb.append(String.valueOf(o)).append(":");
+        }
+        return sb.deleteCharAt(sb.length() - 1).toString();
+    }
 
     /**
      * 配置参数
@@ -11,6 +23,14 @@ public class RedisKeys {
     public static String getSysConfigKey(String key) {
         return "sys:config:" + key;
     }
+
+    /**
+     * 用户信息存放redis map key
+     */
+    public static String storeUser(Object userId) {
+        return buildKey(PREFIX, "store", "user", userId);
+    }
+
 
     /**
      * 登录token

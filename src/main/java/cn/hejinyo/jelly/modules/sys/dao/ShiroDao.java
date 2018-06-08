@@ -1,6 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.dao;
 
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Set;
@@ -13,11 +13,8 @@ import java.util.Set;
 public interface ShiroDao {
     /**
      * 执行登录，查询用户登录信息
-     *
-     * @param userName
-     * @return
      */
-    CurrentUserDTO getCurrentUser(String userName);
+    LoginUserDTO findLoginUser(String userName);
 
     /**
      * 查找用户编号对应的角色编码字符串

@@ -2,7 +2,6 @@ package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
 
 import java.util.HashMap;
 
@@ -12,20 +11,14 @@ import java.util.HashMap;
  */
 public interface SysUserService extends BaseService<SysUser, Integer> {
     /**
-     * 用户名是否存在
-     *
-     * @param userName
-     * @return
+     * 更新用户登录信息
      */
-    boolean isExistUserName(String userName);
+    int updateUserLoginInfo(Integer userId);
 
     /**
-     * 更新用户登录信息
-     *
-     * @param userDTO
-     * @return
+     * 用户名是否存在
      */
-    int updateUserLoginInfo(CurrentUserDTO userDTO);
+    boolean isExistUserName(String userName);
 
     /**
      * 修改密码

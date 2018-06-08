@@ -1,30 +1,31 @@
 package cn.hejinyo.jelly.modules.sys.shiro.token;
 
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:07
  */
-public class StatelessAuthcToken implements AuthenticationToken {
+public class SysAuthcToken implements AuthenticationToken {
 
-    private String username;
+    private Integer userId;
     private String userToken;
-    private Object currentUser;
+    private LoginUserDTO currentUser;
 
-    public StatelessAuthcToken(String username, String userToken, Object currentUser) {
-        this.username = username;
+    public SysAuthcToken(Integer userId, String userToken, LoginUserDTO currentUser) {
+        this.userId = userId;
         this.userToken = userToken;
         this.currentUser = currentUser;
     }
 
-    public Object getCurrentUser() {
+    public LoginUserDTO getLoginUser() {
         return currentUser;
     }
 
     @Override
     public Object getPrincipal() {
-        return username;
+        return userId;
     }
 
     @Override

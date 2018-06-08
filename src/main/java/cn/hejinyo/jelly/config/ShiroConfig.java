@@ -1,12 +1,10 @@
 package cn.hejinyo.jelly.config;
 
-import cn.hejinyo.jelly.modules.sys.shiro.filter.StatelessAuthcFilter;
+import cn.hejinyo.jelly.modules.sys.shiro.filter.SysAuthcFilter;
 import cn.hejinyo.jelly.modules.sys.shiro.filter.URLFilter;
-import cn.hejinyo.jelly.modules.sys.shiro.realm.CredentialsMatcher;
 import cn.hejinyo.jelly.modules.sys.shiro.realm.ModularRealm;
-import cn.hejinyo.jelly.modules.sys.shiro.realm.StatelessAuthcTokenRealm;
-import cn.hejinyo.jelly.modules.sys.shiro.realm.StatelessLoginTokenRealm;
-import cn.hejinyo.jelly.modules.sys.shiro.subject.StatelessSubjectFactory;
+import cn.hejinyo.jelly.modules.sys.shiro.realm.SysAuthcRealm;
+import cn.hejinyo.jelly.modules.sys.shiro.subject.SubjectFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
@@ -32,32 +30,24 @@ import java.util.*;
  */
 @Configuration
 @Slf4j
-public class ShiroConfiguration {
+public class ShiroConfig {
+
 
     /**
-     * Redis缓存管理器，保留，还不太会用，生存时间不会设置
-     *
-     * @return
+     * SecurityManager 安全管理器 有多个Realm,可使用'realms'属性代替
      */
-   /* @Bean
-    public RedisCacheManager redisCacheManager() {
-        return new RedisCacheManager();
-    }*/
-
-    // SecurityManager 安全管理器 有多个Realm,可使用'realms'属性代替
     @Bean("securityManager")
     public SecurityManager securityManager() {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        //禁用session 的subjectFactory
-        securityManager.setSubjectFactory(new StatelessSubjectFactory());
-        //禁用使用Sessions 作为存储策略的实现，但它没有完全地禁用Sessions,所以需要配合context.setSessionCreationEnabled(false);
+        // 禁用session 的subjectFactory
+        securityManager.setSubjectFactory(new SubjectFactory());
+        // 禁用使用Sessions 作为存储策略的实现，但它没有完全地禁用Sessions,所以需要配合context.setSessionCreationEnabled(false);
         ((DefaultSessionStorageEvaluator) ((DefaultSubjectDAO) securityManager.getSubjectDAO()).getSessionStorageEvaluator()).setSessionStorageEnabled(false);
-        //自定义realms
+        // 自定义realms
         List<Realm> realms = new ArrayList<>();
-        realms.add(statelessLoginRealm());
         realms.add(statelessAuthcRealm());
         securityManager.setRealms(realms);
-        //自定义 ModularRealm
+        // 自定义 ModularRealm
         securityManager.setAuthenticator(defaultModularRealm(realms));
         return securityManager;
     }
@@ -99,17 +89,6 @@ public class ShiroConfiguration {
         return factoryBean;
     }
 
-    /**
-     * 凭证匹配器
-     */
-    @Bean
-    public CredentialsMatcher credentialsMatcher() {
-        CredentialsMatcher matcher = new CredentialsMatcher();
-        matcher.setHashIterations(2);
-        matcher.setHashAlgorithmName("md5");
-        matcher.setStoredCredentialsHexEncoded(true);
-        return matcher;
-    }
 
     /**
      * 配置使用自定义认证器，可以实现多Realm认证，并且可以指定特定Realm处理特定类型的验证
@@ -122,22 +101,11 @@ public class ShiroConfiguration {
     }
 
     /**
-     * 登录创建token的Realm
-     */
-    @Bean
-    public StatelessLoginTokenRealm statelessLoginRealm() {
-        StatelessLoginTokenRealm loginRealm = new StatelessLoginTokenRealm();
-        //自定义凭证匹配器
-        loginRealm.setCredentialsMatcher(credentialsMatcher());
-        return loginRealm;
-    }
-
-    /**
      * token验证Realm
      */
     @Bean
-    public StatelessAuthcTokenRealm statelessAuthcRealm() {
-        return new StatelessAuthcTokenRealm();
+    public SysAuthcRealm statelessAuthcRealm() {
+        return new SysAuthcRealm();
     }
 
     /**
@@ -152,15 +120,15 @@ public class ShiroConfiguration {
     }
 
     @Bean
-    public StatelessAuthcFilter authcFilter() {
-        return new StatelessAuthcFilter();
+    public SysAuthcFilter authcFilter() {
+        return new SysAuthcFilter();
     }
 
     /**
      * 解决自定义拦截器混乱问题
      */
     @Bean
-    public FilterRegistrationBean registrationAuthcFilterBean(StatelessAuthcFilter authcFilter) {
+    public FilterRegistrationBean registrationAuthcFilterBean(SysAuthcFilter authcFilter) {
         FilterRegistrationBean registration = new FilterRegistrationBean(authcFilter);
         //取消自动注册功能 Filter自动注册,不会添加到FilterChain中.
         registration.setEnabled(false);

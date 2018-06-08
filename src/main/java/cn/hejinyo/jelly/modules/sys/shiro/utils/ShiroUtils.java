@@ -1,6 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.shiro.utils;
 
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
@@ -32,8 +32,8 @@ public class ShiroUtils {
     /**
      * 获取用户对象
      */
-    public static CurrentUserDTO getCurrentUser() {
-        return (CurrentUserDTO) SecurityUtils.getSubject().getPrincipal();
+    public static LoginUserDTO getCurrentUser() {
+        return (LoginUserDTO) SecurityUtils.getSubject().getPrincipal();
     }
 
     /**

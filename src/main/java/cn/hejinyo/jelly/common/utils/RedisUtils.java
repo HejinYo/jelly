@@ -6,8 +6,10 @@ import org.springframework.data.redis.connection.DataType;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Redis工具类
@@ -18,17 +20,17 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisUtils {
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
     @Autowired
     private ValueOperations<String, String> valueOperations;
     @Autowired
-    private ListOperations<String, Object> listOperations;
+    private ListOperations<String, String> listOperations;
     @Autowired
-    private HashOperations<String, String, Object> hashOperations;
+    private HashOperations<String, String, String> hashOperations;
     @Autowired
-    private SetOperations<String, Object> setOperations;
+    private SetOperations<String, String> setOperations;
     @Autowired
-    private ZSetOperations<String, Object> zSetOperations;
+    private ZSetOperations<String, String> zSetOperations;
 
     /**
      * 默认过期时长，单位：秒
@@ -52,6 +54,13 @@ public class RedisUtils {
             return String.valueOf(object);
         }
         return JsonUtil.toJson(object);
+    }
+
+    /**
+     * json字符串转对象
+     */
+    private <T> T fromJson(String value, Type clazz) {
+        return value == null ? null : JsonUtil.fromJson(value, clazz);
     }
 
     /**
@@ -156,8 +165,8 @@ public class RedisUtils {
      * RENAMENX key newkey
      * 重命名一个key,新的key必须是不存在的key
      */
-    public void renameNX(String oldKey, String newKey) {
-        redisTemplate.renameIfAbsent(oldKey, newKey);
+    public Boolean renameNX(String oldKey, String newKey) {
+        return redisTemplate.renameIfAbsent(oldKey, newKey);
     }
 
     /**
@@ -182,8 +191,8 @@ public class RedisUtils {
     /**
      * SETNX key value 设置的一个关键的价值，只有当该键不存在
      */
-    public void setNX(String key, Object value) {
-        valueOperations.setIfAbsent(key, toJson(value));
+    public Boolean setNX(String key, Object value) {
+        return valueOperations.setIfAbsent(key, toJson(value));
     }
 
     /**
@@ -285,65 +294,60 @@ public class RedisUtils {
      * BLPOP key [key ...] timeout
      * 删除，并获得该列表中的第一元素，或阻塞，直到有一个可用
      */
-    public Object bLPop(String key, long timeout) {
+    public String bLPop(String key, long timeout) {
         return listOperations.leftPop(key, timeout, TimeUnit.SECONDS);
     }
 
     public <T> T bLPop(String key, long timeout, Class<T> clazz) {
-        Object value = bLPop(key, timeout);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);
+        return fromJson(bLPop(key, timeout), clazz);
     }
 
     /**
      * BRPOP key [key ...] timeout 删除，并获得该列表中的最后一个元素，或阻塞，直到有一个可用
      */
-    public Object bRPop(String key, long timeout) {
+    public String bRPop(String key, long timeout) {
         return listOperations.rightPop(key, timeout, TimeUnit.SECONDS);
     }
 
     public <T> T bRPop(String key, long timeout, Class<T> clazz) {
-        Object value = bRPop(key, timeout);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);
+        return fromJson(bRPop(key, timeout), clazz);
     }
 
     /**
      * BRPOPLPUSH source destination timeout 弹出一个列表的值，将它推到另一个列表，并返回它;或阻塞，直到有一个可用
      */
-    public Object brpoplpush(String source, String destination, long timeout) {
+    public String brpoplpush(String source, String destination, long timeout) {
         if (timeout == 0) {
             // timeout 为 0 能用于无限期阻塞客户端。
-            return listOperations.rightPopAndLeftPush(source, destination);
+            return toJson(listOperations.rightPopAndLeftPush(source, destination));
         }
-        return listOperations.rightPopAndLeftPush(source, destination, timeout, TimeUnit.SECONDS);
+        return toJson(listOperations.rightPopAndLeftPush(source, destination, timeout, TimeUnit.SECONDS));
     }
 
-    public <T> T bRPop(String source, String destination, long timeout, Class<T> clazz) {
-        Object value = brpoplpush(source, destination, timeout);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);
+    public <T> T brpoplpush(String source, String destination, long timeout, Class<T> clazz) {
+        return fromJson(brpoplpush(source, destination, timeout), clazz);
     }
 
     /**
      * RPOPLPUSH source destination 删除列表中的最后一个元素，将其追加到另一个列表
      */
-    public Object rpoplpush(String sourceKey, String destinationKey) {
+    public String rpoplpush(String sourceKey, String destinationKey) {
         return listOperations.rightPopAndLeftPush(sourceKey, destinationKey);
     }
 
     public <T> T rpoplpush(String sourceKey, String destinationKey, Class<T> clazz) {
-        Object value = rpoplpush(sourceKey, destinationKey);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);
+        return fromJson(rpoplpush(sourceKey, destinationKey), clazz);
     }
 
     /**
      * LINDEX key index 获取一个元素，通过其索引列表
      */
-    public Object lindex(String key, long index) {
-        return listOperations.index(key, index);
+    public String lindex(String key, long index) {
+        return toJson(listOperations.index(key, index));
     }
 
     public <T> T lindex(String key, long index, Class<T> clazz) {
-        Object value = lindex(key, index);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);
+        return fromJson(lindex(key, index), clazz);
     }
 
     /**
@@ -356,13 +360,12 @@ public class RedisUtils {
     /**
      * LPOP key 从队列的左边出队一个元素
      */
-    public Object lpop(String key) {
+    public String lpop(String key) {
         return listOperations.leftPop(key);
     }
 
     public <T> T lpop(String key, Class<T> clazz) {
-        Object value = lpop(key);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);
+        return fromJson(lpop(key), clazz);
     }
 
     /**
@@ -375,7 +378,7 @@ public class RedisUtils {
     /**
      * LPUSH key value [value ...] 从队列的左边入队多个元素
      */
-    public Long lpush(String key, Object... values) {
+    public Long lpush(String key, String... values) {
         return listOperations.leftPushAll(key, values);
     }
 
@@ -383,7 +386,7 @@ public class RedisUtils {
      * LPUSH key value [value ...] 从队列的左边入队一个集合
      */
     public Long lpush(String key, Collection<Object> values) {
-        return listOperations.leftPushAll(key, values.stream().map(this::toJson));
+        return listOperations.leftPushAll(key, values.stream().map(this::toJson).collect(Collectors.toList()));
     }
 
     /**
@@ -398,15 +401,15 @@ public class RedisUtils {
      * list的第一个元素下标是0（list的表头），第二个元素下标是1，以此类推。
      * 偏移量也可以是负数，表示偏移量是从list尾部开始计数。 例如， -1 表示列表的最后一个元素，-2 是倒数第二个，以此类推。
      */
-    public List<Object> lrange(String key, long start, long end) {
+    public List<String> lrange(String key, long start, long end) {
         return listOperations.range(key, start, end);
     }
 
     public <T> List<T> lrange(String key, long start, long end, Class<T> clazz) {
-        List<Object> value = lrange(key, start, end);
+        List<String> value = lrange(key, start, end);
         return value == null ? null : JsonUtil.fromJson(String.valueOf(value), new TypeToken<List<T>>() {
         }.getType());
-        //return value == null ? null : value.stream().map(o -> (T) JsonUtil.fromJson(String.valueOf(o), clazz)).collect(Collectors.toList());
+        //return value == null ? null : value.stream().map(o -> (T) JsonUtil.fromJson(o, clazz)).collect(Collectors.toList());
     }
 
     /**
@@ -438,42 +441,39 @@ public class RedisUtils {
     /**
      * RPOP key 从队列的右边出队一个元素
      */
-    public Object rpop(String key) {
+    public String rpop(String key) {
         return listOperations.rightPop(key);
     }
 
     public <T> T rpop(String key, Class<T> clazz) {
-        Optional<Object> vv = Optional.ofNullable(rpop(key));
-        return vv.map(o -> (T) JsonUtil.fromJson(String.valueOf(o), clazz)).orElse(null);
-       /* Object value = rpop(key);
-        return value == null ? null : JsonUtil.fromJson(String.valueOf(value), clazz);*/
+        return fromJson(rpop(key), clazz);
     }
 
     /**
      * RPUSH key value [value ...] 从队列的右边入队一个元素
      */
-    public Object rpush(String key, Object value) {
+    public Long rpush(String key, String value) {
         return listOperations.rightPush(key, value);
     }
 
     /**
      * RPUSH key value [value ...] 从队列的右边入队多個元素
      */
-    public Long rpush(String key, Object... values) {
+    public Long rpush(String key, String... values) {
         return listOperations.rightPushAll(key, values);
     }
 
     /**
      * RPUSH key value [value ...] 从队列的右边入队一个集合
      */
-    public Long rpush(String key, Collection<Object> values) {
+    public Long rpush(String key, Collection<String> values) {
         return listOperations.rightPushAll(key, values);
     }
 
     /**
      * LPUSHX key value 当队列存在时，从队到左边入队一个元素
      */
-    public Long rpushx(String key, Object value) {
+    public Long rpushx(String key, String value) {
         return listOperations.rightPushIfPresent(key, value);
     }
 
@@ -500,14 +500,22 @@ public class RedisUtils {
     /**
      * HGET key field 获取hash中field的值
      */
-    public Object hget(String key, String field) {
+    public String hget(String key, String field) {
         return hashOperations.get(key, field);
+    }
+
+    public <T> T hget(String key, String field, Class<T> clazz) {
+        return fromJson(hashOperations.get(key, field), clazz);
+    }
+
+    public <T> T hget(String key, String field, Type typeOfT) {
+        return fromJson(hashOperations.get(key, field), typeOfT);
     }
 
     /**
      * HGETALL key 从hash中读取全部的域和值
      */
-    public Map<String, Object> hgetall(String key) {
+    public Map<String, String> hgetall(String key) {
         return hashOperations.entries(key);
     }
 
@@ -542,14 +550,14 @@ public class RedisUtils {
     /**
      * HMGET key field [field ...] 获取hash里面指定字段的值
      */
-    public List<Object> hmget(String key, Collection<String> hashKeys) {
+    public List<String> hmget(String key, Collection<String> hashKeys) {
         return hashOperations.multiGet(key, hashKeys);
     }
 
     /**
      * HMSET key field value [field value ...] 设置hash字段值
      */
-    public void hmset(String key, Map<String, Object> m) {
+    public void hmset(String key, Map<String, String> m) {
         hashOperations.putAll(key, m);
     }
 
@@ -557,20 +565,30 @@ public class RedisUtils {
      * HSET key field value 设置hash里面一个字段的值
      */
     public void hset(String key, String hashKey, Object value) {
-        hashOperations.put(key, hashKey, value);
+        hashOperations.put(key, hashKey, toJson(value));
+    }
+
+    /**
+     * HSET key field value 设置hash里面一个字段的值,并设置有效时间
+     */
+    public void hsetEX(String key, String hashKey, Object value, long expire) {
+        hashOperations.put(key, hashKey, toJson(value));
+        if (expire != NOT_EXPIRE) {
+            redisTemplate.expire(key, expire, TimeUnit.SECONDS);
+        }
     }
 
     /**
      * HSETNX key field value 设置hash的一个字段，只有当这个字段不存在时有效
      */
-    public Boolean hsetnx(String key, String hashKey, Object value) {
-        return hashOperations.putIfAbsent(key, hashKey, value);
+    public Boolean hsetNX(String key, String hashKey, Object value) {
+        return hashOperations.putIfAbsent(key, hashKey, toJson(value));
     }
 
     /**
      * HVALS key  获得hash的所有值
      */
-    public List<Object> hvals(String key) {
+    public List<String> hvals(String key) {
         return hashOperations.values(key);
     }
 
@@ -584,7 +602,7 @@ public class RedisUtils {
      * SADD key member [member ...]
      * 添加一个或者多个元素到集合(set)里
      **/
-    public Long sadd(String key, Object... values) {
+    public Long sadd(String key, String... values) {
         return setOperations.add(key, values);
     }
 
@@ -600,7 +618,7 @@ public class RedisUtils {
      * SDIFF key [key ...]
      * 获得队列不存在的元素
      **/
-    public Set<Object> sdiff(String key, String otherKey) {
+    public Set<String> sdiff(String key, String otherKey) {
         return setOperations.difference(key, otherKey);
     }
 
@@ -616,7 +634,7 @@ public class RedisUtils {
      * SINTER key [key ...]
      * 获得两个集合的交集
      **/
-    public Set<Object> sinter(String key, String otherKey) {
+    public Set<String> sinter(String key, String otherKey) {
         return setOperations.intersect(key, otherKey);
     }
 
@@ -633,14 +651,14 @@ public class RedisUtils {
      * 确定一个给定的值是一个集合的成员
      **/
     public Boolean sismember(String key, Object o) {
-        return setOperations.isMember(key, o);
+        return setOperations.isMember(key, toJson(o));
     }
 
     /**
      * SMEMBERS key
      * 获取集合里面的所有元素
      **/
-    public Set<Object> smembers(String key) {
+    public Set<String> smembers(String key) {
         return setOperations.members(key);
     }
 
@@ -656,7 +674,7 @@ public class RedisUtils {
      * SPOP key [count]
      * 删除并获取一个集合里面的元素
      **/
-    public Object spop(String key) {
+    public String spop(String key) {
         return setOperations.pop(key);
     }
 
@@ -664,7 +682,7 @@ public class RedisUtils {
      * SRANDMEMBER key
      * 从集合里面随机获取一个元素
      **/
-    public Object srandmember(String key) {
+    public String srandmember(String key) {
         return setOperations.randomMember(key);
     }
 
@@ -672,7 +690,7 @@ public class RedisUtils {
      * SRANDMEMBER key [count]
      * 从集合里面随机获取多个元素
      **/
-    public List<Object> srandmember(String key, long count) {
+    public List<String> srandmember(String key, long count) {
         return setOperations.randomMembers(key, count);
     }
 
@@ -688,7 +706,7 @@ public class RedisUtils {
      * SUNION key [key ...]
      * 添加多个set元素
      **/
-    public Set<Object> sunion(String key, String otherKey) {
+    public Set<String> sunion(String key, String otherKey) {
         return setOperations.union(key, otherKey);
     }
 

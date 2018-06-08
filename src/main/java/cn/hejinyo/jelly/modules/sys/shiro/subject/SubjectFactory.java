@@ -10,7 +10,7 @@ import org.apache.shiro.web.mgt.DefaultWebSubjectFactory;
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/7/29 18:04
  */
-public class StatelessSubjectFactory extends DefaultWebSubjectFactory {
+public class SubjectFactory extends DefaultWebSubjectFactory {
     @Override
     public Subject createSubject(SubjectContext context) {
         //不创建session

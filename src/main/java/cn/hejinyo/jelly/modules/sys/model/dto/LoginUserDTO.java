@@ -5,32 +5,32 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
- * 当前用户实体类
+ * 用户登录实体类
  *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/4/9 14:48
  */
 @Data
-public class CurrentUserDTO implements Serializable {
+public class LoginUserDTO implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     /**
-     * 用户编号
-     */
+     * 用户编号 user_id
+     **/
     private Integer userId;
 
     /**
-     * 用户名称
-     */
-    private String userName;
+     * 用户昵称 nick_name
+     **/
+    private String nickName;
 
     /**
-     * 头像地址
-     */
-    private String avatar;
+     * 用户名 user_name
+     **/
+    private String userName;
 
     /**
      * 密码
@@ -45,35 +45,35 @@ public class CurrentUserDTO implements Serializable {
     private String userSalt;
 
     /**
-     * 邮箱
-     */
+     * 头像 avatar
+     **/
+    private String avatar;
+
+    /**
+     * 邮箱 email
+     **/
     private String email;
 
     /**
-     * 手机号
-     */
+     * 手机号 phone
+     **/
     private String phone;
 
     /**
-     * 最后登录IP
-     */
+     * 最后登录IP login_ip
+     **/
     private String loginIp;
 
     /**
-     * 最后登录时间
-     */
-    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
+     * 最后登录时间 login_time
+     **/
     private Date loginTime;
 
     /**
-     * 用户状态 0：正常；1：锁定；-1：禁用(删除)
-     */
+     * 用户状态 0：正常；1：禁用 state
+     **/
+    @JSONField(serialize = false)
     private Integer state;
-
-    /**
-     * 用户可用菜单
-     */
-    private List<UserMenuDTO> userMenu;
 
     /**
      * 用户登录token

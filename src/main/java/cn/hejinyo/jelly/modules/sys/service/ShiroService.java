@@ -1,6 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.service;
 
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 
 import java.util.Set;
 
@@ -11,11 +11,8 @@ import java.util.Set;
 public interface ShiroService {
     /**
      * 执行登录，查询用户登录信息
-     *
-     * @param userName
-     * @return
      */
-    CurrentUserDTO getCurrentUser(String userName);
+    LoginUserDTO getLoginUser(String userName);
 
     /**
      * 查找用户编号对应的角色编码字符串
@@ -24,9 +21,6 @@ public interface ShiroService {
 
     /**
      * 查找用户编号对应的权限编码字符串
-     *
-     * @param userId
-     * @return
      */
     Set<String> getUserPermisSet(int userId);
 }

@@ -5,11 +5,12 @@ import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.common.utils.StringUtils;
+import cn.hejinyo.jelly.common.utils.WebUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
 import cn.hejinyo.jelly.modules.sys.model.SysRole;
 import cn.hejinyo.jelly.modules.sys.model.SysUser;
 import cn.hejinyo.jelly.modules.sys.model.SysUserRole;
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.service.SysRoleService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserRoleService;
@@ -38,6 +39,19 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
     private SysUserRoleService sysUserRoleService;
     @Autowired
     private SysRoleService sysRoleService;
+
+    /**
+     * 更新用户登录信息
+     */
+    @Override
+    public int updateUserLoginInfo(Integer userId) {
+        SysUser sysUser = new SysUser();
+        sysUser.setUserId(userId);
+        //设置本地登录IP
+        sysUser.setLoginIp(WebUtils.getIpAddr(WebUtils.getHttpServletRequest()));
+        sysUser.setLoginTime(new Date());
+        return baseDao.update(sysUser);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -170,15 +184,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
     }
 
     @Override
-    public int updateUserLoginInfo(CurrentUserDTO userDTO) {
-        SysUser sysUser = new SysUser();
-        sysUser.setLoginTime(new Date());
-        sysUser.setUserId(userDTO.getUserId());
-        sysUser.setLoginIp(userDTO.getLoginIp());
-        return baseDao.update(sysUser);
-    }
-
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public int deleteBatch(Integer[] ids) {
         //删除用户角色表记录
@@ -266,13 +271,13 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
      */
     @Override
     public void updateUserRedisInfo() {
-        CurrentUserDTO oldUser = ShiroUtils.getCurrentUser();
-        CurrentUserDTO userDTO = shiroService.getCurrentUser(oldUser.getUserName());
+        LoginUserDTO oldUser = ShiroUtils.getCurrentUser();
+        LoginUserDTO userDTO = shiroService.getLoginUser(oldUser.getUserName());
         userDTO.setUserToken(oldUser.getUserToken());
         userDTO.setLoginIp(oldUser.getLoginIp());
         userDTO.setLoginTime(oldUser.getLoginTime());
         //token写入缓存
-        redisUtils.set(RedisKeys.getTokenCacheKey(userDTO.getUserName()), userDTO, 1800);
+        redisUtils.setEX(RedisKeys.getTokenCacheKey(userDTO.getUserName()), userDTO, 1800);
     }
 
 }

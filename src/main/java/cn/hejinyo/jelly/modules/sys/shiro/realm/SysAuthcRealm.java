@@ -2,10 +2,9 @@ package cn.hejinyo.jelly.modules.sys.shiro.realm;
 
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import cn.hejinyo.jelly.modules.sys.service.ShiroService;
-import cn.hejinyo.jelly.modules.sys.shiro.token.StatelessAuthcToken;
-import com.google.gson.Gson;
+import cn.hejinyo.jelly.modules.sys.shiro.token.SysAuthcToken;
 import com.google.gson.reflect.TypeToken;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -18,8 +17,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -28,27 +25,24 @@ import java.util.Set;
  * @date : 2017/7/29 18:09
  */
 @Component
-public class StatelessAuthcTokenRealm extends AuthorizingRealm {
-
+public class SysAuthcRealm extends AuthorizingRealm {
     @Autowired
     private ShiroService shiroService;
     @Autowired
     private RedisUtils redisUtils;
 
-    private final static Gson GSON = new Gson();
-
     @Override
     public boolean supports(AuthenticationToken token) {
-        //仅支持StatelessAuthcToken类型的Token
-        return token instanceof StatelessAuthcToken;
+        // 仅支持StatelessAuthcToken类型的Token
+        return token instanceof SysAuthcToken;
     }
 
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
-        StatelessAuthcToken statelessToken = (StatelessAuthcToken) token;
-        //签证信息
-        CurrentUserDTO userDTO = (CurrentUserDTO) statelessToken.getCurrentUser();
-        //使用缓存中的userToken和当前验证token进行对比
+        SysAuthcToken statelessToken = (SysAuthcToken) token;
+        // 签证信息
+        LoginUserDTO userDTO = statelessToken.getLoginUser();
+        // 使用缓存中的userToken和当前验证token进行对比
         return new SimpleAuthenticationInfo(userDTO, userDTO.getUserToken(), getName());
     }
 
@@ -57,28 +51,22 @@ public class StatelessAuthcTokenRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        CurrentUserDTO currentUserDTO = (CurrentUserDTO) principals.getPrimaryPrincipal();
-        int userId = currentUserDTO.getUserId();
-        String username = currentUserDTO.getUserName();
+        LoginUserDTO userDTO = (LoginUserDTO) principals.getPrimaryPrincipal();
+        int userId = userDTO.getUserId();
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         //获得角色信息
-        String json = redisUtils.get(RedisKeys.getAuthCacheKey(username));
-        Set<String> roleSet;
-        Set<String> permissionsSet;
-        Map<String, Set<String>> list;
-        if (null != json) {
-            list = GSON.fromJson(json, new TypeToken<Map<String, Set<String>>>() {
-            }.getType());
-            roleSet = list.get("role");
-            permissionsSet = list.get("permissions");
-        } else {
-            list = new HashMap<>();
+        Set<String> roleSet = redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_ROLE, new TypeToken<Set<String>>() {
+        }.getType());
+        //获得授权信息
+        Set<String> permissionsSet = redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_PERM, new TypeToken<Set<String>>() {
+        }.getType());
+        if (roleSet == null) {
             roleSet = shiroService.getUserRoleSet(userId);
-            list.put("role", roleSet);
-            //获得权限信息
+            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_ROLE, roleSet);
+        }
+        if (permissionsSet == null) {
             permissionsSet = shiroService.getUserPermisSet(userId);
-            list.put("permissions", permissionsSet);
-            redisUtils.set(RedisKeys.getAuthCacheKey(username), list, 600);
+            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_PERM, permissionsSet);
         }
         roleSet.removeIf(Objects::isNull);
         permissionsSet.removeIf(Objects::isNull);

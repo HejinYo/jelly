@@ -30,7 +30,6 @@ public class ExceptionHandle {
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler(InfoException.class)
     public Result infoExceptionException(InfoException e) {
-        //e.printStackTrace();
         return Result.error(e.getCode(), e.getMessage());
     }
 
@@ -57,7 +56,6 @@ public class ExceptionHandle {
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public Result validException(MethodArgumentNotValidException mnve) {
-        //e.printStackTrace();
         return Result.error(mnve.getBindingResult().getFieldError().getDefaultMessage());
     }
 

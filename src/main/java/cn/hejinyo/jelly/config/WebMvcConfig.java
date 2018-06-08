@@ -18,7 +18,7 @@ import java.util.List;
  * @date : 2017/8/16 23:38
  */
 @Configuration
-public class WebMvcConfigurer extends WebMvcConfigurerAdapter {
+public class WebMvcConfig extends WebMvcConfigurerAdapter {
 
     /**
      * 注入fastJson

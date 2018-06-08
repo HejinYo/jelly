@@ -2,7 +2,7 @@ package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.modules.sys.dao.ShiroDao;
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,8 @@ public class ShiroServiceImpl implements ShiroService {
     private ShiroDao shiroDao;
 
     @Override
-    public CurrentUserDTO getCurrentUser(String userName) {
-        return shiroDao.getCurrentUser(userName);
+    public LoginUserDTO getLoginUser(String userName) {
+        return shiroDao.findLoginUser(userName);
     }
 
     /**

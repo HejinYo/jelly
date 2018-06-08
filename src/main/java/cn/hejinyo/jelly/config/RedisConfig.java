@@ -70,8 +70,8 @@ public class RedisConfig {
      * StringRedisSerializer来序列化和反序列化的RedisTemplate
      */
     @Bean("redisTemplate")
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
@@ -87,22 +87,22 @@ public class RedisConfig {
     }
 
     @Bean
-    public ListOperations<String, Object> listOperations(RedisTemplate<String, Object> redisTemplate) {
+    public ListOperations<String, String> listOperations(RedisTemplate<String, String> redisTemplate) {
         return redisTemplate.opsForList();
     }
 
     @Bean
-    public SetOperations<String, Object> setOperations(RedisTemplate<String, Object> redisTemplate) {
+    public SetOperations<String, String> setOperations(RedisTemplate<String, String> redisTemplate) {
         return redisTemplate.opsForSet();
     }
 
     @Bean
-    public ZSetOperations<String, Object> zSetOperations(RedisTemplate<String, Object> redisTemplate) {
+    public ZSetOperations<String, String> zSetOperations(RedisTemplate<String, String> redisTemplate) {
         return redisTemplate.opsForZSet();
     }
 
     @Bean
-    public HashOperations<String, String, Object> hashOperations(RedisTemplate<String, Object> redisTemplate) {
+    public HashOperations<String, String, String> hashOperations(RedisTemplate<String, String> redisTemplate) {
         return redisTemplate.opsForHash();
     }
 }

@@ -18,6 +18,8 @@ public enum StatusCode {
     LOGIN_USER_LOCK(1115, "此用户已被禁用"),
     USER_UNAUTHORIZED(1116, "用户无权限进行此操作"),
     TOKEN_OVERDUE(1130, "登录过期，请重新登录"),
+    TOKEN_OUT(1131, "登录失效，帐号在其他地方登录"),
+    TOKEN_FAULT(1132, "非法的用户Token"),
     DATABASE_DUPLICATEKEY(2001, "数据库中已存在该记录"),
     DATABASE_SAVE_FAILURE(2002, "添加失败"),
     DATABASE_UPDATE_FAILURE(2003, "修改失败"),

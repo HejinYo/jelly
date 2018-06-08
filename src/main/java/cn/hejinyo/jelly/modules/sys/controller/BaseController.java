@@ -1,6 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
-import cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 
 /**
@@ -10,7 +10,7 @@ public abstract class BaseController {
     /**
      * 获得当前用户
      */
-    protected CurrentUserDTO getCurrentUser() {
+    protected LoginUserDTO getCurrentUser() {
         return ShiroUtils.getCurrentUser();
     }
 

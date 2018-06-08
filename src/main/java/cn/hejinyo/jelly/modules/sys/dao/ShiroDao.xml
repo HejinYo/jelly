@@ -3,15 +3,30 @@
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.ShiroDao">
 
     <!-- 表基本列 -->
-    <sql id="Sys_User_Column_List">
-        user_id, user_name, user_pwd, user_salt, avatar, email, phone, login_ip, login_time,
-        state, create_time, create_id
+    <sql id="Base_Column_List">
+        user_id, nick_name, user_name, user_pwd, user_salt, avatar, email, phone, login_ip,
+        login_time, state, create_time, create_id, update_time, update_id
     </sql>
 
-    <!-- 执行登录，查询用户登录信息 -->
-    <select id="getCurrentUser" resultType="cn.hejinyo.jelly.modules.sys.model.dto.CurrentUserDTO">
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO">
+        <id column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="nick_name" jdbcType="VARCHAR" property="nickName"/>
+        <result column="user_name" jdbcType="VARCHAR" property="userName"/>
+        <result column="user_pwd" jdbcType="VARCHAR" property="userPwd"/>
+        <result column="user_salt" jdbcType="VARCHAR" property="userSalt"/>
+        <result column="avatar" jdbcType="VARCHAR" property="avatar"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="phone" jdbcType="VARCHAR" property="phone"/>
+        <result column="login_ip" jdbcType="VARCHAR" property="loginIp"/>
+        <result column="login_time" jdbcType="TIMESTAMP" property="loginTime"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+    </resultMap>
+
+    <!-- 执行登录，根据用户名查询用户登录信息 -->
+    <select id="findLoginUser" resultMap="BaseResultMap">
         SELECT
-        <include refid="Sys_User_Column_List"/>
+        <include refid="Base_Column_List"/>
         FROM sys_user
         WHERE
         user_name = #{username}
