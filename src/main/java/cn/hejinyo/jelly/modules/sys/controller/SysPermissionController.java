@@ -5,7 +5,7 @@ import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
-import cn.hejinyo.jelly.modules.sys.model.SysPermission;
+import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class SysPermissionController extends BaseController {
     @GetMapping(value = "/{permId}")
     @RequiresPermissions("resource:view")
     public Result get(@PathVariable(value = "permId") int permId) {
-        SysPermission sysPermission = sysPermissionService.findOne(permId);
+        SysPermissionEntity sysPermission = sysPermissionService.findOne(permId);
         if (sysPermission == null) {
             return Result.error("资源权限不存在");
         }
@@ -44,7 +44,7 @@ public class SysPermissionController extends BaseController {
     @GetMapping(value = "/listPage")
     @RequiresPermissions("resource:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
-        PageInfo<SysPermission> userPageInfo = new PageInfo<>(sysPermissionService.findPage(PageQuery.build(paramers)));
+        PageInfo<SysPermissionEntity> userPageInfo = new PageInfo<>(sysPermissionService.findPage(PageQuery.build(paramers)));
         return Result.ok(userPageInfo);
     }
 
@@ -54,7 +54,7 @@ public class SysPermissionController extends BaseController {
     @SysLogger("增加权限")
     @PostMapping
     @RequiresPermissions("resource:create")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysPermission sysPermission) {
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysPermissionEntity sysPermission) {
         if (sysPermission.getResId() == 0) {
             return Result.error("资源根节点不允许添加权限");
         }
@@ -74,7 +74,7 @@ public class SysPermissionController extends BaseController {
     @SysLogger("更新权限")
     @PutMapping(value = "/{permId}")
     @RequiresPermissions("resource:update")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysPermission sysPermission, @PathVariable("permId") int permId) {
+    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysPermissionEntity sysPermission, @PathVariable("permId") int permId) {
         sysPermission.setPermId(permId);
         int result = sysPermissionService.update(sysPermission);
         if (result > 0) {
@@ -90,7 +90,7 @@ public class SysPermissionController extends BaseController {
     @DeleteMapping(value = "/{permId}")
     @RequiresPermissions("resource:delete")
     public Result delete(@PathVariable("permId") int permId) {
-        SysPermission sysPermission = sysPermissionService.findOne(permId);
+        SysPermissionEntity sysPermission = sysPermissionService.findOne(permId);
         if (sysPermission == null) {
             return Result.error("资源权限不存在");
         }

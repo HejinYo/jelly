@@ -1,6 +1,5 @@
 package cn.hejinyo.jelly.modules.sys.model.dto;
 
-import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -17,39 +16,37 @@ public class UserMenuDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 菜单编号
-     */
-    private Integer mid;
+     * 菜单编号 res_id
+     **/
+    private Integer resId;
 
     /**
-     * 资源编码
-     */
-    private String redCode;
+     * 父节点 parent_id
+     **/
+    private Integer parentId;
 
     /**
-     * 菜单名字
-     */
-    private String mname;
+     * 菜单名称 res_name
+     **/
+    private String resName;
 
     /**
-     * 菜单地址
-     */
-    private String murl;
+     * 菜单编码 res_code
+     **/
+    private String resCode;
 
     /**
-     * 上级菜单编号
-     */
-    private Integer pid;
+     * 显示图标 icon
+     **/
+    private String icon;
 
     /**
-     * 菜单显示顺序
-     */
+     * 排序号 seq
+     **/
     private Integer seq;
 
     /**
-     * 菜单图标
+     * 子菜单
      */
-    private String micon;
-
     private List<UserMenuDTO> children;
 }

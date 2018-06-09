@@ -32,8 +32,22 @@
         user_name = #{username}
     </select>
 
+    <!-- 查找所有角色编码字符串，管理员使用 -->
+    <select id="findAllRoleSet" resultType="String">
+        SELECT role_code
+        FROM
+            sys_role r
+            LEFT JOIN sys_user_role ur ON ur.role_id = r.role_id
+    </select>
+
+    <!-- 查找所有授权编码字符串，管理员使用 -->
+    <select id="findAllPermSet" resultType="String">
+        select perm_code
+        from sys_permission
+    </select>
+
     <!-- 查找用户编号对应的角色编码字符串 -->
-    <select id="getUserRoleSet" resultType="String">
+    <select id="findUserRoleSet" resultType="String">
         SELECT role_code
         FROM
             sys_role r
@@ -43,19 +57,12 @@
     </select>
 
     <!-- 根据用户Id获得权限列表字符串 -->
-    <select id="getUserPermisSet" resultType="String">
-        SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
-        FROM sys_user_role sur
-            LEFT JOIN sys_role sr ON sr.role_id = sur.role_id AND sr.state = 0
-            LEFT JOIN sys_role_resource srr ON srr.role_id = sr.role_id
-            LEFT JOIN sys_permission sp ON sp.perm_id = srr.perm_id
-        WHERE sur.user_id = #{userId} AND sp.state = 0
-    </select>
-
-    <!-- 根据查询所有权限列表字符串 -->
-    <select id="getAllPermisSet" resultType="String">
-        SELECT concat(sp.res_code, ':', sp.perm_code) perm_code
-        FROM sys_permission sp
+    <select id="findUserPermSet" resultType="String">
+        select sp.perm_code
+        from sys_permission sp
+            LEFT JOIN sys_role_permission srp on srp.perm_id = sp.perm_id
+            LEFT JOIN sys_user_role sur on sur.role_id = srp.role_id
+        where sp.state = 0 and sur.user_id = #{userId}
     </select>
 
 

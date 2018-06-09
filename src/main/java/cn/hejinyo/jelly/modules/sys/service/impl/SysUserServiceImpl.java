@@ -271,7 +271,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUser, Int
      */
     @Override
     public void updateUserRedisInfo() {
-        LoginUserDTO oldUser = ShiroUtils.getCurrentUser();
+        LoginUserDTO oldUser = ShiroUtils.getLoginUser();
         LoginUserDTO userDTO = shiroService.getLoginUser(oldUser.getUserName());
         userDTO.setUserToken(oldUser.getUserToken());
         userDTO.setLoginIp(oldUser.getLoginIp());

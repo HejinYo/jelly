@@ -5,7 +5,7 @@ import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
-import cn.hejinyo.jelly.modules.sys.model.SysResource;
+import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class SysResourceController extends BaseController {
     @GetMapping(value = "/{roleId}")
     @RequiresPermissions("role:view")
     public Result get(@PathVariable(value = "roleId") Integer roleId) {
-        SysResource sysResource = sysResourceService.findOne(roleId);
+        SysResourceEntity sysResource = sysResourceService.findOne(roleId);
         if (sysResource == null) {
             return Result.error("资源不存在");
         }
@@ -43,7 +43,7 @@ public class SysResourceController extends BaseController {
     @RequestMapping(value = "/listPage")
     @RequiresPermissions("resource:view")
     public Result list(@RequestParam HashMap<String, Object> pageParam) {
-        PageInfo<SysResource> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(pageParam)));
+        PageInfo<SysResourceEntity> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(pageParam)));
         return Result.ok(resourcePageInfo);
     }
 
@@ -62,7 +62,7 @@ public class SysResourceController extends BaseController {
     @SysLogger("删除资源")
     @PostMapping
     @RequiresPermissions("resource:create")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysResource sysResource) {
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysResourceEntity sysResource) {
         if (sysResourceService.isExistResCode(sysResource.getResCode())) {
             return Result.error("资源编码已经存在");
         }
@@ -79,8 +79,8 @@ public class SysResourceController extends BaseController {
     @SysLogger("更新资源")
     @PutMapping(value = "/{resId}")
     @RequiresPermissions("resource:update")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysResource sysResource, @PathVariable("resId") Integer resId) {
-        if (resId == 0 && sysResource.getResPid() != -1) {
+    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysResourceEntity sysResource, @PathVariable("resId") Integer resId) {
+        if (resId == 0 && sysResource.getParentId() != -1) {
             return Result.error("资源根节点不允许修改所属资源");
         }
         sysResource.setResId(resId);

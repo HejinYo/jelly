@@ -17,18 +17,23 @@ public interface ShiroDao {
     LoginUserDTO findLoginUser(String userName);
 
     /**
+     * 查找所有角色编码字符串，管理员使用
+     */
+    Set<String> findAllRoleSet();
+
+    /**
+     * 查找所有授权编码字符串，管理员使用
+     */
+    Set<String> findAllPermSet();
+
+    /**
      * 查找用户编号对应的角色编码字符串
      */
-    Set<String> getUserRoleSet(int userId);
+    Set<String> findUserRoleSet(int userId);
 
     /**
      * 查找用户编号对应的权限编码字符串
      */
-    Set<String> getUserPermisSet(int userId);
-
-    /**
-     * 根据查询所有权限列表字符串
-     */
-    Set<String> getAllPermisSet();
+    Set<String> findUserPermSet(int userId);
 
 }

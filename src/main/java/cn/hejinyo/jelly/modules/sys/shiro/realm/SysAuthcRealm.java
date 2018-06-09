@@ -1,11 +1,9 @@
 package cn.hejinyo.jelly.modules.sys.shiro.realm;
 
-import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
 import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.shiro.token.SysAuthcToken;
-import com.google.gson.reflect.TypeToken;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -17,7 +15,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -55,21 +52,9 @@ public class SysAuthcRealm extends AuthorizingRealm {
         int userId = userDTO.getUserId();
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         //获得角色信息
-        Set<String> roleSet = redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_ROLE, new TypeToken<Set<String>>() {
-        }.getType());
+        Set<String> roleSet = shiroService.getUserRoleSet(userId);
         //获得授权信息
-        Set<String> permissionsSet = redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_PERM, new TypeToken<Set<String>>() {
-        }.getType());
-        if (roleSet == null) {
-            roleSet = shiroService.getUserRoleSet(userId);
-            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_ROLE, roleSet);
-        }
-        if (permissionsSet == null) {
-            permissionsSet = shiroService.getUserPermisSet(userId);
-            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_PERM, permissionsSet);
-        }
-        roleSet.removeIf(Objects::isNull);
-        permissionsSet.removeIf(Objects::isNull);
+        Set<String> permissionsSet = shiroService.getUserPermSet(userId);
         authorizationInfo.addRoles(roleSet);
         authorizationInfo.addStringPermissions(permissionsSet);
         return authorizationInfo;

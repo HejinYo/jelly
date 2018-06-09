@@ -11,13 +11,13 @@ public abstract class BaseController {
      * 获得当前用户
      */
     protected LoginUserDTO getCurrentUser() {
-        return ShiroUtils.getCurrentUser();
+        return ShiroUtils.getLoginUser();
     }
 
     /**
      * 获得当前用户编号
      */
-    protected int getUserId() {
+    protected int loginUserId() {
         return ShiroUtils.getUserId();
     }
 }

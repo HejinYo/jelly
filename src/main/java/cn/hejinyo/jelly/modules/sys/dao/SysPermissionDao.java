@@ -1,7 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.dao;
 
 import cn.hejinyo.jelly.common.base.BaseDao;
-import cn.hejinyo.jelly.modules.sys.model.SysPermission;
+import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * sys_permission 持久化层
+ *
  * @author : HejinYo   hejinyo@gmail.com
- * @date : 2017/6/17 16:54
+ * @date : 2018/06/09 16:47
  */
 @Mapper
-public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
+public interface SysPermissionDao extends BaseDao<SysPermissionEntity, Integer> {
     /**
      * 查找角色编号对应的权限编码字符串
      */
@@ -37,5 +39,5 @@ public interface SysPermissionDao extends BaseDao<SysPermission, Integer> {
     /**
      * 根据resId更新resCode
      */
-    int updateResCodeByResId(SysPermission permission);
+    int updateResCodeByResId(SysPermissionEntity permission);
 }

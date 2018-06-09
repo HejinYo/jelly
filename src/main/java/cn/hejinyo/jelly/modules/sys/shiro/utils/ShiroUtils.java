@@ -32,7 +32,7 @@ public class ShiroUtils {
     /**
      * 获取用户对象
      */
-    public static LoginUserDTO getCurrentUser() {
+    public static LoginUserDTO getLoginUser() {
         return (LoginUserDTO) SecurityUtils.getSubject().getPrincipal();
     }
 
@@ -40,7 +40,7 @@ public class ShiroUtils {
      * 获得用户id
      */
     public static int getUserId() {
-        return getCurrentUser().getUserId();
+        return getLoginUser().getUserId();
     }
 
     /**

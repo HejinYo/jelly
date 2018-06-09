@@ -5,8 +5,8 @@ import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao;
-import cn.hejinyo.jelly.modules.sys.model.SysPermission;
-import cn.hejinyo.jelly.modules.sys.model.SysResource;
+import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
+import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
 import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
@@ -27,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @date : 2017/6/17 17:06
  */
 @Service
-public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, SysPermission, Integer> implements SysPermissionService {
+public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, SysPermissionEntity, Integer> implements SysPermissionService {
 
     @Autowired
     private SysResourceService sysResourceService;
@@ -37,21 +37,19 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     private RedisUtils redisUtils;
 
     @Override
-    public boolean isExist(SysPermission sysPermission) {
-        SysPermission permission = new SysPermission();
+    public boolean isExist(SysPermissionEntity sysPermission) {
+        SysPermissionEntity permission = new SysPermissionEntity();
         permission.setPermCode(sysPermission.getPermCode());
-        permission.setResCode(sysPermission.getResCode());
         permission.setResId(sysPermission.getResId());
         return baseDao.exsit(permission);
     }
 
     @Override
-    public int save(SysPermission sysPermission) {
-        SysResource sysResource = sysResourceService.findOne(sysPermission.getResId());
+    public int save(SysPermissionEntity sysPermission) {
+        SysResourceEntity sysResource = sysResourceService.findOne(sysPermission.getResId());
         if (sysResource == null) {
             throw new InfoException("资源不存在");
         }
-        sysPermission.setResCode(sysResource.getResCode());
         sysPermission.setCreateTime(new Date());
         sysPermission.setCreateId(ShiroUtils.getUserId());
         //清除redis中的权限缓存
@@ -75,8 +73,8 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
     }
 
     @Override
-    public int update(SysPermission sysPermission) {
-        SysPermission oldPermission = baseDao.findOne(sysPermission.getPermId());
+    public int update(SysPermissionEntity sysPermission) {
+        SysPermissionEntity oldPermission = baseDao.findOne(sysPermission.getPermId());
         if (oldPermission == null) {
             throw new InfoException("权限不存在");
         }
@@ -85,11 +83,10 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
                 throw new InfoException("资源权限已经存在");
             }
         }
-        SysResource sysResource = sysResourceService.findOne(sysPermission.getResId());
+        SysResourceEntity sysResource = sysResourceService.findOne(sysPermission.getResId());
         if (sysResource == null) {
             throw new InfoException("资源不存在");
         }
-        sysPermission.setResCode(sysResource.getResCode());
         //清除redis中的权限缓存
         redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return super.update(sysPermission);
@@ -119,7 +116,7 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
      * 根据resId更新resCode
      */
     @Override
-    public int updateResCodeByResId(SysPermission permission) {
+    public int updateResCodeByResId(SysPermissionEntity permission) {
         //清除redis中的权限缓存
         redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
         return baseDao.updateResCodeByResId(permission);

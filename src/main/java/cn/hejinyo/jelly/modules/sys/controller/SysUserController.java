@@ -119,7 +119,7 @@ public class SysUserController extends BaseController {
     @RequiresPermissions("user:update")
     @PutMapping(value = "/{userId}")
     public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysUser sysUser, @PathVariable("userId") Integer userId) {
-        if (1 == userId && getUserId() != Constant.SUPER_ADMIN) {
+        if (1 == userId && loginUserId() != Constant.SUPER_ADMIN) {
             return Result.error("admin不允许修改");
         }
         sysUser.setUserId(userId);
@@ -156,7 +156,7 @@ public class SysUserController extends BaseController {
      */
     @GetMapping(value = "/info")
     public Result getUserInfo() {
-        return Result.ok(sysUserService.findOne(getUserId()));
+        return Result.ok(sysUserService.findOne(loginUserId()));
     }
 
     /**
@@ -198,7 +198,7 @@ public class SysUserController extends BaseController {
             try {
                 String avatarUrl = OSSFactory.build(key).upload(file.getInputStream(), key);
                 SysUser sysUser = new SysUser();
-                sysUser.setUserId(getUserId());
+                sysUser.setUserId(loginUserId());
                 sysUser.setAvatar(avatarUrl);
                 int count = sysUserService.updateUserAvatar(sysUser);
                 if (count > 0) {

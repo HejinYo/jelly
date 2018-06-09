@@ -3,9 +3,10 @@ package cn.hejinyo.jelly.modules.sys.service.impl;
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.exception.InfoException;
+import cn.hejinyo.jelly.common.utils.RecursionUtil;
 import cn.hejinyo.jelly.modules.sys.dao.SysResourceDao;
-import cn.hejinyo.jelly.modules.sys.model.SysPermission;
-import cn.hejinyo.jelly.modules.sys.model.SysResource;
+import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
+import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
 import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
@@ -15,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @date : 2017/4/22 15:11
  */
 @Service
-public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysResource, Integer> implements SysResourceService {
+public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysResourceEntity, Integer> implements SysResourceService {
 
     @Autowired
     private SysRoleResourceService sysRoleResourceService;
@@ -34,80 +35,55 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     @Autowired
     private SysPermissionService sysPermissionService;
 
+    /**
+     * 查询用户编号可用菜单列表
+     */
     @Override
     public List<UserMenuDTO> getUserMenuList(int userId) {
-        //系统管理员，拥有最高权限
         if (userId == Constant.SUPER_ADMIN) {
-            return baseDao.findAllMenuList(null);
+            //系统管理员，所有有效菜单
+            return baseDao.findAllMenuList();
         }
-        return baseDao.findAllMenuList(userId);
+        return baseDao.findUserMenuList(userId);
     }
 
+    /**
+     * 查询用户编号可用菜单树
+     */
     @Override
     public List<UserMenuDTO> getUserMenuTree(int userId) {
-        //用户菜单树
-        return recursionMenu(0, new CopyOnWriteArrayList<>(getUserMenuList(userId)));
+        //递归生成用户菜单树
+        return RecursionUtil.tree(false, UserMenuDTO.class, "getResId",
+                new CopyOnWriteArrayList<>(getUserMenuList(userId)), Collections.singletonList(Constant.TREE_ROOT));
     }
 
     /**
-     * 将菜单列表递归成树
+     * 递归获得所有资源树
      */
-    private List<UserMenuDTO> recursionMenu(Integer parentId, List<UserMenuDTO> list) {
-        List<UserMenuDTO> result = new ArrayList<>();
-        list.forEach(value -> {
-            if (parentId.equals(value.getPid())) {
-                value.setChildren(recursionMenu(value.getMid(), list));
-                result.add(value);
-                list.remove(value);
-            }
-        });
-        return result;
-    }
-
     @Override
-    public HashMap<String, List<SysResource>> getRecursionTree() {
-        List<SysResource> list = baseDao.findAllResourceList();
-        List<SysResource> tree = recursionRes(-1, new CopyOnWriteArrayList<>(new ArrayList<>(list)));
-        HashMap<String, List<SysResource>> map = new HashMap<>();
-        map.put("list", list);
-        map.put("tree", tree);
-        return map;
+    public HashMap<String, List<SysResourceEntity>> getRecursionTree() {
+        return RecursionUtil.listTree(true, SysResourceEntity.class, "getResId", baseDao.findAllResourceList(), Collections.singletonList(Constant.TREE_ROOT));
     }
 
-    /**
-     * 将资源列表递归成树
-     */
-    private List<SysResource> recursionRes(Integer parentId, List<SysResource> list) {
-        List<SysResource> result = new ArrayList<>();
-        list.forEach(value -> {
-            //!value.getResId().equals(value.getResPid()) 杜绝死循环情况
-            if (parentId.equals(value.getResPid()) && !value.getResId().equals(value.getResPid())) {
-                value.setChildren(recursionRes(value.getResId(), list));
-                result.add(value);
-                list.remove(value);
-            }
-        });
-        return result;
-    }
 
     @Override
     public boolean isExistResCode(String resCode) {
         //查询resCode是否存在
-        SysResource sysResource = new SysResource();
+        SysResourceEntity sysResource = new SysResourceEntity();
         sysResource.setResCode(resCode);
         return baseDao.exsit(sysResource);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int save(SysResource sysResource) {
-        SysResource newResource = new SysResource();
+    public int save(SysResourceEntity sysResource) {
+        SysResourceEntity newResource = new SysResourceEntity();
         baseDao.updateAdditionSeq(sysResource);
-        newResource.setResPid(sysResource.getResPid());
-        newResource.setResType(sysResource.getResType());
+        newResource.setParentId(sysResource.getParentId());
+        newResource.setType(sysResource.getType());
         newResource.setResName(sysResource.getResName());
         newResource.setResCode(sysResource.getResCode());
-        newResource.setResIcon(sysResource.getResIcon());
+        newResource.setIcon(sysResource.getIcon());
         newResource.setCreateTime(new Date());
         newResource.setSeq(sysResource.getSeq());
         newResource.setCreateId(ShiroUtils.getUserId());
@@ -117,28 +93,28 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int update(SysResource sysResource) {
+    public int update(SysResourceEntity sysResource) {
         int resid = sysResource.getResId();
-        int resPid = sysResource.getResPid();
-        SysResource oldResource = findOne(resid);
+        int resPid = sysResource.getParentId();
+        SysResourceEntity oldResource = findOne(resid);
         if (resPid == resid) {
             throw new InfoException("不能选择自己作为上级资源");
         }
         if (null == oldResource) {
             throw new InfoException("资源不存在");
         }
-        SysResource newResource = new SysResource();
+        SysResourceEntity newResource = new SysResourceEntity();
 
         newResource.setResId(resid);
-        newResource.setResType(sysResource.getResType());
+        newResource.setType(sysResource.getType());
         newResource.setResCode(sysResource.getResCode());
         newResource.setResName(sysResource.getResName());
-        newResource.setResPid(resPid);
-        newResource.setResIcon(sysResource.getResIcon());
+        newResource.setParentId(resPid);
+        newResource.setIcon(sysResource.getIcon());
         newResource.setSeq(sysResource.getSeq());
         newResource.setState(sysResource.getState());
         newResource.setCreateTime(sysResource.getCreateTime());
-        if (resPid != oldResource.getResPid()) {
+        if (resPid != oldResource.getParentId()) {
             //上级资源改变，原上级资源seq减修改
             baseDao.updateSubtractionSeq(oldResource);
             //新的上级资源seq加修改
@@ -155,9 +131,8 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
         int count = super.update(newResource);
         //资源编码改变，同步修改权限表的resCode
         if (count > 0 && !sysResource.getResCode().equals(oldResource.getResCode())) {
-            SysPermission permission = new SysPermission();
+            SysPermissionEntity permission = new SysPermissionEntity();
             permission.setResId(newResource.getResId());
-            permission.setResCode(newResource.getResCode());
             sysPermissionService.updateResCodeByResId(permission);
         }
         return count;
@@ -166,15 +141,15 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int delete(Integer resId) {
-        SysResource sysResource = baseDao.findOne(resId);
+        SysResourceEntity sysResource = baseDao.findOne(resId);
         if (sysResource == null) {
             throw new InfoException("资源ID [" + resId + "] 不存在");
         }
 
         //查询是否还有子节点
-        SysResource sysRes = new SysResource();
-        sysRes.setResPid(resId);
-        List<SysResource> list = baseDao.findList(sysRes);
+        SysResourceEntity sysRes = new SysResourceEntity();
+        sysRes.setParentId(resId);
+        List<SysResourceEntity> list = baseDao.findList(sysRes);
         if (list.size() > 0) {
             throw new InfoException("资源 [" + sysResource.getResName() + "] 存在子节点");
         }

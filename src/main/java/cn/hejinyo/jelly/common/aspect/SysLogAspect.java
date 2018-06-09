@@ -80,7 +80,7 @@ public class SysLogAspect {
 
         if (SecurityUtils.getSubject().isAuthenticated()) {
             //用户名
-            String username = ShiroUtils.getCurrentUser().getUserName();
+            String username = ShiroUtils.getLoginUser().getUserName();
             sysLog.setUserName(username);
         } else {
             sysLog.setUserName(sysLog.getIp());

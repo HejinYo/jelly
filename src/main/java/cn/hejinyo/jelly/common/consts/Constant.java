@@ -10,6 +10,10 @@ public class Constant {
      */
     public static final Integer SUPER_ADMIN = 1;
     /**
+     * 树根节点ID
+     */
+    public static final Integer TREE_ROOT = 1;
+    /**
      * JWT token 用户名
      */
     public static final String JWT_TOKEN_USERNAME = "use";

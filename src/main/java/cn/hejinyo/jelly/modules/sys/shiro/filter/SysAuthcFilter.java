@@ -48,6 +48,8 @@ public class SysAuthcFilter extends AccessControlFilter {
                     ResponseUtils.response(response, Result.error(StatusCode.TOKEN_OUT));
                     return false;
                 }
+                //token续命
+                redisUtils.expire(RedisKeys.storeUser(userId), Constant.USER_TOKEN_EXPIRE);
                 return true;
             }
             // token不在缓存中

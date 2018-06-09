@@ -8,6 +8,7 @@ public class RedisKeys {
     public static final String USER_TOKEN = "token";
     public static final String USER_PERM = "perm";
     public static final String USER_ROLE = "role";
+    public static final String USER_DEPT = "dept";
 
     private static String buildKey(Object... key) {
         StringBuilder sb = new StringBuilder();

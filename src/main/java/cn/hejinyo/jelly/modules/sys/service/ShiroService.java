@@ -22,5 +22,5 @@ public interface ShiroService {
     /**
      * 查找用户编号对应的权限编码字符串
      */
-    Set<String> getUserPermisSet(int userId);
+    Set<String> getUserPermSet(int userId);
 }
