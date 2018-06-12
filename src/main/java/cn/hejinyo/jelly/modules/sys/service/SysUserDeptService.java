@@ -14,10 +14,42 @@ import java.util.List;
  * @date : 2017/6/12 22:21
  */
 public interface SysUserDeptService extends BaseService<SysUserDeptEntity, Integer> {
+
     /**
-     * 查询用户部门列表
+     * 用户所在部门Id列表，带缓存
      */
-    List<SysUserDeptEntity> getUserDeptList(Integer userId);
+    List<Integer> getCurDeptIdListByUserId(Integer userId);
+
+    /**
+     * 用户所在部门和子部门，带缓存
+     */
+    List<Integer> getAllDeptIdListByUserId(Integer userId);
+
+    /**
+     * 用户拥有的子部门，带缓存
+     */
+    List<Integer> getSubDeptIdListByUserId(Integer userId);
+
+    /**
+     * 查询用户部门关系列表
+     */
+    List<SysUserDeptEntity> getUserDeptListByUserId(Integer userId);
+
+    /**
+     * 根据用户ID，获取部门列表
+     */
+    List<SysDeptEntity> getDeptListByUserId(Integer userId);
+
+
+    /**
+     * 根据用户编号，删除与此用户的部门关系
+     */
+    int deleteByUserId(Integer userId);
+
+    /**
+     * 根据部门编号，删除与此部门的用户关系
+     */
+    int deleteByDeptIds(Integer[] deptIds);
 
     /**
      * 保存用户部门关系
@@ -25,47 +57,8 @@ public interface SysUserDeptService extends BaseService<SysUserDeptEntity, Integ
     int save(Integer userId, List<SysUserDeptEntity> userDeptList);
 
     /**
-     * 查询用户部门Id列表
-     */
-    List<Integer> getUserDeptId(Integer userId);
-
-    /**
-     * 获取用户所有的部门，包含子部门
-     */
-    List<Integer> getUserAllDeptId(Integer userId);
-
-    /**
-     * 递归获取用户部门和子部门
-     *
-     * @param isRoot       是否显示根节点
-     * @param list         需要遍历的列表
-     * @param parentIdList 父节点编号列表
-     */
-    List<Integer> recursionDept(boolean isRoot, List<SysDeptEntity> list, List<Integer> parentIdList);
-
-    /**
-     * 删除用户部门关系
-     */
-    int deleteByUserId(Integer userId);
-
-    /**
-     * 根据用户ID，获取部门列表
-     */
-    List<SysDeptEntity> getDeptList(Integer userId);
-
-    /**
-     * 查询用户部门列表,包含部门信息
-     */
-    List<SysUserDeptEntity> getUserDeptInfoList(Integer userId);
-
-    /**
      * 根绝部门编号查询用户编号列表
      */
     List<Integer> getUserIdByDeptId(Integer deptId);
-
-    /**
-     * 删除人员与部门关系
-     */
-    int deleteByDeptIds(Integer[] deptIds);
 
 }

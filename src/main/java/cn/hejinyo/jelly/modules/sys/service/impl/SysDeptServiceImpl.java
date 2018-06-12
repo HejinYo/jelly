@@ -4,9 +4,7 @@ import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.exception.InfoException;
-import cn.hejinyo.jelly.common.utils.PageQuery;
-import cn.hejinyo.jelly.common.utils.PojoConvertUtil;
-import cn.hejinyo.jelly.common.utils.RecursionUtil;
+import cn.hejinyo.jelly.common.utils.*;
 import cn.hejinyo.jelly.modules.sys.dao.SysDeptDao;
 import cn.hejinyo.jelly.modules.sys.model.SysDeptEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysDeptService;
@@ -16,12 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
-
-import static cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils.getUserId;
 
 /**
  * 部门业务
@@ -32,11 +27,19 @@ import static cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils.getUserId;
 @Service
 public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntity, Integer> implements SysDeptService {
 
+    /**
+     * 递归部门获取id的名称
+     */
+    private static final String GET_ID_NAME = "getDeptId";
+
     @Autowired
     private SysUserDeptService sysUserDeptService;
 
+    @Autowired
+    private RedisUtils redisUtils;
+
     /**
-     * 获取所有部门列表
+     * 获取系统所有部门列表
      */
     @Override
     public List<SysDeptEntity> getAllDeptList() {
@@ -44,7 +47,7 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
     }
 
     /**
-     * 获取所有部门Id列表
+     * 获取系统所有部门Id列表
      */
     @Override
     public List<Integer> getAllDeptIdList() {
@@ -52,7 +55,24 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
     }
 
     /**
+     * 指定一个节点，在系统所有部门中 递归遍历  指定节点开始 的所有子节点 为列表
+     *
+     * @param isRoot       是否显示根节点
+     * @param parentIdList 父节点编号列表
+     */
+    @Override
+    public List<Integer> recursionDept(boolean isRoot, List<Integer> parentIdList) {
+        List<Integer> allDeptList = new ArrayList<>();
+        // 遍历系统所有部门
+        List<SysDeptEntity> list = getAllDeptList();
+        RecursionUtil.list(allDeptList, SysDeptEntity.class, GET_ID_NAME, true, new CopyOnWriteArrayList<>(list), parentIdList);
+        return allDeptList;
+    }
+
+    /**
      * 部门管理树数据
+     *
+     * @param showRoot 是否显示根节点
      */
     @Override
     public HashMap<String, List<SysDeptEntity>> getRecursionTree(boolean showRoot) {
@@ -61,20 +81,10 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
         if (Constant.SUPER_ADMIN.equals(ShiroUtils.getUserId())) {
             parentIdList.add(Constant.TREE_ROOT);
         } else {
-            parentIdList = sysUserDeptService.getUserDeptId(getUserId());
+            // 查询用户所在部门的ID列表，作为根节点
+            parentIdList = sysUserDeptService.getCurDeptIdListByUserId(ShiroUtils.getUserId());
         }
-        return RecursionUtil.listTree(showRoot, SysDeptEntity.class, "getDeptId", getAllDeptList(), parentIdList);
-    }
-
-
-    /**
-     * 分页查询
-     */
-    @Override
-    public List<SysDeptEntity> findPage(PageQuery pageQuery) {
-        List<Integer> allDeptIdList = sysUserDeptService.getUserAllDeptId(getUserId());
-        pageQuery.put("allDeptId", allDeptIdList);
-        return super.findPage(pageQuery);
+        return RecursionUtil.listTree(showRoot, SysDeptEntity.class, GET_ID_NAME, getAllDeptList(), parentIdList);
     }
 
     /**
@@ -87,26 +97,44 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
         if (Constant.SUPER_ADMIN.equals(ShiroUtils.getUserId())) {
             parentIdList.add(Constant.TREE_ROOT);
         } else {
-            parentIdList = sysUserDeptService.getUserDeptId(getUserId());
+            parentIdList = sysUserDeptService.getCurDeptIdListByUserId(ShiroUtils.getUserId());
         }
-        return RecursionUtil.listTree(showRoot, SysDeptEntity.class, "getDeptId", baseDao.findValidDeptList(), parentIdList);
+        return RecursionUtil.listTree(showRoot, SysDeptEntity.class, GET_ID_NAME, baseDao.findValidDeptList(), parentIdList);
     }
+
+    /**
+     * 分页查询
+     */
+    @Override
+    public List<SysDeptEntity> findPage(PageQuery pageQuery) {
+        //系统管理员，拥有最高权限
+        if (Constant.SUPER_ADMIN.equals(ShiroUtils.getUserId())) {
+            return super.findPage(pageQuery);
+        }
+        // 数据权限过滤，只包含用户的子部门，用户不能查看和编辑自己所在的部门 TODO 做成注解切面完成
+        List<Integer> allDeptIdList = sysUserDeptService.getSubDeptIdListByUserId(ShiroUtils.getUserId());
+        pageQuery.put("allDeptId", allDeptIdList);
+        return super.findPage(pageQuery);
+    }
+
 
     /**
      * 新增部门
      */
     @Override
     public int save(SysDeptEntity dept) {
-        // 检测越权
-        if (checkPermission(dept.getParentId())) {
+        //检测越权,只能在自己部门范围内进行增加
+        if (checkPermission(true, dept.getParentId())) {
+            // 对象拷贝
             SysDeptEntity newDept = PojoConvertUtil.convert(dept, SysDeptEntity.class);
-            newDept.setCreateId(getUserId());
+            newDept.setCreateId(ShiroUtils.getUserId());
 
-            //检查排序号，如果有相同的，将这个排序号后面的排序号递增，然后保存部门 TODO
+            // TODO 检查排序号，如果有相同的，将这个排序号后面的排序号递增，然后保存部门
 
             int count = super.save(newDept);
             if (count > 0) {
-
+                // 清除所有用户的部门缓存
+                cleanDeptCache();
             }
             return count;
         }
@@ -119,27 +147,29 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
     @Override
     public int update(SysDeptEntity dept) {
         if (Constant.TREE_ROOT.equals(dept.getDeptId())) {
+            // 根节点不能修改
             throw new InfoException(StatusCode.DATABASE_UPDATE_ROOT);
         }
-        // 检测越权
-        if (checkPermission(dept.getParentId())) {
+        // 检测越权，只能编辑用户所拥有的子部门，所在部门不能编辑
+        if (checkPermission(true, dept.getParentId())) {
             SysDeptEntity oldDept = baseDao.findOne(dept.getDeptId());
+            //如果部门修改了父节点，需要检测新的父节点是否是当前节点的子节点，如果是，会造成递归死循环
             if (!oldDept.getParentId().equals(dept.getParentId())) {
-                //检查部门是否存在子节点
-                Integer[] deptIds = {dept.getDeptId()};
-                List<SysDeptEntity> children = baseDao.findDeptByParentIds(deptIds);
-                if (children.size() > 0) {
-                    throw new InfoException(StatusCode.DATABASE_UPDATE_CHILD);
+                // 递归获取当前节点的所有子节点
+                List<Integer> allIdList = recursionDept(true, Collections.singletonList(dept.getParentId()));
+                //检查新的父节点是否在子节点列表内
+                if (allIdList.contains(dept.getParentId())) {
+                    throw new InfoException(StatusCode.DATABASE_UPDATE_LOOP);
                 }
             }
 
             SysDeptEntity newDept = PojoConvertUtil.convert(dept, SysDeptEntity.class);
-            newDept.setUpdateId(getUserId());
+            newDept.setUpdateId(ShiroUtils.getUserId());
             //修改排序号，需要修改同级排序号 TODO
-            //修改父节点，需要修改很多相关资源 TODO
             int count = super.update(newDept);
             if (count > 0) {
-
+                // 清除所有用户的部门缓存
+                cleanDeptCache();
             }
             return count;
         }
@@ -154,9 +184,11 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
     public int deleteBatch(Integer[] deptIds) {
         for (Integer deptId : deptIds) {
             if (deptId.equals(Constant.TREE_ROOT)) {
+                //根节点不允许删除
                 throw new InfoException(StatusCode.DATABASE_DELETE_ROOT);
             }
-            if (!checkPermission(deptId)) {
+            if (!checkPermission(false, deptId)) {
+                // 检查越权，只能删除用户子部门，用户所属部门不能删除
                 throw new InfoException(StatusCode.PERMISSION_UNAUTHORIZED);
             }
             //检查是否有人员在此部门下
@@ -177,32 +209,46 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
 
         //删除序号，检查后面是否还有，有的话，需要递减 TODO
 
-        //清除部门资源（调用客户相关方法，将商机转到其他部门什么的） TODO
-
-        //记录删除日志
-
         int count = baseDao.deleteBatch(deptIds);
         if (count > 0) {
-
+            // 清除所有用户的部门缓存
+            cleanDeptCache();
         }
         return count;
     }
 
     /**
      * 检测是否越权，增加和修改的部门是否在当前用户的部门之下
+     *
+     * @param showSelf 是否包含用户所在部门
+     * @param deptId   需要检测的部门ID
      */
     @Override
-    public boolean checkPermission(Integer deptId) {
+    public boolean checkPermission(Boolean showSelf, Integer deptId) {
         // 管理员直接通过
         if (Constant.SUPER_ADMIN.equals(ShiroUtils.getUserId())) {
             return true;
         }
-        List<Integer> allDeptIdList = sysUserDeptService.getUserAllDeptId(getUserId());
-        for (Integer id : allDeptIdList) {
-            if (deptId.equals(id)) {
-                return true;
-            }
+        List<Integer> deptIdList;
+
+        if (showSelf) {
+            deptIdList = sysUserDeptService.getAllDeptIdListByUserId(ShiroUtils.getUserId());
+        } else {
+            deptIdList = sysUserDeptService.getSubDeptIdListByUserId(ShiroUtils.getUserId());
         }
-        return false;
+
+        return deptIdList.contains(deptId);
+    }
+
+    /**
+     * 清除所有用户的部门缓存
+     */
+    private void cleanDeptCache() {
+        Set<String> userStore = redisUtils.keys(RedisKeys.storeUser("*"));
+        userStore.forEach(s -> {
+            redisUtils.hdel(s, RedisKeys.USER_CUR_DEPT);
+            redisUtils.hdel(s, RedisKeys.USER_SUB_DEPT);
+            redisUtils.hdel(s, RedisKeys.USER_ALL_DEPT);
+        });
     }
 }

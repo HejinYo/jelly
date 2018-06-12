@@ -1,7 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
-import cn.hejinyo.jelly.common.utils.RecursionUtil;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDeptDao;
@@ -13,10 +12,11 @@ import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.lang.reflect.Type;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Optional;
 
 /**
  * 人员部门业务
@@ -26,6 +26,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Service
 public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysUserDeptEntity, Integer> implements SysUserDeptService {
+
+    private final Type LIST_INTEGER_TYPE = new TypeToken<List<Integer>>() {
+    }.getType();
+
     @Autowired
     private RedisUtils redisUtils;
 
@@ -33,15 +37,60 @@ public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysU
     private SysDeptService sysDeptService;
 
     /**
-     * 查询用户部门列表
+     * 用户所在部门Id列表，带缓存
      */
     @Override
-    public List<SysUserDeptEntity> getUserDeptList(Integer userId) {
-        return baseDao.findDeptListByUserId(userId);
+    public List<Integer> getCurDeptIdListByUserId(Integer userId) {
+        // 查询用户缓存中的部门ID列表
+        Optional<List<Integer>> deptList = Optional.ofNullable(redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_CUR_DEPT, LIST_INTEGER_TYPE));
+
+        return deptList.orElseGet(() -> {
+            // 缓存中没有用户部门信息，则从数据库中查询，并写入用户缓存
+            List<Integer> newList = baseDao.findDeptIdListByUserId(userId);
+            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_CUR_DEPT, newList);
+            return newList;
+        });
     }
 
     /**
-     * 删除用户部门关系
+     * 用户所在部门和子部门，带缓存
+     */
+    @Override
+    public List<Integer> getAllDeptIdListByUserId(Integer userId) {
+        // 查询用户缓存中的部门ID列表
+        Optional<List<Integer>> userAllDeptList = Optional.ofNullable(redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_ALL_DEPT, LIST_INTEGER_TYPE));
+
+        return userAllDeptList.orElseGet(() -> {
+            // 用户所在部门作为根节点进行递归
+            List<Integer> parentIdList = this.getCurDeptIdListByUserId(userId);
+            // 显示根节点，也就是显示用户所在部门
+            List<Integer> newList = sysDeptService.recursionDept(true, parentIdList);
+            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_ALL_DEPT, newList);
+            return newList;
+        });
+    }
+
+    /**
+     * 用户拥有的子部门，带缓存
+     */
+    @Override
+    public List<Integer> getSubDeptIdListByUserId(Integer userId) {
+        // 查询用户缓存中的部门ID列表
+        Optional<List<Integer>> userSubDeptList = Optional.ofNullable(redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_SUB_DEPT, LIST_INTEGER_TYPE));
+
+        return userSubDeptList.orElseGet(() -> {
+            // 用户所在部门作为根节点进行递归
+            List<Integer> parentIdList = this.getCurDeptIdListByUserId(userId);
+            // 不显示根节点，只查询用户的所有子部门
+            List<Integer> newList = sysDeptService.recursionDept(false, parentIdList);
+            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_SUB_DEPT, newList);
+            return newList;
+        });
+    }
+
+
+    /**
+     * 根据用户编号，删除与此用户的部门关系
      */
     @Override
     public int deleteByUserId(Integer userId) {
@@ -49,16 +98,25 @@ public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysU
     }
 
     /**
+     * 根据部门编号，删除与此部门的用户关系
+     */
+    @Override
+    public int deleteByDeptIds(Integer[] deptIds) {
+        return baseDao.deleteByDeptIds(deptIds);
+    }
+
+    /**
      * 保存用户部门关系
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int save(Integer userId, List<SysUserDeptEntity> userDeptList) {
         //先删除用户部门关系
         int count = baseDao.deleteByUserId(userId);
         if (userDeptList.size() == 0) {
             return count;
         }
-        //保存部门与菜单关系
+        //保存部门与用户关系
         for (SysUserDeptEntity dept : userDeptList) {
             SysUserDeptEntity userDeptEntity = new SysUserDeptEntity();
             userDeptEntity.setUserId(userId);
@@ -70,78 +128,27 @@ public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysU
     }
 
     /**
-     * 查询用户部门Id列表,带缓存
+     * 查询 用户部门关系 信息列表
      */
     @Override
-    public List<Integer> getUserDeptId(Integer userId) {
-        List<Integer> deptList = redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_DEPT, new TypeToken<List<Integer>>() {
-        }.getType());
-        if (deptList == null) {
-            deptList = baseDao.findDeptIdByUserId(userId);
-            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_DEPT, deptList);
-        }
-        return deptList;
+    public List<SysUserDeptEntity> getUserDeptListByUserId(Integer userId) {
+        return baseDao.findDeptListByUserId(userId);
     }
 
     /**
-     * 获取用户所有的部门，包含子部门,递归查询处理
+     * 根据用户ID，获取部门信息列表
      */
     @Override
-    public List<Integer> getUserAllDeptId(Integer userId) {
-        List<Integer> allDeptList = redisUtils.hget(RedisKeys.storeUser(userId), RedisKeys.USER_DEPT, new TypeToken<List<Integer>>() {
-        }.getType());
-        if (allDeptList == null || allDeptList.size() < 1) {
-            List<Integer> parentIdList = getUserDeptId(userId);
-            List<SysDeptEntity> list = sysDeptService.getAllDeptList();
-            allDeptList = recursionDept(true, new CopyOnWriteArrayList<>(list), parentIdList);
-            redisUtils.hset(RedisKeys.storeUser(userId), RedisKeys.USER_DEPT, allDeptList);
-        }
-        return allDeptList;
-    }
-
-    /**
-     * 递归获取用户部门和子部门
-     *
-     * @param isRoot       是否显示根节点
-     * @param list         需要遍历的列表
-     * @param parentIdList 父节点编号列表
-     */
-    @Override
-    public List<Integer> recursionDept(boolean isRoot, List<SysDeptEntity> list, List<Integer> parentIdList) {
-        List<Integer> allDeptList = new ArrayList<>();
-        RecursionUtil.list(allDeptList, SysDeptEntity.class, "getDeptId", true, new CopyOnWriteArrayList<>(list), parentIdList);
-        return allDeptList;
-    }
-
-    /**
-     * 根据用户ID，获取部门列表
-     */
-    @Override
-    public List<SysDeptEntity> getDeptList(Integer userId) {
+    public List<SysDeptEntity> getDeptListByUserId(Integer userId) {
         return baseDao.findDeptList(userId);
     }
 
     /**
-     * 查询用户部门列表,包含部门信息
-     */
-    @Override
-    public List<SysUserDeptEntity> getUserDeptInfoList(Integer userId) {
-        return baseDao.findUserDeptInfoList(userId);
-    }
-
-    /**
-     * 根绝角色编号查询用户编号列表
+     * 根据部门编号，查询部门下的用户ID列表
      */
     @Override
     public List<Integer> getUserIdByDeptId(Integer deptId) {
         return baseDao.findUserIdByDeptId(deptId);
     }
 
-    /**
-     * 删除人员与部门关系
-     */
-    @Override
-    public int deleteByDeptIds(Integer[] deptIds) {
-        return baseDao.deleteByDeptIds(deptIds);
-    }
 }
