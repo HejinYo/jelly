@@ -20,9 +20,9 @@ public interface SysDeptService extends BaseService<SysDeptEntity, Integer> {
     List<SysDeptEntity> getAllDeptList();
 
     /**
-     * 获取系统所有部门Id列表
+     * 获取系统所有有效部门列表，状态正常
      */
-    List<Integer> getAllDeptIdList();
+    List<SysDeptEntity> getValidDeptList();
 
     /**
      * 指定一个节点，在系统所有部门中 递归遍历  指定节点开始 的所有子节点 为列表
@@ -33,14 +33,9 @@ public interface SysDeptService extends BaseService<SysDeptEntity, Integer> {
     List<Integer> recursionDept(boolean isRoot, List<Integer> parentIdList);
 
     /**
-     * 部门管理树数据
+     * 部门树数据
      */
-    HashMap<String, List<SysDeptEntity>> getRecursionTree(boolean showRoot);
-
-    /**
-     * 部门选择数据,排除状态为不为正常的组织
-     */
-    HashMap<String, List<SysDeptEntity>> getSelectTree(boolean showRoot);
+    HashMap<String, List<SysDeptEntity>> getDeptListTree(boolean valid, boolean showRoot);
 
     /**
      * 检测是否越权，增加和修改的部门是否在当前用户的部门之下

@@ -1,14 +1,15 @@
 package cn.hejinyo.jelly.modules.sys.dao;
 
 import cn.hejinyo.jelly.common.base.BaseDao;
-import cn.hejinyo.jelly.modules.sys.model.SysLog;
+import cn.hejinyo.jelly.modules.sys.model.SysLogEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * @author : HejinYo   hejinyo@gmail.com
- * @date : 2017/6/17 16:54
+ * sys_log 持久化层
+ * 
+ * @author : HejinYo   hejinyo@gmail.com 
+ * @date : 2018/06/13 23:29
  */
 @Mapper
-public interface SysLogDao extends BaseDao<SysLog, Integer> {
-
+public interface SysLogDao extends BaseDao<SysLogEntity, Integer> {
 }

@@ -39,6 +39,11 @@ public class BaseServiceImpl<M extends BaseDao<T, ID>, T, ID extends Serializabl
     }
 
     @Override
+    public int update(ID id, T entity) {
+        return baseDao.update(entity);
+    }
+
+    @Override
     public int update(Map<String, Object> map) {
         return baseDao.update(map);
     }

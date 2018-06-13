@@ -6,6 +6,10 @@ package cn.hejinyo.jelly.common.consts;
  */
 public class Constant {
     /**
+     * 数据权限过滤
+     */
+    public static final String SQL_FILTER = "sqlFilter";
+    /**
      * 超级管理员ID
      */
     public static final Integer SUPER_ADMIN = 1;
@@ -38,6 +42,30 @@ public class Constant {
      */
     public static final String AUTHOR_PARAM = "Authorization";
 
+    public enum Dept {
+        /**
+         * 所在部门
+         */
+        CUR_DEPT("curDept"),
+        /**
+         * 子部门
+         */
+        SUB_DEPT("subDept"),
+        /**
+         * 所有部门
+         */
+        ALL_DEPT("allDept");
+
+        private String value;
+
+        Dept(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
 
     /**
      * 菜单类型

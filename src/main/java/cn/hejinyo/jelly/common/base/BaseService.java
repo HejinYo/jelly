@@ -26,6 +26,11 @@ public interface BaseService<T, ID extends Serializable> {
      */
     int update(T entity);
 
+    /**
+     * 更新
+     */
+    int update(ID id, T entity);
+
     int update(Map<String, Object> map);
 
     /**

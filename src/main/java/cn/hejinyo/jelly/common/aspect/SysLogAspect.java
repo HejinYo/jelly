@@ -3,7 +3,7 @@ package cn.hejinyo.jelly.common.aspect;
 import cn.hejinyo.jelly.common.annotation.SysLogger;
 import cn.hejinyo.jelly.common.utils.JsonUtil;
 import cn.hejinyo.jelly.common.utils.WebUtils;
-import cn.hejinyo.jelly.modules.sys.model.SysLog;
+import cn.hejinyo.jelly.modules.sys.model.SysLogEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysLogService;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class SysLogAspect {
     public void saveSysLog(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
 
-        SysLog sysLog = new SysLog();
+        SysLogEntity sysLog = new SysLogEntity();
 
         //获取request
         HttpServletRequest request = WebUtils.getHttpServletRequest();

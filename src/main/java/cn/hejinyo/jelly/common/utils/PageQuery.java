@@ -22,7 +22,7 @@ public class PageQuery extends HashMap<String, Object> {
     private static final String SORT = "sort";
 
     // 最大分页大小为100
-    private static final Integer MAX_PAGE_Size = 100;
+    private static final Integer MAX_PAGE_SIZE = 100;
 
     //简单查询
     private static final String QUERY_KEY = "queryKey";
@@ -53,7 +53,7 @@ public class PageQuery extends HashMap<String, Object> {
         pageQuery.pageSize = MapUtils.getInteger(pageParam, PAGESIZE, 10);
         pageQuery.put(PAGENUM, pageQuery.pageNum);
 
-        pageQuery.put(PAGESIZE, pageQuery.pageSize > MAX_PAGE_Size ? MAX_PAGE_Size : pageQuery.pageSize);
+        pageQuery.put(PAGESIZE, pageQuery.pageSize > MAX_PAGE_SIZE ? MAX_PAGE_SIZE : pageQuery.pageSize);
 
         String sidx = StringUtils.underscoreName(MapUtils.getString(pageParam, SIDX, ""));
         if (StringUtils.isNotBlank(sidx)) {
@@ -63,21 +63,26 @@ public class PageQuery extends HashMap<String, Object> {
             pageQuery.put(SORT, sort);
         }
 
-        if (queryParam != null) {
-            pageQuery.putAll(queryParam);
-            return pageQuery;
-        }
-
-        String queryValue = MapUtils.getString(pageParam, QUERY_VALUE);
-        if (StringUtils.isNotBlank(queryValue)) {
-            pageQuery.put(MapUtils.getString(pageParam, QUERY_KEY), queryValue);
-        }
-
         // 管理树点击的查询条件
         String treeValue = MapUtils.getString(pageParam, TREE_VALUE);
         if (StringUtils.isNotBlank(treeValue)) {
             pageQuery.put(MapUtils.getString(pageParam, TREE_KEY), treeValue);
         }
+
+        if (queryParam != null) {
+            // 如果是高级查询，忽略简单查询条件
+            pageQuery.putAll(queryParam);
+            return pageQuery;
+        }
+
+        // 简单查询条件
+        String queryValue = MapUtils.getString(pageParam, QUERY_VALUE);
+        if (StringUtils.isNotBlank(queryValue)) {
+            pageQuery.put(MapUtils.getString(pageParam, QUERY_KEY), queryValue);
+        }
+
+        //其他URL查询参数
+        pageQuery.putAll(pageParam);
 
         return pageQuery;
     }

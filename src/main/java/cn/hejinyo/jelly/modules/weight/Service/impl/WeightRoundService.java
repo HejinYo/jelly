@@ -3,7 +3,7 @@ package cn.hejinyo.jelly.modules.weight.Service.impl;
 import cn.hejinyo.jelly.common.utils.JsonUtil;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysLogDao;
-import cn.hejinyo.jelly.modules.sys.model.SysLog;
+import cn.hejinyo.jelly.modules.sys.model.SysLogEntity;
 import cn.hejinyo.jelly.modules.weight.model.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,7 +134,7 @@ public class WeightRoundService {
             if (newWgt <= weigth) {
                 //当前人员分配一个以后比固定权重小或者相等，说明分配正常，直接返回此人员
                 // log.info("商机:\t" + i + "\t -- > " + JsonUtil.toJson(user));
-                SysLog log = new SysLog();
+                SysLogEntity log = new SysLogEntity();
                 log.setUserName(user.getUserName());
                 log.setParams(JsonUtil.toJson(user));
                 log.setOperation(String.valueOf(i));

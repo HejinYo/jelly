@@ -22,15 +22,16 @@ public enum StatusCode {
     TOKEN_FAULT(1132, "未登录，无权限访问"),
     DATABASE_DUPLICATEKEY(2001, "数据库中已存在该记录"),
     DATABASE_SAVE_FAILURE(2002, "添加失败"),
-    DATABASE_UPDATE_FAILURE(2003, "修改失败"),
+    DATABASE_UPDATE_FAILURE(2003, "数据未修改"),
     DATABASE_DELETE_FAILURE(2004, "删除失败"),
-    DATABASE_SELECT_FAILURE(2005, "资源不存在"),
+    DATABASE_SELECT_FAILURE(2005, "数据不存在"),
     DATABASE_NOT_CHANGE(2006, "未作任何修改"),
     DATABASE_UPDATE_LOOP(2100, "节点回环，不允许修改"),
     DATABASE_UPDATE_ROOT(2101, "根节点，不允许修改"),
     DATABASE_DELETE_ROOT(2102, "根节点，不允许删除"),
     DATABASE_UPDATE_CHILD(2103, "存在子节点，不允许修改"),
     DATABASE_DELETE_CHILD(2104, "存在子节点，不允许删除"),
+    DATABASE_NO_FATHER(2105, "父节点不存在"),
     PERMISSION_UNAUTHORIZED(2201, "不允许越权操作"),
     PERMISSION_ONESELF(2202, "不允许对自己进行操作");
 

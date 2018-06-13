@@ -56,8 +56,8 @@
         </javaClientGenerator>
 
         <!-- 要生成那些表(更改tableName和domainObjectName就可以) -->
-        <table tableName="sys_user_dept" domainObjectName="SysUserDeptEntity"
-               mapperName="SysUserDeptDao"
+        <table tableName="sys_log" domainObjectName="SysLogEntity"
+               mapperName="SysLogDao"
                enableInsert="false"
                enableSelectByPrimaryKey="true"
                enableDeleteByPrimaryKey="false"

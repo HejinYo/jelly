@@ -5,7 +5,7 @@ import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
-import cn.hejinyo.jelly.modules.sys.model.SysLog;
+import cn.hejinyo.jelly.modules.sys.model.SysLogEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysLogService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class SysLogController {
     @GetMapping(value = "/{sysLogId}")
     @RequiresPermissions("log:view")
     public Result get(@PathVariable(value = "sysLogId") Integer sysLogId) {
-        SysLog sysLog = sysLogService.findOne(sysLogId);
+        SysLogEntity sysLog = sysLogService.findOne(sysLogId);
         if (sysLog == null) {
             return Result.error("日志不存在");
         }
@@ -44,7 +44,7 @@ public class SysLogController {
     @GetMapping(value = "/listPage")
     @RequiresPermissions("log:view")
     public Result list(@RequestParam HashMap<String, Object> param) {
-        PageInfo<SysLog> sysLogPageInfo = new PageInfo<>(sysLogService.findPage(PageQuery.build(param)));
+        PageInfo<SysLogEntity> sysLogPageInfo = new PageInfo<>(sysLogService.findPage(PageQuery.build(param)));
         return Result.ok(sysLogPageInfo);
     }
 
@@ -54,7 +54,7 @@ public class SysLogController {
     @SysLogger("增加日志")
     @PostMapping
     @RequiresPermissions("log:create")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysLog sysLog) {
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysLogEntity sysLog) {
         int result = sysLogService.save(sysLog);
         if (result == 0) {
             return Result.error();
@@ -68,7 +68,7 @@ public class SysLogController {
     @SysLogger("更新日志")
     @RequiresPermissions("log:update")
     @PutMapping(value = "/{sysLogId}")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysLog sysLog, @PathVariable("sysLogId") Integer sysLogId) {
+    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysLogEntity sysLog, @PathVariable("sysLogId") Integer sysLogId) {
         sysLog.setId(sysLogId);
         int result = sysLogService.update(sysLog);
         if (result > 0) {

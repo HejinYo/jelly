@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysDeptDao">
+
+    <!-- 实体映射 -->
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysDeptEntity">
+        <id column="dept_id" jdbcType="INTEGER" property="deptId"/>
+        <result column="parent_id" jdbcType="INTEGER" property="parentId"/>
+        <result column="dept_name" jdbcType="VARCHAR" property="deptName"/>
+        <result column="seq" jdbcType="TINYINT" property="seq"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="create_id" jdbcType="INTEGER" property="createId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_id" jdbcType="INTEGER" property="updateId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <!-- 表基本列 -->
+    <sql id="Base_Column_List">
+        dept_id, parent_id, dept_name, seq, description, state, create_id, create_time, update_id,
+        update_time
+    </sql>
+
+    <!-- 通用查询sql -->
+    <sql id="Base_Where_SQL">
+        <where>
+            <if test="parentId != null and !&quot;&quot;.equals(parentId)">and parent_id = #{parentId}</if>
+            <if test="deptName != null and !&quot;&quot;.equals(deptName)">and dept_name = #{deptName}</if>
+            <if test="seq != null and !&quot;&quot;.equals(seq)">and seq = #{seq}</if>
+            <if test="description != null and !&quot;&quot;.equals(description)">and description = #{description}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and update_time = #{updateTime}</if>
+        </where>
+    </sql>
+
+
+    <!-- 所有部门数据列表 -->
+    <select id="findAllDeptList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept sd
+        ORDER BY sd.parent_id, sd.seq
+    </select>
+
+       <!-- 有效部门数据列表 -->
+       <select id="findValidDeptList" resultMap="BaseResultMap">
+           select
+           <include refid="Base_Column_List"/>
+           from sys_dept sd
+           where state = 0
+           ORDER BY sd.parent_id, sd.seq
+       </select>
+
+       <!-- 查询子部门 -->
+       <select id="findDeptByParentIds" resultMap="BaseResultMap">
+           select
+           <include refid="Base_Column_List"/>
+           from sys_dept
+           where parent_id in
+           <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+               #{item}
+           </foreach>
+       </select>
+
+    <!-- 插入一条记录 -->
+    <insert id="save" keyProperty="deptId" useGeneratedKeys="true">
+        insert into sys_dept
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != parentId">parent_id,</if>
+            <if test="null != deptName">dept_name,</if>
+            <if test="null != seq">seq,</if>
+            <if test="null != description">description,</if>
+            <if test="null != state">state,</if>
+            <if test="null != createId">create_id,</if>
+            <if test="null != createTime">create_time,</if>
+            <if test="null != updateId">update_id,</if>
+            <if test="null != updateTime">update_time,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="null != parentId">#{parentId},</if>
+            <if test="null != deptName">#{deptName},</if>
+            <if test="null != seq">#{seq},</if>
+            <if test="null != description">#{description},</if>
+            <if test="null != state">#{state},</if>
+            <if test="null != createId">#{createId},</if>
+            <if test="null != createTime">#{createTime},</if>
+            <if test="null != updateId">#{updateId},</if>
+            <if test="null != updateTime">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 更新一条记录 -->
+    <update id="update">
+        update sys_dept
+        <set>
+            <if test="null != parentId">parent_id = #{parentId},</if>
+            <if test="null != deptName">dept_name = #{deptName},</if>
+            <if test="null != seq">seq = #{seq},</if>
+            <if test="null != description">description = #{description},</if>
+            <if test="null != state">state = #{state},</if>
+            <if test="null != createId">create_id = #{createId},</if>
+            <if test="null != createTime">create_time = #{createTime},</if>
+            <if test="null != updateId">update_id = #{updateId},</if>
+            <if test="null != updateTime">update_time = #{updateTime},</if>
+        </set>
+        where dept_id = #{deptId}
+    </update>
+
+    <!-- 删除给定主键的记录 -->
+    <delete id="delete">
+        delete
+        from sys_dept
+        where
+            dept_id = #{deptId}
+    </delete>
+
+    <!-- 多个主键批量删除记录 -->
+    <delete id="deleteBatch">
+        delete
+        from sys_dept
+        where
+        dept_id in
+        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 多个实体批量删除记录 -->
+    <delete id="deleteList">
+        delete
+        from sys_dept
+        where
+        dept_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.deptId}
+        </foreach>
+    </delete>
+
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept
+        where dept_id = #{deptId}
+    </select>
+
+    <!-- 查询多条 -->
+    <select id="findList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept
+        <where>
+            <if test="parentId != null and !&quot;&quot;.equals(parentId)">and parent_id = #{parentId}</if>
+            <if test="deptName != null and !&quot;&quot;.equals(deptName)">and dept_name like concat('%',#{deptName},'%')</if>
+            <if test="seq != null and !&quot;&quot;.equals(seq)">and seq = #{seq}</if>
+            <if test="description != null and !&quot;&quot;.equals(description)">and description like concat('%',#{description},'%')</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and DATE_FORMAT(update_time,'%Y-%m-%d') = STR_TO_DATE(#{updateTime},'%Y-%m-%d')</if>
+        </where>
+    </select>
+
+    <!-- 查询记录数量 -->
+    <select id="count" resultType="int">
+        select
+        count(*)
+        from sys_dept
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 查询记录是否存在 -->
+    <select id="exsit" resultType="boolean">
+        select
+        count(*)
+        from sys_dept
+        <include refid="Base_Where_SQL"/>
+    </select>
+
+
+</mapper>

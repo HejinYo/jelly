@@ -3,19 +3,20 @@
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysLogDao">
 
     <!-- 实体映射 -->
-    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysLog">
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysLogEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
         <result column="operation" jdbcType="VARCHAR" property="operation"/>
         <result column="method" jdbcType="VARCHAR" property="method"/>
-        <result column="params" jdbcType="VARCHAR" property="params"/>
+        <result column="params" jdbcType="CHAR" property="params"/>
         <result column="ip" jdbcType="VARCHAR" property="ip"/>
+        <result column="create_id" jdbcType="INTEGER" property="createId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
     </resultMap>
 
     <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        id, user_name, operation, method, params, ip, create_time
+        id, user_name, operation, method, params, ip, create_id, create_time
     </sql>
 
     <!-- 通用查询sql -->
@@ -26,6 +27,7 @@
             <if test="method != null and !&quot;&quot;.equals(method)">and method = #{method}</if>
             <if test="params != null and !&quot;&quot;.equals(params)">and params = #{params}</if>
             <if test="ip != null and !&quot;&quot;.equals(ip)">and ip = #{ip}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
             <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
         </where>
     </sql>
@@ -39,6 +41,7 @@
             <if test="null != method">method,</if>
             <if test="null != params">params,</if>
             <if test="null != ip">ip,</if>
+            <if test="null != createId">create_id,</if>
             <if test="null != createTime">create_time,</if>
         </trim>
         values
@@ -48,6 +51,7 @@
             <if test="null != method">#{method},</if>
             <if test="null != params">#{params},</if>
             <if test="null != ip">#{ip},</if>
+            <if test="null != createId">#{createId},</if>
             <if test="null != createTime">#{createTime},</if>
         </trim>
     </insert>
@@ -61,6 +65,7 @@
             <if test="null != method">method = #{method},</if>
             <if test="null != params">params = #{params},</if>
             <if test="null != ip">ip = #{ip},</if>
+            <if test="null != createId">create_id = #{createId},</if>
             <if test="null != createTime">create_time = #{createTime},</if>
         </set>
         where id = #{id}
@@ -68,9 +73,9 @@
 
     <!-- 删除给定主键的记录 -->
     <delete id="delete">
-        DELETE
-        FROM sys_log
-        WHERE
+        delete
+        from sys_log
+        where
             id = #{id}
     </delete>
 
@@ -121,8 +126,9 @@
             <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name like concat('%',#{userName},'%')</if>
             <if test="operation != null and !&quot;&quot;.equals(operation)">and operation like concat('%',#{operation},'%')</if>
             <if test="method != null and !&quot;&quot;.equals(method)">and method like concat('%',#{method},'%')</if>
-            <if test="params != null and !&quot;&quot;.equals(params)">and params like concat('%',#{params},'%')</if>
+            <if test="params != null and !&quot;&quot;.equals(params)">and params = #{params}</if>
             <if test="ip != null and !&quot;&quot;.equals(ip)">and ip like concat('%',#{ip},'%')</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
             <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
         </where>
     </select>
@@ -142,5 +148,6 @@
         from sys_log
         <include refid="Base_Where_SQL"/>
     </select>
+
 
 </mapper>
