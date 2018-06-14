@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysRoleDao">
+
     <!-- 实体映射 -->
-    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysRole">
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysRoleEntity">
         <id column="role_id" jdbcType="INTEGER" property="roleId"/>
         <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
         <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
-        <result column="role_description" jdbcType="VARCHAR" property="roleDescription"/>
-        <result column="state" jdbcType="INTEGER" property="state"/>
-        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
-    </resultMap>
-
-    <resultMap id="RoleResourceResultMap" type="cn.hejinyo.jelly.modules.sys.model.dto.RoleResourceDTO">
-        <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="role_id" jdbcType="INTEGER" property="roleId"/>
-        <result column="res_id" jdbcType="VARCHAR" property="resId"/>
-        <result column="perm_id" jdbcType="INTEGER" property="permId"/>
-        <result column="role_code" jdbcType="VARCHAR" property="roleCode"/>
-        <result column="res_code" jdbcType="VARCHAR" property="resCode"/>
-        <result column="res_name" jdbcType="VARCHAR" property="resName"/>
-        <result column="perm_code" jdbcType="VARCHAR" property="permCode"/>
-        <result column="perm_name" jdbcType="VARCHAR" property="permName"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_id" jdbcType="INTEGER" property="updateId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
     </resultMap>
 
     <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        role_id, role_code, role_name, role_description, state, create_time, create_id
+        role_id, role_code, role_name, description, state, create_id, create_time, update_id,
+        update_time
     </sql>
 
     <!-- 通用查询sql -->
@@ -34,23 +26,17 @@
         <where>
             <if test="roleCode != null and !&quot;&quot;.equals(roleCode)">and role_code = #{roleCode}</if>
             <if test="roleName != null and !&quot;&quot;.equals(roleName)">and role_name = #{roleName}</if>
-            <if test="roleDescription != null and !&quot;&quot;.equals(roleDescription)">and role_description = #{roleDescription}</if>
+            <if test="description != null and !&quot;&quot;.equals(description)">and description = #{description}</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
             <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and update_time = #{updateTime}</if>
         </where>
     </sql>
-    <!-- 保存角色权限 -->
-    <insert id="saveRolePermission">
-        INSERT INTO sys_role_resource (role_id, res_id, perm_id)
-        VALUES
-        <foreach collection="permission" index="index" item="item" separator=",">
-            (#{roleId}, #{item.resId}, #{item.permId})
-        </foreach>
-    </insert>
 
     <!-- 角色列表下拉选择select -->
-    <select id="roleSelect" resultMap="BaseResultMap">
+    <select id="findDropList" resultMap="BaseResultMap">
         SELECT
             role_id,
             role_code,
@@ -59,40 +45,29 @@
         WHERE state = 0
     </select>
 
-    <!-- 分页查询 -->
-    <select id="findPage" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_role
-        <where>
-            <if test="roleCode != null and !&quot;&quot;.equals(roleCode)">and role_code like concat('%',#{roleCode},'%')</if>
-            <if test="roleName != null and !&quot;&quot;.equals(roleName)">and role_name like concat('%',#{roleName},'%')</if>
-            <if test="roleDescription != null and !&quot;&quot;.equals(roleDescription)">and role_description like concat('%',#{roleDescription},'%')</if>
-            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
-            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
-        </where>
-    </select>
-
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="roleId" useGeneratedKeys="true">
         insert into sys_role
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != roleCode">role_code,</if>
             <if test="null != roleName">role_name,</if>
-            <if test="null != roleDescription">role_description,</if>
+            <if test="null != description">description,</if>
             <if test="null != state">state,</if>
-            <if test="null != createTime">create_time,</if>
             <if test="null != createId">create_id,</if>
+            <if test="null != createTime">create_time,</if>
+            <if test="null != updateId">update_id,</if>
+            <if test="null != updateTime">update_time,</if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != roleCode">#{roleCode},</if>
             <if test="null != roleName">#{roleName},</if>
-            <if test="null != roleDescription">#{roleDescription},</if>
+            <if test="null != description">#{description},</if>
             <if test="null != state">#{state},</if>
-            <if test="null != createTime">#{createTime},</if>
             <if test="null != createId">#{createId},</if>
+            <if test="null != createTime">#{createTime},</if>
+            <if test="null != updateId">#{updateId},</if>
+            <if test="null != updateTime">#{updateTime},</if>
         </trim>
     </insert>
 
@@ -102,30 +77,21 @@
         <set>
             <if test="null != roleCode">role_code = #{roleCode},</if>
             <if test="null != roleName">role_name = #{roleName},</if>
-            <if test="null != roleDescription">role_description = #{roleDescription},</if>
+            <if test="null != description">description = #{description},</if>
             <if test="null != state">state = #{state},</if>
-            <if test="null != createTime">create_time = #{createTime},</if>
             <if test="null != createId">create_id = #{createId},</if>
+            <if test="null != createTime">create_time = #{createTime},</if>
+            <if test="null != updateId">update_id = #{updateId},</if>
+            <if test="null != updateTime">update_time = #{updateTime},</if>
         </set>
         where role_id = #{roleId}
     </update>
 
-    <!-- 主键查找一条记录 -->
-    <select id="findOne" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from sys_role
-        where role_id = #{roleId}
-    </select>
-
-
-    <!-- **********************************************分割线***********************************************************-->
-
     <!-- 删除给定主键的记录 -->
     <delete id="delete">
-        DELETE
-        FROM sys_role
-        WHERE
+        delete
+        from sys_role
+        where
             role_id = #{roleId}
     </delete>
 
@@ -151,12 +117,37 @@
         </foreach>
     </delete>
 
+    <!-- 主键查找一条记录 -->
+    <select id="findOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_role
+        where role_id = #{roleId}
+    </select>
+
     <!-- 查询多条 -->
     <select id="findList" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from sys_role
         <include refid="Base_Where_SQL"/>
+    </select>
+
+    <!-- 分页查询 -->
+    <select id="findPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_role
+        <where>
+            <if test="roleCode != null and !&quot;&quot;.equals(roleCode)">and role_code like concat('%',#{roleCode},'%')</if>
+            <if test="roleName != null and !&quot;&quot;.equals(roleName)">and role_name like concat('%',#{roleName},'%')</if>
+            <if test="description != null and !&quot;&quot;.equals(description)">and description like concat('%',#{description},'%')</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and DATE_FORMAT(update_time,'%Y-%m-%d') = STR_TO_DATE(#{updateTime},'%Y-%m-%d')</if>
+        </where>
     </select>
 
     <!-- 查询记录数量 -->
@@ -174,5 +165,6 @@
         from sys_role
         <include refid="Base_Where_SQL"/>
     </select>
+
 
 </mapper>

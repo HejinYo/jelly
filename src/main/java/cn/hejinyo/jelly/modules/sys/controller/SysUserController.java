@@ -1,19 +1,18 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.common.annotation.SysLogger;
-import cn.hejinyo.jelly.common.consts.Constant;
+import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
-import cn.hejinyo.jelly.modules.sys.model.SysUser;
+import cn.hejinyo.jelly.modules.sys.model.SysUserEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,62 +35,42 @@ public class SysUserController extends BaseController {
     private SysUserService sysUserService;
 
     /**
-     * 获得一个用户信息
+     * 用户信息
      */
-    @ApiOperation(value = "获得一个用户信息", notes = "根据路徑參數来获得一个用户信息")
+    @ApiOperation(value = "用户信息", notes = "用户信息")
     @ApiImplicitParam(paramType = "path", name = "userId", value = "用户ID", required = true, dataType = "int")
-    @GetMapping(value = "/{userId}")
-    @RequiresPermissions("user:view")
-    public Result get(@PathVariable(value = "userId") Integer userId) {
-        SysUser sysUser = sysUserService.findOne(userId);
-        if (sysUser == null) {
-            return Result.error("用户不存在");
+    @GetMapping("/{userId}")
+    public Result info(@PathVariable("userId") Integer userId) {
+        SysUserEntity user = sysUserService.findOne(userId);
+        if (user != null) {
+            return Result.ok(user);
         }
-        return Result.ok(sysUser);
+        return Result.error(StatusCode.DATABASE_SELECT_FAILURE);
     }
 
     /**
      * 分页查询用户信息
      */
-    @ApiOperation(value = "分页查询用户信息", notes = "支持分页，排序和查询；POST请求高级查询，GET请求普通查询")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
-    })
-    @GetMapping(value = "/listPage")
-    @RequiresPermissions("user:view")
-    public Result getList(@RequestParam HashMap<String, Object> pageParam) {
-        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam)));
-        return Result.ok(userPageInfo);
-    }
-
-    @ApiOperation(value = "分页查询用户信息", notes = "支持分页，排序和查询；POST请求高级查询，GET请求普通查询")
-    @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
-            @ApiImplicitParam(paramType = "body", name = "queryParam", value = "高级查询参数", dataType = "object")
-    })
-    @PostMapping(value = "/listPage")
-    @RequiresPermissions("user:view")
-    public Result postList(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
-        PageInfo<SysUser> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam, queryParam)));
+    @ApiOperation(value = "分页查询用户信息", notes = "支持分页，排序和高级查询")
+    @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
+    public Result listPage(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
+        PageInfo<SysUserEntity> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam, queryParam)));
         return Result.ok(userPageInfo);
     }
 
     /**
      * 增加一个用户
      */
+    @SysLogger("增加用户")
     @ApiOperation(value = "增加一个用户", notes = "增加一个用户")
-    @ApiImplicitParam(paramType = "body", name = "sysUser", value = "用户参数", required = true, dataType = "SysUser")
+    @ApiImplicitParam(paramType = "body", name = "user", value = "用户信息对象", required = true, dataType = "SysUserEntity")
     @PostMapping
-    @RequiresPermissions("user:create")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUser sysUser) {
-        if (sysUserService.isExistUserName(sysUser.getUserName())) {
-            return Result.error("用户名已经存在");
-        }
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUserEntity sysUser) {
         int result = sysUserService.save(sysUser);
         if (result == 0) {
-            return Result.error();
+            return Result.ok();
         }
-        return Result.ok();
+        return Result.error(StatusCode.DATABASE_SAVE_FAILURE);
     }
 
     /**
@@ -110,45 +89,34 @@ public class SysUserController extends BaseController {
     /**
      * 更新一个用户
      */
-    @ApiOperation(value = "更新用户详细信息", notes = "根据url的id来指定更新对象，并根据传过来的user信息来更新用户详细信息")
+    @SysLogger("更新用户")
+    @ApiOperation(value = "更新用户信息", notes = "更新用户详细信息")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "body", name = "sysUser", value = "用户详细实体user", required = true, dataType = "SysUser"),
+            @ApiImplicitParam(paramType = "body", name = "user", value = "用户详细实体", required = true, dataType = "SysUserEntity"),
             @ApiImplicitParam(paramType = "path", name = "userId", value = "用户ID", required = true, dataType = "Integer")
     })
-    @SysLogger("更新用户")
-    @RequiresPermissions("user:update")
     @PutMapping(value = "/{userId}")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysUser sysUser, @PathVariable("userId") Integer userId) {
-        if (1 == userId && loginUserId() != Constant.SUPER_ADMIN) {
-            return Result.error("admin不允许修改");
-        }
-        sysUser.setUserId(userId);
-        int result = sysUserService.update(sysUser);
+    public Result update(@PathVariable("userId") Integer userId, @Validated(RestfulValid.PUT.class) @RequestBody SysUserEntity sysUser) {
+        int result = sysUserService.update(userId, sysUser);
         if (result > 0) {
             return Result.ok();
         }
-        return Result.error("未作任何修改");
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
     }
 
     /**
      * 删除
      */
-    @ApiOperation(value = "删除用户", notes = "删除用户")
-    @ApiImplicitParam(paramType = "path", name = "userIdList", value = "用户ID数组", required = true, dataType = "array")
+    @ApiOperation(value = "删除用户", notes = "删除用户：/delete/1,2,3,4")
+    @ApiImplicitParam(paramType = "path", name = "userIds", value = "用户ID数组", required = true, dataType = "String")
     @SysLogger("删除用户")
-    @RequiresPermissions("user:delete")
-    @DeleteMapping(value = "/{userIdList}")
-    public Result delete(@PathVariable("userIdList") Integer[] ids) {
-        for (int userId : ids) {
-            if (Constant.SUPER_ADMIN == userId) {
-                return Result.error("admin不允许被删除");
-            }
-        }
-        int result = sysUserService.deleteBatch(ids);
+    @DeleteMapping(value = "/{userIds}")
+    public Result delete(@PathVariable("userIds") Integer[] userIds) {
+        int result = sysUserService.deleteBatch(userIds);
         if (result > 0) {
-            return Result.ok("删除成功");
+            return Result.ok();
         }
-        return Result.error("删除失败");
+        return Result.error(StatusCode.DATABASE_DELETE_FAILURE);
     }
 
     /**
@@ -176,7 +144,7 @@ public class SysUserController extends BaseController {
      * 修改用户信息
      */
     @PutMapping(value = "/updateUserInfo")
-    public Result updateUserInfo(@RequestBody SysUser sysUser) {
+    public Result updateUserInfo(@RequestBody SysUserEntity sysUser) {
         int result = sysUserService.updateUserInfo(sysUser);
         if (result > 0) {
             sysUserService.updateUserRedisInfo();
@@ -197,7 +165,7 @@ public class SysUserController extends BaseController {
         if (!file.isEmpty()) {
             try {
                 String avatarUrl = OSSFactory.build(key).upload(file.getInputStream(), key);
-                SysUser sysUser = new SysUser();
+                SysUserEntity sysUser = new SysUserEntity();
                 sysUser.setUserId(loginUserId());
                 sysUser.setAvatar(avatarUrl);
                 int count = sysUserService.updateUserAvatar(sysUser);

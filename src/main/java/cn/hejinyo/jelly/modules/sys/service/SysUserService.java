@@ -1,7 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
-import cn.hejinyo.jelly.modules.sys.model.SysUser;
+import cn.hejinyo.jelly.modules.sys.model.SysUserEntity;
 
 import java.util.HashMap;
 
@@ -9,11 +9,11 @@ import java.util.HashMap;
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/6/17 17:04
  */
-public interface SysUserService extends BaseService<SysUser, Integer> {
+public interface SysUserService extends BaseService<SysUserEntity, Integer> {
     /**
      * 更新用户登录信息
      */
-    int updateUserLoginInfo(Integer userId);
+    void updateUserLoginInfo(Integer userId);
 
     /**
      * 用户名是否存在
@@ -28,12 +28,12 @@ public interface SysUserService extends BaseService<SysUser, Integer> {
     /**
      * 修改个人信息
      */
-    int updateUserInfo(SysUser sysUser);
+    int updateUserInfo(SysUserEntity sysUser);
 
     /**
      * 修改头像
      */
-    int updateUserAvatar(SysUser sysUser);
+    int updateUserAvatar(SysUserEntity sysUser);
 
     /**
      * 更新用户redis信息

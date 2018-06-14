@@ -9,6 +9,8 @@ import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.sys.model.SysDeptEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysDeptService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -52,6 +54,9 @@ public class SysDeptController {
      * 分页查询部门列表
      */
     @ApiOperation(value = "分页查询部门列表", notes = "分页查询部门列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
+    })
     @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
     public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         //查询列表数据
@@ -63,6 +68,7 @@ public class SysDeptController {
      * 查询部门信息
      */
     @ApiOperation(value = "查询部门信息", notes = "查询部门信息")
+    @ApiImplicitParam(paramType = "path", name = "deptId", value = "部门ID", required = true, dataType = "int")
     @GetMapping("/{deptId}")
     public Result info(@PathVariable("deptId") Integer deptId) {
         SysDeptEntity dept = sysDeptService.findOne(deptId);
@@ -73,15 +79,16 @@ public class SysDeptController {
     }
 
     /**
-     * 保存部门
+     * 添加部门
      */
-    @SysLogger("保存部门")
-    @ApiOperation(value = "保存部门", notes = "保存部门")
+    @SysLogger("添加部门")
+    @ApiOperation(value = "添加部门", notes = "添加部门")
+    @ApiImplicitParam(paramType = "body", name = "SysDeptEntity", value = "部门参数", required = true, dataType = "SysDeptEntity")
     @PostMapping
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysDeptEntity dept) {
-        int count = sysDeptService.save(dept);
-        if (count > 0) {
-            return Result.ok();
+        int result = sysDeptService.save(dept);
+        if (result > 0) {
+            return Result.ok(result);
         }
         return Result.error(StatusCode.DATABASE_SAVE_FAILURE);
     }
@@ -91,6 +98,10 @@ public class SysDeptController {
      */
     @SysLogger("修改部门")
     @ApiOperation(value = "修改部门", notes = "修改部门")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "body", name = "SysDeptEntity", value = "部门详细实体", required = true, dataType = "SysDeptEntity"),
+            @ApiImplicitParam(paramType = "path", name = "deptId", value = "部门ID", required = true, dataType = "Integer")
+    })
     @PutMapping(value = "/{deptId}")
     public Result update(@PathVariable("deptId") Integer deptId, @Validated(RestfulValid.PUT.class) @RequestBody SysDeptEntity dept) {
         int count = sysDeptService.update(deptId, dept);
@@ -105,6 +116,7 @@ public class SysDeptController {
      */
     @SysLogger("删除部门")
     @ApiOperation(value = "删除部门", notes = "删除部门，支持批量删除\n 示例： /1,2,3,4,5")
+    @ApiImplicitParam(paramType = "path", name = "deptIds", value = "部门ID数组", required = true, dataType = "array")
     @DeleteMapping("/{deptIds}")
     public Result delete(@PathVariable("deptIds") Integer[] deptIds) {
         int count = sysDeptService.deleteBatch(deptIds);

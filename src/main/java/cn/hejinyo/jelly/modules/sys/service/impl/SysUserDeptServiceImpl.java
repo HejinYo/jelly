@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -110,21 +111,23 @@ public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysU
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int save(Integer userId, List<SysUserDeptEntity> userDeptList) {
+    public int save(Integer userId, List<Integer> deptList) {
         //先删除用户部门关系
         int count = baseDao.deleteByUserId(userId);
-        if (userDeptList.size() == 0) {
+        if (deptList.size() == 0) {
             return count;
         }
         //保存部门与用户关系
-        for (SysUserDeptEntity dept : userDeptList) {
-            SysUserDeptEntity userDeptEntity = new SysUserDeptEntity();
-            userDeptEntity.setUserId(userId);
-            userDeptEntity.setDeptId(dept.getDeptId());
-            userDeptEntity.setCreateId(ShiroUtils.getUserId());
-            count += baseDao.save(userDeptEntity);
+        List<SysUserDeptEntity> userDeptList = new ArrayList<>();
+        for (Integer permId : deptList) {
+            SysUserDeptEntity userDept = new SysUserDeptEntity();
+            userDept.setUserId(userId);
+            userDept.setDeptId(permId);
+            userDept.setCreateId(ShiroUtils.getUserId());
+            userDeptList.add(userDept);
         }
-        return count;
+
+        return baseDao.saveBatch(userDeptList);
     }
 
     /**

@@ -1,9 +1,10 @@
 package cn.hejinyo.jelly.common.consts;
 
 /**
+ * 业务状态码
+ *
  * @author : HejinYo   hejinyo@gmail.com
  * @date : 2017/8/5 18:25
- * @Description :
  */
 public enum StatusCode {
     FAILURE(-1, "失败"),

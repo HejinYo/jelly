@@ -65,7 +65,8 @@ public class Result extends HashMap<String, Object> {
      * @return Map： {"code":-1}
      */
     public static Result error() {
-        Result jsonMap = new Result(INITIAL);//存放信息的对象
+        //存放信息的对象
+        Result jsonMap = new Result(INITIAL);
         jsonMap.put(CODE, ERROR);
         return jsonMap;
     }

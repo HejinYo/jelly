@@ -125,6 +125,8 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
             if (count > 0) {
                 // 清除所有用户的部门缓存
                 cleanDeptCache();
+                //返回主键
+                return newDept.getDeptId();
             }
             return count;
         }

@@ -3,15 +3,17 @@
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysUserRoleDao">
 
     <!-- 实体映射 -->
-    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysUserRole">
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysUserRoleEntity">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="user_id" jdbcType="INTEGER" property="userId"/>
         <result column="role_id" jdbcType="INTEGER" property="roleId"/>
+        <result column="create_id" jdbcType="INTEGER" property="createId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
     </resultMap>
 
     <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        id, user_id, role_id
+        id, user_id, role_id, create_id, create_time
     </sql>
 
     <!-- 通用查询sql -->
@@ -19,19 +21,26 @@
         <where>
             <if test="userId != null and !&quot;&quot;.equals(userId)">and user_id = #{userId}</if>
             <if test="roleId != null and !&quot;&quot;.equals(roleId)">and role_id = #{roleId}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
         </where>
     </sql>
 
-    <!-- 删除给定主键的记录 -->
-    <delete id="deleteListByUserId">
+    <!--  根据多个用户id删除用户角色关系 -->
+    <delete id="deleteByUserId">
         DELETE
         FROM sys_user_role
-        WHERE
-        user_id in
-        <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        where user_id = #{userId}
     </delete>
+
+    <!-- 根据用户拥有的角色ID列表 -->
+    <select id="findRoleIdListByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_user_role
+        where user_id = #{userId}
+    </select>
+
 
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="id" useGeneratedKeys="true">
@@ -39,11 +48,15 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != userId">user_id,</if>
             <if test="null != roleId">role_id,</if>
+            <if test="null != createId">create_id,</if>
+            <if test="null != createTime">create_time,</if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="null != userId">#{userId},</if>
             <if test="null != roleId">#{roleId},</if>
+            <if test="null != createId">#{createId},</if>
+            <if test="null != createTime">#{createTime},</if>
         </trim>
     </insert>
 
@@ -53,15 +66,17 @@
         <set>
             <if test="null != userId">user_id = #{userId},</if>
             <if test="null != roleId">role_id = #{roleId},</if>
+            <if test="null != createId">create_id = #{createId},</if>
+            <if test="null != createTime">create_time = #{createTime},</if>
         </set>
         where id = #{id}
     </update>
 
     <!-- 删除给定主键的记录 -->
     <delete id="delete">
-        DELETE
-        FROM sys_user_role
-        WHERE
+        delete
+        from sys_user_role
+        where
             id = #{id}
     </delete>
 
@@ -111,6 +126,8 @@
         <where>
             <if test="userId != null and !&quot;&quot;.equals(userId)">and user_id = #{userId}</if>
             <if test="roleId != null and !&quot;&quot;.equals(roleId)">and role_id = #{roleId}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
         </where>
     </select>
 

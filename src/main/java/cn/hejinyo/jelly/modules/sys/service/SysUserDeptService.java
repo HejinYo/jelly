@@ -54,7 +54,7 @@ public interface SysUserDeptService extends BaseService<SysUserDeptEntity, Integ
     /**
      * 保存用户部门关系
      */
-    int save(Integer userId, List<SysUserDeptEntity> userDeptList);
+    int save(Integer userId, List<Integer> deptList);
 
     /**
      * 根绝部门编号查询用户编号列表
