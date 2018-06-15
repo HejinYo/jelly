@@ -6,7 +6,6 @@ import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
-import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.model.SysUserEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysUserService;
 import io.swagger.annotations.Api;
@@ -18,8 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 
 /**
@@ -28,7 +25,7 @@ import java.util.HashMap;
  */
 @Api(tags = "用户管理", description = "SysUserController")
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/sys/user")
 public class SysUserController extends BaseController {
 
     @Autowired
@@ -134,7 +131,7 @@ public class SysUserController extends BaseController {
     public Result updatePassword(@RequestBody HashMap<String, Object> param) {
         int result = sysUserService.updatePassword(param);
         if (result > 0) {
-            sysUserService.updateUserRedisInfo();
+            sysUserService.updateUserToken();
             return Result.ok("密码修改成功");
         }
         return Result.error("密码修改失败");
@@ -147,10 +144,10 @@ public class SysUserController extends BaseController {
     public Result updateUserInfo(@RequestBody SysUserEntity sysUser) {
         int result = sysUserService.updateUserInfo(sysUser);
         if (result > 0) {
-            sysUserService.updateUserRedisInfo();
-            return Result.ok("修改成功");
+            sysUserService.updateUserToken();
+            return Result.ok();
         }
-        return Result.error("未作任何修改");
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
     }
 
     /**
@@ -158,26 +155,6 @@ public class SysUserController extends BaseController {
      */
     @PostMapping(value = "/avatar")
     public Result avatarUpload(@RequestParam("file") MultipartFile file) {
-        // 获得原始文件名
-        String fileName = file.getOriginalFilename();
-        System.out.println("fileName:" + fileName);
-        String key = "avatar/" + getCurrentUser().getUserName() + "/" + LocalDateTime.now().toString() + ".png";
-        if (!file.isEmpty()) {
-            try {
-                String avatarUrl = OSSFactory.build(key).upload(file.getInputStream(), key);
-                SysUserEntity sysUser = new SysUserEntity();
-                sysUser.setUserId(loginUserId());
-                sysUser.setAvatar(avatarUrl);
-                int count = sysUserService.updateUserAvatar(sysUser);
-                if (count > 0) {
-                    sysUserService.updateUserRedisInfo();
-                    return Result.ok(avatarUrl);
-                }
-                return Result.error("上传成功，但是修改失败");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return Result.error("上传失败");
+        return Result.ok(sysUserService.updateUserAvatar(file));
     }
 }

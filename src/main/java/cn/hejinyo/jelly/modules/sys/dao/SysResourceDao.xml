@@ -68,15 +68,14 @@
         FROM
             (
                 select res_id
-                from sys_permission sp
-                    left join sys_role_permission srp on srp.perm_id = sp.perm_id
-                    left join sys_user_role sur on sur.role_id = srp.role_id
+                from sys_user_role sur
+                    left JOIN sys_role_permission srp on sur.role_id = srp.role_id
+                    LEFT JOIN sys_permission sp on srp.perm_id = sp.perm_id
                 where sp.state = 0 and user_id = #{userId}
                 GROUP BY res_id
             ) sp
             LEFT JOIN
-            sys_resource sr
-                on sr.res_id = sp.res_id
+            sys_resource sr on sr.res_id = sp.res_id
         where sr.state = 0 and sr.type = 1
         ORDER BY sr.parent_id, sr.seq
     </select>
@@ -84,57 +83,43 @@
     <!-- 查询所有资源列表 -->
     <select id="findAllResourceList" resultMap="BaseResultMap">
         SELECT
-            sr.res_id,
-            sr.res_type,
-            sr.res_code,
-            sr.res_name,
-            sr.res_pid,
-            sr.res_icon,
-            sr.seq,
-            sr.state,
-            sr.create_time,
-            sr.create_id
+        <include refid="Base_Column_List"/>
         FROM sys_resource sr
-        ORDER BY sr.res_pid, sr.seq
+        ORDER BY sr.parent_id, sr.seq
     </select>
 
-    <!-- 序号加操作 -->
-    <update id="updateAdditionSeq">
-        UPDATE sys_resource
-        SET seq = seq + 1
-        WHERE res_pid = #{resPid} AND seq >= #{seq}
-    </update>
-
-    <!-- 序号减操作 -->
-    <update id="updateSubtractionSeq">
-        UPDATE sys_resource
-        SET seq = seq - 1
-        WHERE res_pid = #{resPid} AND seq > #{seq}
-    </update>
+    <!-- 获取系统所有有效资源列表，状态正常 -->
+    <select id="findValidResourceList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_resource sr
+        where sr.state = 0
+        ORDER BY sr.parent_id, sr.seq
+    </select>
 
     <!-- 分页查询 -->
     <select id="findPage" resultMap="BaseResultMap">
         select
         sr.res_id,
-        sr.res_type,
+        sr.type,
         sr.res_code,
         sr.res_name,
-        sr.res_pid,
+        sr.parent_id,
         sp.res_name res_pname,
-        sr.res_icon,
+        sr.icon,
         sr.seq,
         sr.state,
         sr.create_time,
         sr.create_id
         from sys_resource sr
-        LEFT JOIN sys_resource sp on sp.res_pid != sp.res_id AND sr.res_pid = sp.res_id
+        LEFT JOIN sys_resource sp on sp.parent_id != sp.res_id AND sr.parent_id = sp.res_id
         <where>
-            <if test="resId != null and !&quot;&quot;.equals(resId)">(sr.res_pid = #{resId} or sr.res_id = #{resId})</if>
-            <if test="resType != null and !&quot;&quot;.equals(resType)">and sr.res_type like concat('%',#{resType},'%')</if>
+            <if test="resId != null and !&quot;&quot;.equals(resId)">(sr.parent_id = #{resId} or sr.res_id = #{resId})</if>
+            <if test="resType != null and !&quot;&quot;.equals(resType)">and sr.type like concat('%',#{type},'%')</if>
             <if test="resCode != null and !&quot;&quot;.equals(resCode)">and sr.res_code like concat('%',#{resCode},'%')</if>
             <if test="resName != null and !&quot;&quot;.equals(resName)">and sr.res_name like concat('%',#{resName},'%')</if>
-            <if test="resPid != null and !&quot;&quot;.equals(resPid)">and sr.res_pid = #{resPid}</if>
-            <if test="resIcon != null and !&quot;&quot;.equals(resIcon)">and sr.res_icon like concat('%',#{resIcon},'%')</if>
+            <if test="resPid != null and !&quot;&quot;.equals(resPid)">and sr.parent_id = #{resPid}</if>
+            <if test="resIcon != null and !&quot;&quot;.equals(resIcon)">and sr.icon like concat('%',#{icon},'%')</if>
             <if test="seq != null and !&quot;&quot;.equals(seq)">and sr.seq = #{seq}</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and sr.state = #{state}</if>
             <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(sr.create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>

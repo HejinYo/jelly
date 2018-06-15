@@ -100,21 +100,21 @@ public class Constant {
     }
 
     /**
-     * 定时任务状态
+     * 通用状态
      */
-    public enum ScheduleStatus {
+    public enum Status {
         /**
          * 正常
          */
         NORMAL(0),
         /**
-         * 暂停
+         * 禁用
          */
-        PAUSE(1);
+        DISABLE(1);
 
         private Integer value;
 
-        ScheduleStatus(Integer value) {
+        Status(Integer value) {
             this.value = value;
         }
 
@@ -123,7 +123,48 @@ public class Constant {
         }
 
         public boolean equals(Integer value) {
-            return this.getValue().equals(value);
+            return value.equals(this.value);
+        }
+    }
+
+    /**
+     * 数据类型
+     * 0：字符串 1：整型  2：浮点型  3：布尔  4：json对象
+     */
+    public enum DataType {
+        /**
+         * 字符串
+         */
+        STRING(0),
+        /**
+         * 整型
+         */
+        INTEGER(1),
+        /**
+         * 浮点型
+         */
+        DOUBLE(2),
+        /**
+         * 布尔
+         */
+        BOOLEAN(3),
+        /**
+         * json对象
+         */
+        JSON(4);
+
+        private Integer value;
+
+        DataType(Integer value) {
+            this.value = value;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public boolean equals(Integer value) {
+            return value.equals(this.value);
         }
     }
 }

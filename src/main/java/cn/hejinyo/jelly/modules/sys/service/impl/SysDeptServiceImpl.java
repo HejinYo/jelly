@@ -142,23 +142,20 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
             // 根节点不能修改
             throw new InfoException(StatusCode.DATABASE_UPDATE_ROOT);
         }
+        Integer parentId = dept.getParentId();
         // 检测越权，只能编辑用户所拥有的子部门，所在部门不能编辑
-        if (checkPermission(true, dept.getParentId())) {
+        if (checkPermission(true, parentId)) {
             SysDeptEntity oldDept = baseDao.findOne(deptId);
             //如果部门修改了父节点，需要检测新的父节点是否是当前节点的子节点，如果是，会造成递归死循环
-            if (dept.getParentId() != null && !oldDept.getParentId().equals(dept.getParentId())) {
-
-                if (baseDao.findOne(dept.getParentId()) == null) {
+            if (parentId != null && !oldDept.getParentId().equals(parentId)) {
+                if (baseDao.findOne(parentId) == null) {
                     // 检查父节点是否存在
                     throw new InfoException(StatusCode.DATABASE_NO_FATHER);
                 }
-
                 // 递归获取当前节点的所有子节点
-                System.out.println("递归获取当前节点的所有子节点:" + deptId);
                 List<Integer> allIdList = recursionDept(true, Collections.singletonList(deptId));
-                allIdList.forEach(System.out::println);
                 //检查新的父节点是否在子节点列表内
-                if (allIdList.contains(dept.getParentId())) {
+                if (allIdList.contains(parentId)) {
                     throw new InfoException(StatusCode.DATABASE_UPDATE_LOOP);
                 }
             }

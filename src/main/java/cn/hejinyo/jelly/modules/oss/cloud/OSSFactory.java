@@ -22,7 +22,7 @@ public final class OSSFactory {
 
     public static QiniuCloudStorageService build() {
         //获取云存储配置信息
-        CloudStorage config = sysConfigService.getConfigObject(ConfigConstant.CLOUD_STORAGE_CONFIG_KEY, CloudStorage.class);
+        CloudStorage config = sysConfigService.getConfig(ConfigConstant.CLOUD_STORAGE_CONFIG_KEY, CloudStorage.class);
         return new QiniuCloudStorageService(config);
     }
 
@@ -33,7 +33,7 @@ public final class OSSFactory {
      */
     public static QiniuCloudStorageService build(String fileKey) {
         //获取云存储配置信息
-        CloudStorage config = sysConfigService.getConfigObject(ConfigConstant.CLOUD_STORAGE_CONFIG_KEY, CloudStorage.class);
+        CloudStorage config = sysConfigService.getConfig(ConfigConstant.CLOUD_STORAGE_CONFIG_KEY, CloudStorage.class);
         config.setKey(fileKey);
         return new QiniuCloudStorageService(config);
     }

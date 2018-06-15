@@ -16,6 +16,9 @@ import java.util.Date;
  */
 @Data
 public class SysPermissionEntity implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * 权限编号 perm_id
      **/
@@ -63,6 +66,4 @@ public class SysPermissionEntity implements Serializable {
      * 修改时间 update_time
      **/
     private Date updateTime;
-
-    private static final long serialVersionUID = 1L;
 }

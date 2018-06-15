@@ -46,7 +46,7 @@ public class SysRoleController extends BaseController {
     @ApiOperation(value = "分页查询角色列表", notes = "分页查询角色列表")
     @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
+            @ApiImplicitParam(paramType = "query", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
     })
     public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         //查询列表数据
@@ -93,7 +93,7 @@ public class SysRoleController extends BaseController {
             @ApiImplicitParam(paramType = "path", name = "roleId", value = "角色ID", required = true, dataType = "roleId")
     })
     @PutMapping(value = "/{roleId}")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysRoleEntity sysRole, @PathVariable("roleId") Integer roleId) {
+    public Result update(@PathVariable("roleId") Integer roleId, @Validated(RestfulValid.PUT.class) @RequestBody SysRoleEntity sysRole) {
         int count = sysRoleService.update(roleId, sysRole);
         if (count > 0) {
             return Result.ok();

@@ -50,6 +50,8 @@ public interface BaseDao<T, ID extends Serializable> {
 
     T findOne(Map<String, Object> map);
 
+    List<T> findAllList();
+
     List<T> findList(T entity);
 
     List<T> findList(Map<String, Object> map);

@@ -3,7 +3,7 @@
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysUserDao">
 
     <!-- 实体映射 -->
-    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.generator.model.SysUserEntity">
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysUserEntity">
         <id column="user_id" jdbcType="INTEGER" property="userId"/>
         <result column="nick_name" jdbcType="VARCHAR" property="nickName"/>
         <result column="user_name" jdbcType="VARCHAR" property="userName"/>
@@ -60,51 +60,51 @@
         WHERE user_id = #{userId}
     </insert>
 
- <!--   <select id="findOne" resultMap="BaseResultMap">
-        SELECT
-            su.user_id,
-            su.user_name,
-            su.avatar,
-            su.user_pwd,
-            su.user_salt,
-            su.email,
-            su.phone,
-            su.login_ip,
-            su.login_time,
-            su.state,
-            su.create_time,
-            su.create_id,
-            sr.role_id,
-            sr.role_name,
-            sr.role_code
-        FROM sys_user su
-            LEFT JOIN sys_user_role sur ON sur.user_id = su.user_id
-            LEFT JOIN sys_role sr ON sr.role_id = sur.role_id
-        WHERE su.user_id = #{userId}
-    </select>
+    <!--   <select id="findOne" resultMap="BaseResultMap">
+           SELECT
+               su.user_id,
+               su.user_name,
+               su.avatar,
+               su.user_pwd,
+               su.user_salt,
+               su.email,
+               su.phone,
+               su.login_ip,
+               su.login_time,
+               su.state,
+               su.create_time,
+               su.create_id,
+               sr.role_id,
+               sr.role_name,
+               sr.role_code
+           FROM sys_user su
+               LEFT JOIN sys_user_role sur ON sur.user_id = su.user_id
+               LEFT JOIN sys_role sr ON sr.role_id = sur.role_id
+           WHERE su.user_id = #{userId}
+       </select>
 
-    <select id="findPage" resultMap="BaseResultMap">
-        select * from
-        (select
-        su.user_id, su.user_name, su.user_pwd, su.user_salt, su.email, su.phone, su.login_ip,
-        su.login_time, su.state, su.create_time, su.create_id, sr.role_id, sr.role_name, sr.role_code
-        from sys_user su
-        LEFT JOIN sys_user_role sur on sur.user_id = su.user_id
-        left join sys_role sr on sr.role_id = sur.role_id) as n
-        <where>
-            <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name like concat('%',#{userName},'%')</if>
-            <if test="userPwd != null and !&quot;&quot;.equals(userPwd)">and user_pwd like concat('%',#{userPwd},'%')</if>
-            <if test="userSalt != null and !&quot;&quot;.equals(userSalt)">and user_salt like concat('%',#{userSalt},'%')</if>
-            <if test="avatar != null and !&quot;&quot;.equals(avatar)">and avatar like concat('%',#{avatar},'%')</if>
-            <if test="email != null and !&quot;&quot;.equals(email)">and email like concat('%',#{email},'%')</if>
-            <if test="phone != null and !&quot;&quot;.equals(phone)">and phone like concat('%',#{phone},'%')</if>
-            <if test="loginIp != null and !&quot;&quot;.equals(loginIp)">and login_ip like concat('%',#{loginIp},'%')</if>
-            <if test="loginTime != null and !&quot;&quot;.equals(loginTime)">and DATE_FORMAT(login_time,'%Y-%m-%d') = STR_TO_DATE(#{loginTime},'%Y-%m-%d')</if>
-            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
-            <if test="createId != null and !&quot;&quot;.equals(createId)">and su.create_id = #{createId}</if>
-        </where>
-    </select>-->
+       <select id="findPage" resultMap="BaseResultMap">
+           select * from
+           (select
+           su.user_id, su.user_name, su.user_pwd, su.user_salt, su.email, su.phone, su.login_ip,
+           su.login_time, su.state, su.create_time, su.create_id, sr.role_id, sr.role_name, sr.role_code
+           from sys_user su
+           LEFT JOIN sys_user_role sur on sur.user_id = su.user_id
+           left join sys_role sr on sr.role_id = sur.role_id) as n
+           <where>
+               <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name like concat('%',#{userName},'%')</if>
+               <if test="userPwd != null and !&quot;&quot;.equals(userPwd)">and user_pwd like concat('%',#{userPwd},'%')</if>
+               <if test="userSalt != null and !&quot;&quot;.equals(userSalt)">and user_salt like concat('%',#{userSalt},'%')</if>
+               <if test="avatar != null and !&quot;&quot;.equals(avatar)">and avatar like concat('%',#{avatar},'%')</if>
+               <if test="email != null and !&quot;&quot;.equals(email)">and email like concat('%',#{email},'%')</if>
+               <if test="phone != null and !&quot;&quot;.equals(phone)">and phone like concat('%',#{phone},'%')</if>
+               <if test="loginIp != null and !&quot;&quot;.equals(loginIp)">and login_ip like concat('%',#{loginIp},'%')</if>
+               <if test="loginTime != null and !&quot;&quot;.equals(loginTime)">and DATE_FORMAT(login_time,'%Y-%m-%d') = STR_TO_DATE(#{loginTime},'%Y-%m-%d')</if>
+               <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
+               <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+               <if test="createId != null and !&quot;&quot;.equals(createId)">and su.create_id = #{createId}</if>
+           </where>
+       </select>-->
 
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="userId" useGeneratedKeys="true">

@@ -4,7 +4,6 @@ import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.modules.sys.dao.SysLogDao;
 import cn.hejinyo.jelly.modules.sys.model.SysLogEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysLogService;
-import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,9 +13,4 @@ import org.springframework.stereotype.Service;
 @Service
 public class SysLogServiceImpl extends BaseServiceImpl<SysLogDao, SysLogEntity, Integer> implements SysLogService {
 
-    @Override
-    public int save(SysLogEntity entity) {
-        entity.setCreateId(ShiroUtils.getUserId());
-        return super.save(entity);
-    }
 }

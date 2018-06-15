@@ -32,13 +32,9 @@ public interface SysResourceDao extends BaseDao<SysResourceEntity, Integer> {
     List<SysResourceEntity> findAllResourceList();
 
     /**
-     * 序号加操作
+     * 获取系统所有有效资源列表，状态正常
      */
-    int updateAdditionSeq(SysResourceEntity sysResource);
+    List<SysResourceEntity> findValidResourceList();
 
-    /**
-     * 序号减操作
-     */
-    int updateSubtractionSeq(SysResourceEntity sysResource);
 
 }

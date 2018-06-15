@@ -62,10 +62,10 @@ public class SysLogAspect {
         //请求的参数
         Object[] parameter = joinPoint.getArgs();
         String[] paramNames = ((MethodSignature) joinPoint.getSignature()).getParameterNames();
-        HashMap<String, String> paramMap = new HashMap<>(16);
+        HashMap<String, Object> paramMap = new HashMap<>(16);
         for (int i = 0; i < parameter.length; i++) {
             if (!(parameter[i] instanceof ServletRequest) && !(parameter[i] instanceof StandardSessionFacade)) {
-                paramMap.put(paramNames[i], JsonUtil.toJson(parameter[i]));
+                paramMap.put(paramNames[i], parameter[i]);
             }
         }
         if (paramMap.size() > 0) {

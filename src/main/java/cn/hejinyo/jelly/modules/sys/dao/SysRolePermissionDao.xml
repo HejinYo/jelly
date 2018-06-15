@@ -58,6 +58,14 @@
         </foreach>
     </delete>
 
+    <!-- 权限与角色关系 -->
+    <delete id="deleteByPermId">
+        delete
+        from sys_role_permission
+        WHERE
+            perm_id = #{permId}
+    </delete>
+
 
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="id" useGeneratedKeys="true">

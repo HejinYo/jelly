@@ -1,29 +1,19 @@
 package cn.hejinyo.jelly.modules.sys.dao;
 
 import cn.hejinyo.jelly.common.base.BaseDao;
-import cn.hejinyo.jelly.modules.sys.model.SysConfig;
+import cn.hejinyo.jelly.modules.sys.model.SysConfigEntity;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 /**
+ * sys_config 持久化层
+ *
  * @author : HejinYo   hejinyo@gmail.com
- * @date :  2018/1/29 22:15
+ * @date : 2018/06/15 22:57
  */
 @Mapper
-public interface SysConfigDao extends BaseDao<SysConfig, Integer> {
-
+public interface SysConfigDao extends BaseDao<SysConfigEntity, Integer> {
     /**
-     * 根据key，查询value
+     * 根据code获取系统配置信息
      */
-    SysConfig findByKey(String paramKey);
-
-    /**
-     * 根据key，更新value
-     *
-     * @param key   key
-     * @param value value
-     * @return int
-     */
-    int updateValueByKey(@Param("key") String key, @Param("value") String value);
-
+    SysConfigEntity getConfig(String code);
 }

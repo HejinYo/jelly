@@ -2,6 +2,7 @@ package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysUserEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 
@@ -33,10 +34,10 @@ public interface SysUserService extends BaseService<SysUserEntity, Integer> {
     /**
      * 修改头像
      */
-    int updateUserAvatar(SysUserEntity sysUser);
+    String updateUserAvatar(MultipartFile file);
 
     /**
      * 更新用户redis信息
      */
-    void updateUserRedisInfo();
+    void updateUserToken();
 }

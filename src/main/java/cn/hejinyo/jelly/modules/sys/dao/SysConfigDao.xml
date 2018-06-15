@@ -1,59 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.hejinyo.jelly.modules.sys.dao.SysConfigDao">
+
     <!-- 实体映射 -->
-    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysConfig">
-        <id column="id" jdbcType="BIGINT" property="id"/>
-        <result column="key" jdbcType="VARCHAR" property="key"/>
-        <result column="value" jdbcType="VARCHAR" property="value"/>
+    <resultMap id="BaseResultMap" type="cn.hejinyo.jelly.modules.sys.model.SysConfigEntity">
+        <id column="config_id" jdbcType="INTEGER" property="configId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="code" jdbcType="VARCHAR" property="code"/>
+        <result column="option_id" jdbcType="INTEGER" property="optionId"/>
+        <result column="type" jdbcType="TINYINT" property="type"/>
         <result column="status" jdbcType="TINYINT" property="status"/>
-        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="create_id" jdbcType="INTEGER" property="createId"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_id" jdbcType="INTEGER" property="updateId"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="value" jdbcType="VARCHAR" property="value"/>
+        <result column="label" jdbcType="VARCHAR" property="label"/>
     </resultMap>
 
     <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        id, `key`, `value`, `status`, remark
+        config_id, name, code, option_id, type, status, create_id, create_time, update_id,
+        update_time
     </sql>
+
+    <!-- 别名基本列 -->
+    <sql id="Alias_Column_List">
+        ${alias}.config_id, ${alias}.name, ${alias}.code, ${alias}.option_id, ${alias}.type,
+        ${alias}.status, ${alias}.create_id, ${alias}.create_time, ${alias}.update_id, ${alias}.update_time
+    </sql>
+
 
     <!-- 通用查询sql -->
     <sql id="Base_Where_SQL">
         <where>
-            <if test="key != null and !&quot;&quot;.equals(key)">and key = #{key}</if>
-            <if test="value != null and !&quot;&quot;.equals(value)">and value = #{value}</if>
+            <if test="name != null and !&quot;&quot;.equals(name)">and name = #{name}</if>
+            <if test="code != null and !&quot;&quot;.equals(code)">and code = #{code}</if>
+            <if test="optionId != null and !&quot;&quot;.equals(optionId)">and option_id = #{optionId}</if>
+            <if test="type != null and !&quot;&quot;.equals(type)">and type = #{type}</if>
             <if test="status != null and !&quot;&quot;.equals(status)">and status = #{status}</if>
-            <if test="remark != null and !&quot;&quot;.equals(remark)">and remark = #{remark}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and update_time = #{updateTime}</if>
         </where>
     </sql>
 
-    <!-- 根据key，更新value -->
-    <update id="updateValueByKey" parameterType="map">
-        UPDATE sys_config
-        SET `value` = #{value}
-        WHERE `key` = #{key}
-    </update>
-
-    <!-- 根据key，查询value -->
-    <select id="findByKey" parameterType="string" resultType="cn.hejinyo.jelly.modules.sys.model.SysConfig">
-        SELECT *
-        FROM sys_config
-        WHERE `key` = #{key}
+    <!-- 根据code获取系统配置信息-->
+    <select id="getConfig" resultMap="BaseResultMap">
+        select
+        <include refid="Alias_Column_List">
+            <property name="alias" value="sc"/>
+        </include>
+        ,
+        sco.value,sco.label
+        from sys_config sc
+        left join sys_config_option sco on sc.info_id = sco.info_id and sc.code = sco.code
+        where sc.code = #{code}
     </select>
 
     <!-- 插入一条记录 -->
-    <insert id="save" keyProperty="id" useGeneratedKeys="true">
+    <insert id="save" keyProperty="configId" useGeneratedKeys="true">
         insert into sys_config
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="null != key">`key`,</if>
-            <if test="null != value">`value`,</if>
-            <if test="null != status">`status`,</if>
-            <if test="null != remark">remark,</if>
+            <if test="null != name">name,</if>
+            <if test="null != code">code,</if>
+            <if test="null != optionId">option_id,</if>
+            <if test="null != type">type,</if>
+            <if test="null != status">status,</if>
+            <if test="null != createId">create_id,</if>
+            <if test="null != createTime">create_time,</if>
+            <if test="null != updateId">update_id,</if>
+            <if test="null != updateTime">update_time,</if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="null != key">#{key},</if>
-            <if test="null != value">#{value},</if>
+            <if test="null != name">#{name},</if>
+            <if test="null != code">#{code},</if>
+            <if test="null != optionId">#{optionId},</if>
+            <if test="null != type">#{type},</if>
             <if test="null != status">#{status},</if>
-            <if test="null != remark">#{remark},</if>
+            <if test="null != createId">#{createId},</if>
+            <if test="null != createTime">#{createTime},</if>
+            <if test="null != updateId">#{updateId},</if>
+            <if test="null != updateTime">#{updateTime},</if>
         </trim>
     </insert>
 
@@ -61,20 +91,25 @@
     <update id="update">
         update sys_config
         <set>
-            <if test="null != key">`key` = #{key},</if>
-            <if test="null != value">`value` = #{value},</if>
-            <if test="null != status">`status` = #{status},</if>
-            <if test="null != remark">remark = #{remark},</if>
+            <if test="null != name">name = #{name},</if>
+            <if test="null != code">code = #{code},</if>
+            <if test="null != optionId">option_id = #{optionId},</if>
+            <if test="null != type">type = #{type},</if>
+            <if test="null != status">status = #{status},</if>
+            <if test="null != createId">create_id = #{createId},</if>
+            <if test="null != createTime">create_time = #{createTime},</if>
+            <if test="null != updateId">update_id = #{updateId},</if>
+            <if test="null != updateTime">update_time = #{updateTime},</if>
         </set>
-        where id = #{id}
+        where config_id = #{configId}
     </update>
 
     <!-- 删除给定主键的记录 -->
     <delete id="delete">
-        DELETE
-        FROM sys_config
-        WHERE
-            id = #{id}
+        delete
+        from sys_config
+        where
+            config_id = #{configId}
     </delete>
 
     <!-- 多个主键批量删除记录 -->
@@ -82,7 +117,7 @@
         delete
         from sys_config
         where
-        id in
+        config_id in
         <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
@@ -93,9 +128,9 @@
         delete
         from sys_config
         where
-        id in
+        config_id in
         <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
-            #{item.id}
+            #{item.configId}
         </foreach>
     </delete>
 
@@ -104,7 +139,7 @@
         select
         <include refid="Base_Column_List"/>
         from sys_config
-        where id = #{id}
+        where config_id = #{configId}
     </select>
 
     <!-- 查询多条 -->
@@ -121,10 +156,15 @@
         <include refid="Base_Column_List"/>
         from sys_config
         <where>
-            status = 1
-            <if test="key != null and !&quot;&quot;.equals(key)">and `key` like concat('%',#{key},'%')</if>
-            <if test="value != null and !&quot;&quot;.equals(value)">and `value` like concat('%',#{value},'%')</if>
-            <if test="remark != null and !&quot;&quot;.equals(remark)">and remark like concat('%',#{remark},'%')</if>
+            <if test="name != null and !&quot;&quot;.equals(name)">and name like concat('%',#{name},'%')</if>
+            <if test="code != null and !&quot;&quot;.equals(code)">and code like concat('%',#{code},'%')</if>
+            <if test="optionId != null and !&quot;&quot;.equals(optionId)">and option_id = #{optionId}</if>
+            <if test="type != null and !&quot;&quot;.equals(type)">and type = #{type}</if>
+            <if test="status != null and !&quot;&quot;.equals(status)">and status = #{status}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and DATE_FORMAT(update_time,'%Y-%m-%d') = STR_TO_DATE(#{updateTime},'%Y-%m-%d')</if>
         </where>
     </select>
 

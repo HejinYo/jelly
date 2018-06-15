@@ -106,10 +106,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
         int count = roleCount + permCount;
         if (count > 0) {
             //清空所有用户的权限缓存
-            Set<String> userStore = redisUtils.keys(RedisKeys.storeUser("*"));
-            userStore.forEach(s -> {
-                redisUtils.hdel(s, RedisKeys.USER_PERM);
-            });
+            cleanPermCache();
         }
         return count;
     }
@@ -136,12 +133,19 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
         count += baseDao.deleteBatch(roleIds);
         if (count > 0) {
             //清空所有用户的权限缓存
-            Set<String> userStore = redisUtils.keys(RedisKeys.storeUser("*"));
-            userStore.forEach(s -> {
-                redisUtils.hdel(s, RedisKeys.USER_PERM);
-            });
+            cleanPermCache();
         }
         return count;
+    }
+
+    /**
+     * 清除所有用户的权限缓存
+     */
+    private void cleanPermCache() {
+        Set<String> userStore = redisUtils.keys(RedisKeys.storeUser("*"));
+        userStore.forEach(s -> {
+            redisUtils.hdel(s, RedisKeys.USER_PERM);
+        });
     }
 
 

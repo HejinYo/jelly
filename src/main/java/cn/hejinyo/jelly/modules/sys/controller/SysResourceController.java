@@ -1,13 +1,16 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.common.annotation.SysLogger;
+import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,94 +21,97 @@ import java.util.HashMap;
  * @author : HejinYo   hejinyo@gmail.com
  * @date 2017/9/26 11:00
  */
+@Api(tags = "资源管理", description = "SysResourceController")
 @RestController
-@RequestMapping("/resource")
+@RequestMapping("/sys/resource")
 public class SysResourceController extends BaseController {
+
     @Autowired
     private SysResourceService sysResourceService;
+
+
+    /**
+     * 资源管理树数据
+     */
+    @ApiOperation(value = "资源管理树数据", notes = "资源管理树数据")
+    @GetMapping("/editTree")
+    public Result editTree() {
+        return Result.ok(sysResourceService.getResourceListTree(false, true));
+    }
+
+    /**
+     * 资源选择树数据
+     */
+    @ApiOperation(value = "资源选择树数据", notes = "资源选择树数据")
+    @GetMapping("/selectTree")
+    public Result selectTree() {
+        return Result.ok(sysResourceService.getResourceListTree(true, true));
+    }
 
     /**
      * 获得一个资源信息
      */
+    @ApiOperation(value = "资源信息", notes = "资源信息")
+    @ApiImplicitParam(paramType = "path", name = "resourceId", value = "资源ID", required = true, dataType = "int")
     @GetMapping(value = "/{roleId}")
-    @RequiresPermissions("role:view")
     public Result get(@PathVariable(value = "roleId") Integer roleId) {
         SysResourceEntity sysResource = sysResourceService.findOne(roleId);
-        if (sysResource == null) {
-            return Result.error("资源不存在");
+        if (sysResource != null) {
+            return Result.ok(sysResource);
         }
-        return Result.ok(sysResource);
+        return Result.error(StatusCode.DATABASE_SELECT_FAILURE);
     }
 
     /**
      * 分页查询
      */
+    @ApiOperation(value = "分页查询资源信息", notes = "支持分页，排序和高级查询")
     @RequestMapping(value = "/listPage")
-    @RequiresPermissions("resource:view")
     public Result list(@RequestParam HashMap<String, Object> pageParam) {
         PageInfo<SysResourceEntity> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(pageParam)));
         return Result.ok(resourcePageInfo);
     }
 
     /**
-     * 所有资源树
-     */
-    @GetMapping("/tree")
-    @RequiresPermissions("resource:view")
-    public Result test() {
-        return Result.ok(sysResourceService.getRecursionTree());
-    }
-
-    /**
      * 增加
      */
-    @SysLogger("删除资源")
+    @SysLogger("增加资源")
+    @ApiOperation(value = "增加一个资源", notes = "增加一个资源")
     @PostMapping
-    @RequiresPermissions("resource:create")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysResourceEntity sysResource) {
-        if (sysResourceService.isExistResCode(sysResource.getResCode())) {
-            return Result.error("资源编码已经存在");
-        }
         int result = sysResourceService.save(sysResource);
         if (result == 0) {
-            return Result.error();
+            return Result.ok();
         }
-        return Result.ok();
+        return Result.error(StatusCode.DATABASE_SAVE_FAILURE);
     }
 
     /**
      * 更新
      */
     @SysLogger("更新资源")
+    @ApiOperation(value = "更新资源信息", notes = "更新资源详细信息")
     @PutMapping(value = "/{resId}")
-    @RequiresPermissions("resource:update")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysResourceEntity sysResource, @PathVariable("resId") Integer resId) {
-        if (resId == 0 && sysResource.getParentId() != -1) {
-            return Result.error("资源根节点不允许修改所属资源");
-        }
-        sysResource.setResId(resId);
-        int result = sysResourceService.update(sysResource);
+    public Result update(@PathVariable("resId") Integer resId, @Validated(RestfulValid.PUT.class) @RequestBody SysResourceEntity sysResource) {
+        int result = sysResourceService.update(resId, sysResource);
         if (result > 0) {
             return Result.ok();
         }
-        return Result.error("未作任何修改");
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
     }
 
     /**
      * 删除
      */
     @SysLogger("删除资源")
+    @ApiOperation(value = "删除资源", notes = "删除资源：/delete/1,2,3,4")
     @DeleteMapping(value = "/{resId}")
-    @RequiresPermissions("resource:delete")
     public Result delete(@PathVariable("resId") Integer resId) {
-        if (resId == 0) {
-            return Result.error("资源根节点不允许删除");
-        }
         int result = sysResourceService.delete(resId);
         if (result > 0) {
-            return Result.ok("删除成功");
+            return Result.ok();
         }
-        return Result.error("删除失败");
+        return Result.error(StatusCode.DATABASE_DELETE_FAILURE);
     }
 
 }

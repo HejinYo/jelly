@@ -1,23 +1,22 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
-import cn.hejinyo.jelly.common.exception.InfoException;
+import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysPermissionDao;
 import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
 import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
-import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.AuthTreeDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
-import cn.hejinyo.jelly.modules.sys.service.SysRoleResourceService;
+import cn.hejinyo.jelly.modules.sys.service.SysRolePermissionService;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -31,127 +30,133 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
 
     @Autowired
     private SysResourceService sysResourceService;
+
     @Autowired
-    private SysRoleResourceService sysRoleResourceService;
+    private SysRolePermissionService sysRolePermissionService;
+
     @Autowired
     private RedisUtils redisUtils;
 
+    /**
+     * 查询所有有效的权限List
+     */
     @Override
-    public boolean isExist(SysPermissionEntity sysPermission) {
-        SysPermissionEntity permission = new SysPermissionEntity();
-        permission.setPermCode(sysPermission.getPermCode());
-        permission.setResId(sysPermission.getResId());
-        return baseDao.exsit(permission);
-    }
-
-    @Override
-    public int save(SysPermissionEntity sysPermission) {
-        SysResourceEntity sysResource = sysResourceService.findOne(sysPermission.getResId());
-        if (sysResource == null) {
-            throw new InfoException("资源不存在");
-        }
-        sysPermission.setCreateTime(new Date());
-        sysPermission.setCreateId(ShiroUtils.getUserId());
-        //清除redis中的权限缓存
-        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
-        return baseDao.save(sysPermission);
-    }
-
-    @Override
-    public Set<String> getRolePermissionSet(int roleId) {
-        return baseDao.getRolePermissionSet(roleId);
+    public List<SysPermissionEntity> getAllPermissionList() {
+        return baseDao.getAllPermissionList();
     }
 
     /**
-     * 递归获得资源权限树
+     * 递归获得授权树
      */
     @Override
-    public List<RolePermissionTreeDTO> getResourcePermissionTree() {
-        List<RolePermissionTreeDTO> resourceList = new CopyOnWriteArrayList<>(baseDao.findAllResourceList());
-        List<RolePermissionTreeDTO> permissionList = new CopyOnWriteArrayList<>(baseDao.findAllPermissionList());
-        return recursionRes(0, resourceList, permissionList);
+    public List<AuthTreeDTO> getAuthTree() {
+        List<SysResourceEntity> resourceList = new CopyOnWriteArrayList<>(sysResourceService.getAllResourceList());
+        List<SysPermissionEntity> permissionList = new CopyOnWriteArrayList<>(getAllPermissionList());
+        return recursionAuthTree(Constant.TREE_ROOT, resourceList, permissionList);
     }
 
-    @Override
-    public int update(SysPermissionEntity sysPermission) {
-        SysPermissionEntity oldPermission = baseDao.findOne(sysPermission.getPermId());
-        if (oldPermission == null) {
-            throw new InfoException("权限不存在");
-        }
-        if (!oldPermission.getPermCode().equals(sysPermission.getPermCode()) || !oldPermission.getResId().equals(sysPermission.getResId())) {
-            if (isExist(sysPermission)) {
-                throw new InfoException("资源权限已经存在");
+    private List<AuthTreeDTO> recursionAuthTree(Integer parentId, List<SysResourceEntity> resList, List<SysPermissionEntity> permList) {
+        List<AuthTreeDTO> result = new ArrayList<>();
+        // 开始遍历资源
+        resList.forEach(res -> {
+            // 资源ID 等于父资源ID
+            if (parentId.equals(res.getResId())) {
+                // 获取此资源的子资源
+                List<AuthTreeDTO> child = recursionAuthTree(res.getResId(), resList, permList);
+                // 获取此资源的权限
+                List<AuthTreeDTO> childPerm = forEachPerm(res.getResId(), permList);
+                //子资源添加到权限的后面
+                childPerm.addAll(child);
+                AuthTreeDTO authTreeDTO = new AuthTreeDTO("2:" + res.getResId(), res.getResName(), 0, childPerm);
+                result.add(authTreeDTO);
+                resList.remove(res);
             }
-        }
-        SysResourceEntity sysResource = sysResourceService.findOne(sysPermission.getResId());
-        if (sysResource == null) {
-            throw new InfoException("资源不存在");
-        }
-        //清除redis中的权限缓存
-        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
-        return super.update(sysPermission);
+        });
+        return result;
     }
 
+    /**
+     * 获取资源的权限列表
+     */
+    private List<AuthTreeDTO> forEachPerm(Integer parentId, List<SysPermissionEntity> list) {
+        List<AuthTreeDTO> result = new ArrayList<>();
+        list.forEach(perm -> {
+            if (parentId.equals(perm.getResId())) {
+                AuthTreeDTO authTreeDTO = new AuthTreeDTO("1:" + perm.getResId(), perm.getPermName(), perm.getPermId(), 1);
+                result.add(authTreeDTO);
+                list.remove(perm);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * 保存权限
+     */
+    @Override
+    public int save(SysPermissionEntity sysPermission) {
+        // 从新构建保存对象，控制写入数据
+        SysPermissionEntity newPermission = new SysPermissionEntity();
+        newPermission.setPermName(sysPermission.getPermName());
+        newPermission.setPermCode(sysPermission.getPermCode());
+        newPermission.setResId(sysPermission.getResId());
+        newPermission.setState(sysPermission.getState());
+        newPermission.setCreateId(ShiroUtils.getUserId());
+        int count = baseDao.save(newPermission);
+        if (count > 0) {
+            //清除redis中的权限缓存
+            cleanPermCache();
+        }
+        return count;
+    }
+
+    /**
+     * 更新权限
+     */
+    @Override
+    public int update(Integer permId, SysPermissionEntity sysPermission) {
+        // 从新构建保存对象，控制写入数据
+        SysPermissionEntity newPermission = new SysPermissionEntity();
+        newPermission.setPermId(permId);
+        newPermission.setPermName(sysPermission.getPermName());
+        newPermission.setPermCode(sysPermission.getPermCode());
+        newPermission.setResId(sysPermission.getResId());
+        newPermission.setState(sysPermission.getState());
+        //保存权限
+        int count = baseDao.update(newPermission);
+        //更新权限与权限关系
+        if (count > 0) {
+            //清空所有用户的权限缓存
+            cleanPermCache();
+        }
+        return count;
+    }
+
+    /**
+     * 删除权限
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int delete(Integer permId) {
-        //删除角色资源表数据
-        sysRoleResourceService.deleteRolePrem(permId);
-        //清除redis中的权限缓存
-        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
-        return baseDao.delete(permId);
+        int count = baseDao.delete(permId);
+        if (count > 0) {
+            //删除角色权限表数据
+            sysRolePermissionService.deleteByPermId(permId);
+            //清空所有用户的权限缓存
+            cleanPermCache();
+        }
+        return count;
     }
 
     /**
-     * 删除资源对应权限数据
+     * 清除所有用户的权限缓存
      */
-    @Override
-    public int deletePermByResCode(String resCode) {
-        //清除redis中的权限缓存
-        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
-        return baseDao.deletePermByResCode(resCode);
-    }
-
-    /**
-     * 根据resId更新resCode
-     */
-    @Override
-    public int updateResCodeByResId(SysPermissionEntity permission) {
-        //清除redis中的权限缓存
-        redisUtils.cleanKey(RedisKeys.getAuthCacheKey("*"));
-        return baseDao.updateResCodeByResId(permission);
-    }
-
-
-    /**
-     * 递归生成授权树
-     */
-    private List<RolePermissionTreeDTO> recursionRes(Integer parentId, List<RolePermissionTreeDTO> resList, List<RolePermissionTreeDTO> permList) {
-        List<RolePermissionTreeDTO> result = new ArrayList<>();
-        resList.forEach(value -> {
-            if (parentId.equals(value.getResPid())) {
-                List<RolePermissionTreeDTO> child = recursionRes(value.getResId(), resList, permList);
-                List<RolePermissionTreeDTO> childPerm = recursionPerm(value.getResId(), permList);
-                if (childPerm.size() > 0) {
-                    child.addAll(0, childPerm);
-                }
-                value.setChildren(child);
-                result.add(value);
-                resList.remove(value);
-            }
+    private void cleanPermCache() {
+        Set<String> userStore = redisUtils.keys(RedisKeys.storeUser("*"));
+        userStore.forEach(s -> {
+            redisUtils.hdel(s, RedisKeys.USER_PERM);
         });
-        return result;
     }
 
-    private List<RolePermissionTreeDTO> recursionPerm(Integer parentId, List<RolePermissionTreeDTO> list) {
-        List<RolePermissionTreeDTO> result = new ArrayList<>();
-        list.forEach(value -> {
-            if (parentId.equals(value.getResId())) {
-                result.add(value);
-                list.remove(value);
-            }
-        });
-        return result;
-    }
 
 }

@@ -1,93 +1,147 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.common.annotation.SysLogger;
+import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.utils.PageInfo;
 import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
-import cn.hejinyo.jelly.modules.sys.model.SysConfig;
+import cn.hejinyo.jelly.modules.sys.model.SysConfigEntity;
+import cn.hejinyo.jelly.modules.sys.model.SysConfigOptionEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysConfigService;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.HashMap;
 
 /**
- * 参数配置
+ * 系统配置
  *
- * @author : HejinYo   hejinyo@gmail.com
- * @date :  2018/3/6 21:39
+ * @author : heshuangshuang
+ * @date : 2018/4/10 17:39
  */
+@Api(tags = "系统配置", description = "SysConfigController")
 @RestController
-@RequestMapping("/config")
-public class SysConfigController extends BaseController {
+@RequestMapping("/sys/config")
+public class SysConfigController {
+
     @Autowired
     private SysConfigService sysConfigService;
 
-
     /**
-     * 获得一个配置信息
+     * 配置信息
      */
-    @GetMapping(value = "/{sysConfigId}")
-    @RequiresPermissions("config:view")
-    public Result get(@PathVariable(value = "sysConfigId") Integer id) {
-        SysConfig sysConfig = sysConfigService.findOne(id);
-        if (sysConfig == null) {
-            return Result.error("配置不存在");
-        }
-        return Result.ok(sysConfig);
+    @ApiOperation(value = "配置信息", notes = "配置信息")
+    @GetMapping("/{configId}")
+    public Result info(@PathVariable("configId") Integer configId) {
+        SysConfigEntity config = sysConfigService.findOne(configId);
+        return Result.ok(config);
     }
 
     /**
-     * 分页查询配置信息
+     * 配置分页查询
      */
-    @RequestMapping("/listPage")
-    @RequiresPermissions("config:view")
-    public Result list(@RequestParam Map<String, Object> param) {
+    @ApiOperation(value = "配置分页查询", notes = "配置分页查询")
+    @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
+    public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         //查询列表数据
-        PageInfo<SysConfig> sysConfigPageInfo = new PageInfo<>(sysConfigService.findPage(PageQuery.build(param)));
-        return Result.ok(sysConfigPageInfo);
+        PageInfo<SysConfigEntity> userConfigInfo = new PageInfo<>(sysConfigService.findPage(PageQuery.build(pageParam, queryParam)));
+        return Result.ok(userConfigInfo);
     }
 
     /**
      * 保存配置
      */
-    @SysLogger("增加配置")
+    @ApiOperation(value = "保存配置", notes = "保存配置")
+    @SysLogger("保存配置")
     @PostMapping
-    @RequiresPermissions("config:create")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysConfig config) {
-        sysConfigService.save(config);
-        return Result.ok();
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysConfigEntity config) {
+        int count = sysConfigService.save(config);
+        if (count > 0) {
+            return Result.ok();
+        }
+        return Result.error(StatusCode.DATABASE_SAVE_FAILURE);
     }
 
     /**
      * 修改配置
      */
+    @ApiOperation(value = "修改配置", notes = "修改配置")
     @SysLogger("修改配置")
-    @PutMapping(value = "/{sysConfigId}")
-    @RequiresPermissions("config:update")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysConfig sysConfig, @PathVariable("sysConfigId") Integer sysConfigId) {
-        sysConfig.setId(sysConfigId);
-        int result = sysConfigService.update(sysConfig);
-        if (result > 0) {
+    @PutMapping(value = "/{configId}")
+    public Result update(@PathVariable("configId") Integer configId, @Validated(RestfulValid.PUT.class) @RequestBody SysConfigEntity config) {
+        int count = sysConfigService.update(configId, config);
+        if (count > 0) {
             return Result.ok();
         }
-        return Result.error("未作任何修改");
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
     }
 
     /**
      * 删除配置
      */
+    @ApiOperation(value = "删除配置", notes = "删除配置")
     @SysLogger("删除配置")
-    @RequiresPermissions("config:delete")
-    @DeleteMapping(value = "/{sysConfigIdList}")
-    public Result delete(@PathVariable("sysConfigIdList") Integer[] ids) {
-        int result = sysConfigService.deleteBatch(ids);
-        if (result > 0) {
-            return Result.ok("删除成功");
+    @DeleteMapping("/{configId}")
+    public Result delete(@PathVariable("configId") Integer configId) {
+        int count = sysConfigService.delete(configId);
+        if (count > 0) {
+            return Result.ok();
         }
-        return Result.error("删除失败");
+        return Result.error(StatusCode.DATABASE_DELETE_FAILURE);
+    }
+
+    /**
+     * 根据配置code获取配置值列表
+     */
+    @ApiOperation(value = "根据配置code获取配置值列表", notes = "根据配置code获取配置值列表")
+    @GetMapping("/option/{code}")
+    public Result getOptionList(@PathVariable("code") String code) {
+        return Result.ok(sysConfigService.getOptionListByCode(code));
+    }
+
+    /**
+     * 保存配置属性
+     */
+    @ApiOperation(value = "保存配置属性", notes = "保存配置属性")
+    @SysLogger("保存配置属性")
+    @PostMapping("/option")
+    public Result saveOption(@Validated(RestfulValid.POST.class) @RequestBody SysConfigOptionEntity option) {
+        int count = sysConfigService.saveOption(option);
+        if (count > 0) {
+            return Result.ok();
+        }
+        return Result.error(StatusCode.DATABASE_SAVE_FAILURE);
+    }
+
+    /**
+     * 修改配置属性
+     */
+    @ApiOperation(value = "修改配置属性", notes = "修改配置属性")
+    @SysLogger("修改配置属性")
+    @PutMapping("/option/{optionId}")
+    public Result updateOption(@PathVariable("optionId") Integer optionId, @Validated(RestfulValid.PUT.class) @RequestBody SysConfigOptionEntity option) {
+        int count = sysConfigService.updateOption(optionId, option);
+        if (count > 0) {
+            return Result.ok();
+        }
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
+    }
+
+    /**
+     * 删除配置属性
+     */
+    @ApiOperation(value = "删除配置属性", notes = "删除配置属性")
+    @SysLogger("删除配置属性")
+    @DeleteMapping("/option/{optionId}")
+    public Result deleteOption(@PathVariable("optionId") Integer optionId) {
+        int count = sysConfigService.deleteBatchOption(optionId);
+        if (count > 0) {
+            return Result.ok();
+        }
+        return Result.error(StatusCode.DATABASE_DELETE_FAILURE);
     }
 }

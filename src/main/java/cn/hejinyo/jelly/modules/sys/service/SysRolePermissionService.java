@@ -21,4 +21,10 @@ public interface SysRolePermissionService extends BaseService<SysRolePermissionE
      * 删除多个角色与权限关系
      */
     int deleteByRoleIds(Integer[] roleIds);
+
+    /**
+     * 权限与角色关系
+     */
+    int deleteByPermId(Integer permId);
+
 }

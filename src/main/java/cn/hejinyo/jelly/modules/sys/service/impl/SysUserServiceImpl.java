@@ -6,6 +6,7 @@ import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.*;
+import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
 import cn.hejinyo.jelly.modules.sys.model.SysUserEntity;
 import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
@@ -17,7 +18,10 @@ import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,6 +33,7 @@ import java.util.List;
  */
 @Service
 public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntity, Integer> implements SysUserService {
+
     @Autowired
     private RedisUtils redisUtils;
     @Autowired
@@ -131,7 +136,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
     }
 
     /**
-     * 检查用户名是否存在，加锁
+     * 检查用户名是否存在
      */
     @Override
     public boolean isExistUserName(String userName) {
@@ -221,28 +226,6 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
     }
 
     /**
-     * 检查是否修改了部门
-     */
-    private boolean isChangeDept(List<Integer> oldUserDeptList, List<Integer> userDeptList) {
-        int oldSize = oldUserDeptList.size();
-        int newSize = userDeptList.size();
-        //部门数量不等，一定修改了部门
-        if (oldSize != newSize) {
-            return true;
-        }
-        int count = 0;
-        for (Integer oldDeptId : oldUserDeptList) {
-            for (Integer newDeptId : userDeptList) {
-                if (newDeptId.equals(oldDeptId)) {
-                    count++;
-                }
-            }
-        }
-        // 如果新旧部门匹配的数量和原来部门数量不一致，一定修改了部门
-        return oldSize != count;
-    }
-
-    /**
      * 删除用户
      */
     @Override
@@ -301,45 +284,47 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
      */
     @Override
     public int updateUserInfo(SysUserEntity sysUser) {
-        //用户原来信息
-        SysUserEntity sysUserOld = baseDao.findOne(ShiroUtils.getUserId());
-        //修改标志
-        boolean flag = Boolean.FALSE;
         //新的PO
         SysUserEntity newUser = new SysUserEntity();
         newUser.setUserId(sysUser.getUserId());
-        String email = sysUser.getEmail();
-        String phone = sysUser.getPhone();
-        //邮箱是否修改
-        if (!email.equals(sysUserOld.getEmail())) {
-            newUser.setEmail(email);
-            flag = true;
-        }
-        //手机是否修改
-        if (!phone.equals(sysUserOld.getPhone())) {
-            newUser.setPhone(phone);
-            flag = true;
-        }
-        if (flag) {
-            return baseDao.update(newUser);
-        }
-        return 0;
+        newUser.setEmail(sysUser.getEmail());
+        newUser.setPhone(sysUser.getPhone());
+        return baseDao.update(newUser);
     }
-
 
     /**
      * 修改头像
      */
     @Override
-    public int updateUserAvatar(SysUserEntity sysUser) {
-        return baseDao.update(sysUser);
+    public String updateUserAvatar(MultipartFile file) {
+        // 获得原始文件名
+        String fileName = file.getOriginalFilename();
+        System.out.println("fileName:" + fileName);
+        String key = "avatar/" + ShiroUtils.getLoginUser().getUserName() + "/" + LocalDateTime.now().toString() + ".png";
+        if (!file.isEmpty()) {
+            try {
+                String avatarUrl = OSSFactory.build(key).upload(file.getInputStream(), key);
+                SysUserEntity sysUser = new SysUserEntity();
+                sysUser.setUserId(ShiroUtils.getUserId());
+                sysUser.setAvatar(avatarUrl);
+                int count = baseDao.update(sysUser);
+                if (count > 0) {
+                    updateUserToken();
+                    return avatarUrl;
+                }
+                throw new InfoException("上传成功，但是修改失败");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        throw new InfoException("上传失败");
     }
 
     /**
      * 更新用户redis信息
      */
     @Override
-    public void updateUserRedisInfo() {
+    public void updateUserToken() {
         LoginUserDTO oldUser = ShiroUtils.getLoginUser();
         LoginUserDTO userDTO = shiroService.getLoginUser(oldUser.getUserName());
         userDTO.setUserToken(oldUser.getUserToken());
@@ -348,5 +333,28 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
         //token写入缓存
         redisUtils.hset(RedisKeys.storeUser(userDTO.getUserId()), RedisKeys.USER_TOKEN, userDTO);
     }
+
+    /**
+     * 检查是否修改了部门
+     */
+    private boolean isChangeDept(List<Integer> oldUserDeptList, List<Integer> userDeptList) {
+        int oldSize = oldUserDeptList.size();
+        int newSize = userDeptList.size();
+        //部门数量不等，一定修改了部门
+        if (oldSize != newSize) {
+            return true;
+        }
+        int count = 0;
+        for (Integer oldDeptId : oldUserDeptList) {
+            for (Integer newDeptId : userDeptList) {
+                if (newDeptId.equals(oldDeptId)) {
+                    count++;
+                }
+            }
+        }
+        // 如果新旧部门匹配的数量和原来部门数量不一致，一定修改了部门
+        return oldSize != count;
+    }
+
 
 }

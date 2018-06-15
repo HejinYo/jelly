@@ -48,4 +48,12 @@ public class SysRolePermissionServiceImpl extends BaseServiceImpl<SysRolePermiss
     public int deleteByRoleIds(Integer[] roleIds) {
         return baseDao.deleteByRoleIds(roleIds);
     }
+
+    /**
+     * 权限与角色关系
+     */
+    @Override
+    public int deleteByPermId(Integer permId) {
+        return baseDao.deleteByPermId(permId);
+    }
 }

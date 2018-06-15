@@ -34,7 +34,7 @@ public class SysDeptController {
      * 部门管理树数据
      */
     @ApiOperation(value = "部门管理树数据", notes = "用户部门包含子部门")
-    @GetMapping("/tree")
+    @GetMapping("/editTree")
     //@RequiresPermissions("sys:dept:list")
     public Result editTree() {
         //显示根节点
@@ -45,7 +45,7 @@ public class SysDeptController {
      * 部门选择树数据
      */
     @ApiOperation(value = "部门选择树数据", notes = "用户部门包含子部门")
-    @GetMapping("/select")
+    @GetMapping("/selectTree")
     public Result selectTree() {
         return Result.ok(sysDeptService.getDeptListTree(true, true));
     }
@@ -55,7 +55,7 @@ public class SysDeptController {
      */
     @ApiOperation(value = "分页查询部门列表", notes = "分页查询部门列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(paramType = "qyery", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
+            @ApiImplicitParam(paramType = "query", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
     })
     @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
     public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {

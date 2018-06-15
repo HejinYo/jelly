@@ -2,10 +2,9 @@ package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
-import cn.hejinyo.jelly.modules.sys.model.dto.RolePermissionTreeDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.AuthTreeDTO;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -13,28 +12,13 @@ import java.util.Set;
  */
 public interface SysPermissionService extends BaseService<SysPermissionEntity, Integer> {
     /**
-     * 权限资源是否存在
+     * 获取系统所有权限列表
      */
-    boolean isExist(SysPermissionEntity sysPermission);
-
-    /**
-     * 查找角色编号对应的权限编码字符串
-     */
-    Set<String> getRolePermissionSet(int roleId);
+    List<SysPermissionEntity> getAllPermissionList();
 
     /**
      * 获得授权树
      */
-    List<RolePermissionTreeDTO> getResourcePermissionTree();
-
-    /**
-     * 删除资源对应权限数据
-     */
-    int deletePermByResCode(String resCode);
-
-    /**
-     * 根据resId更新resCode
-     */
-    int updateResCodeByResId(SysPermissionEntity permission);
+    List<AuthTreeDTO> getAuthTree();
 
 }
