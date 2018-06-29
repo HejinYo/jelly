@@ -40,7 +40,7 @@ public class Constant {
     /**
      * 请求头 中token的key
      */
-    public static final String AUTHOR_PARAM = "Authorization";
+    public static final String AUTHOR_PARAM = "x-access-token";
 
     public enum Dept {
         /**

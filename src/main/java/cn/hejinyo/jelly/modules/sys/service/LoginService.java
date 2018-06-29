@@ -17,6 +17,6 @@ public interface LoginService {
     /**
      * 处理登录逻辑
      */
-    LoginUserDTO doLogin(String userName, String userPwd);
+    String doLogin(String userName, String userPwd);
 
 }

@@ -34,7 +34,7 @@ public class SysResourceController extends BaseController {
      * 资源管理树数据
      */
     @ApiOperation(value = "资源管理树数据", notes = "资源管理树数据")
-    @GetMapping("/editTree")
+    @GetMapping("/operateTree")
     public Result editTree() {
         return Result.ok(sysResourceService.getResourceListTree(false, true));
     }

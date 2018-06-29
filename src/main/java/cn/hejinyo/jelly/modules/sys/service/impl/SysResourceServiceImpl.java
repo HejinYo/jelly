@@ -8,7 +8,7 @@ import cn.hejinyo.jelly.common.utils.RecursionUtil;
 import cn.hejinyo.jelly.modules.sys.dao.SysResourceDao;
 import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
 import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
-import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.RoutersMenuDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
@@ -40,7 +40,7 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
      * 查询用户编号可用菜单列表
      */
     @Override
-    public List<UserMenuDTO> getUserMenuList(int userId) {
+    public List<RoutersMenuDTO> getUserMenuList(int userId) {
         if (Constant.SUPER_ADMIN.equals(userId)) {
             //系统管理员，所有有效菜单
             return baseDao.findAllMenuList();
@@ -52,9 +52,9 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
      * 查询用户编号可用菜单树
      */
     @Override
-    public List<UserMenuDTO> getUserMenuTree(int userId) {
+    public List<RoutersMenuDTO> getUserMenuTree(int userId) {
         //递归生成用户菜单树
-        return RecursionUtil.tree(false, UserMenuDTO.class, GET_ID_NAME, new CopyOnWriteArrayList<>(getUserMenuList(userId)), Collections.singletonList(Constant.TREE_ROOT));
+        return RecursionUtil.tree(false, RoutersMenuDTO.class, GET_ID_NAME, new CopyOnWriteArrayList<>(getUserMenuList(userId)), Collections.singletonList(Constant.TREE_ROOT));
     }
 
     /**

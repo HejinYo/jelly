@@ -2,7 +2,7 @@ package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
 import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
-import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.RoutersMenuDTO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +16,12 @@ public interface SysResourceService extends BaseService<SysResourceEntity, Integ
     /**
      * 查询用户编号可用菜单列表
      */
-    List<UserMenuDTO> getUserMenuList(int userId);
+    List<RoutersMenuDTO> getUserMenuList(int userId);
 
     /**
      * 查询用户编号可用菜单树
      */
-    List<UserMenuDTO> getUserMenuTree(int userId);
+    List<RoutersMenuDTO> getUserMenuTree(int userId);
 
     /**
      * 获取系统所有资源列表

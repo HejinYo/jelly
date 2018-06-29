@@ -19,13 +19,12 @@
     </resultMap>
 
     <!-- 递归查询用户菜单 -->
-    <resultMap id="UserMenuMap" type="cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO">
+    <resultMap id="RoutersMenuMap" type="cn.hejinyo.jelly.modules.sys.model.dto.RoutersMenuDTO">
         <id column="res_id" jdbcType="INTEGER" property="resId"/>
         <result column="parent_id" jdbcType="INTEGER" property="parentId"/>
-        <result column="res_name" jdbcType="VARCHAR" property="resName"/>
-        <result column="res_code" jdbcType="VARCHAR" property="resCode"/>
+        <result column="res_name" jdbcType="VARCHAR" property="title"/>
+        <result column="res_code" jdbcType="VARCHAR" property="name"/>
         <result column="icon" jdbcType="VARCHAR" property="icon"/>
-        <result column="seq" jdbcType="TINYINT" property="seq"/>
     </resultMap>
 
     <!-- 表基本列 -->
@@ -53,7 +52,7 @@
 
 
     <!-- 查询所有菜单列表 -->
-    <select id="findAllMenuList" resultMap="UserMenuMap">
+    <select id="findAllMenuList" resultMap="RoutersMenuMap">
         SELECT
         <include refid="Base_Column_List"/>
         from
@@ -63,7 +62,7 @@
     </select>
 
     <!-- 查询用户菜单列表 -->
-    <select id="findUserMenuList" resultMap="UserMenuMap">
+    <select id="findUserMenuList" resultMap="RoutersMenuMap">
         select sr.*
         FROM
             (

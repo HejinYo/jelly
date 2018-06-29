@@ -58,7 +58,7 @@ public class LoginServiceImpl implements LoginService {
      * 处理登录逻辑
      */
     @Override
-    public LoginUserDTO doLogin(String userName, String userPwd) {
+    public String doLogin(String userName, String userPwd) {
         LoginUserDTO userDTO = checkUser(userName, userPwd);
         Integer userId = userDTO.getUserId();
         //创建jwt token
@@ -71,6 +71,6 @@ public class LoginServiceImpl implements LoginService {
         redisUtils.hsetEX(RedisKeys.storeUser(userId), RedisKeys.USER_TOKEN, userDTO, Constant.USER_TOKEN_EXPIRE);
         //记录本次登录Ip和时间
         sysUserService.updateUserLoginInfo(userId);
-        return userDTO;
+        return token;
     }
 }

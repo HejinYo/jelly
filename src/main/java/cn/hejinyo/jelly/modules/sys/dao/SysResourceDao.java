@@ -2,7 +2,7 @@ package cn.hejinyo.jelly.modules.sys.dao;
 
 import cn.hejinyo.jelly.common.base.BaseDao;
 import cn.hejinyo.jelly.modules.sys.model.SysResourceEntity;
-import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.RoutersMenuDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,12 +19,12 @@ public interface SysResourceDao extends BaseDao<SysResourceEntity, Integer> {
     /**
      * 查询所有菜单列表
      */
-    List<UserMenuDTO> findAllMenuList();
+    List<RoutersMenuDTO> findAllMenuList();
 
     /**
      * 查询用户菜单列表
      */
-    List<UserMenuDTO> findUserMenuList(@Param("userId") Integer userId);
+    List<RoutersMenuDTO> findUserMenuList(@Param("userId") Integer userId);
 
     /**
      * 查询所有资源列表

@@ -3,7 +3,6 @@ package cn.hejinyo.jelly.modules.sys.controller;
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.*;
 import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
-import cn.hejinyo.jelly.modules.sys.model.dto.UserMenuDTO;
 import cn.hejinyo.jelly.modules.sys.service.LoginService;
 import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
@@ -13,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * 系统用户登录控制器
@@ -51,11 +47,11 @@ public class LoginController extends BaseController {
         if (StringUtils.isEmpty(userPwd)) {
             return Result.error("密码不能为空");
         }
-        return Result.ok(loginService.doLogin(userName, userPwd));
+        return Result.result(loginService.doLogin(userName, userPwd));
     }
 
     /**
-     * 获得当前用户redis中的用户信息
+     * 登出
      */
     @GetMapping(value = "/logout")
     public Result logout(HttpServletRequest request) {
@@ -89,14 +85,27 @@ public class LoginController extends BaseController {
     }
 
     /**
-     * 获得用户菜单和权限
+     * 获得用户菜单
      */
     @GetMapping("/userMenu")
-    public Map<String, Object> userMenu() {
-        List<UserMenuDTO> menu = sysResourceService.getUserMenuTree(loginUserId());
-        Set<String> perm = shiroService.getUserPermSet(loginUserId());
-        Set<String> role = shiroService.getUserRoleSet(loginUserId());
-        return Result.ok().add("menu", menu).add("perm", perm).add("role", role);
+    public Result userMenu() {
+        return Result.ok(sysResourceService.getUserMenuTree(loginUserId()));
+    }
+
+    /**
+     * 获得用户权限
+     */
+    @GetMapping("/userPerm")
+    public Result userPerm() {
+        return Result.ok(shiroService.getUserPermSet(loginUserId()));
+    }
+
+    /**
+     * 获得用户角色
+     */
+    @GetMapping("/userRole")
+    public Result userRole() {
+        return Result.ok(shiroService.getUserRoleSet(loginUserId()));
     }
 
     /**

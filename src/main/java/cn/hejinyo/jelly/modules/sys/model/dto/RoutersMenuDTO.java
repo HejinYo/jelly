@@ -1,5 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.model.dto;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -12,28 +13,30 @@ import java.util.List;
  * @date : 2017/4/9 18:09
  */
 @Data
-public class UserMenuDTO implements Serializable {
+public class RoutersMenuDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 菜单编号 res_id
+     * 资源编号 res_id
      **/
+    @JSONField(serialize = false)
     private Integer resId;
 
     /**
      * 父节点 parent_id
      **/
+    @JSONField(serialize = false)
     private Integer parentId;
 
     /**
-     * 菜单名称 res_name
+     * 路由name 对应 resCode
      **/
-    private String resName;
+    private String name;
 
     /**
-     * 菜单编码 res_code
+     * 路由title 对应 res_name
      **/
-    private String resCode;
+    private String title;
 
     /**
      * 显示图标 icon
@@ -41,12 +44,9 @@ public class UserMenuDTO implements Serializable {
     private String icon;
 
     /**
-     * 排序号 seq
-     **/
-    private Integer seq;
-
-    /**
      * 子菜单
      */
-    private List<UserMenuDTO> children;
+    private List<RoutersMenuDTO> children;
+
+
 }

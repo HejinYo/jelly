@@ -50,7 +50,7 @@ public class SwaggerConfig {
     private List<Parameter> setHeaderToken() {
         ParameterBuilder tokenPar = new ParameterBuilder();
         List<Parameter> pars = new ArrayList<>();
-        tokenPar.name("Authorization").description("用户Token").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
+        tokenPar.name("x-access-token").description("用户Token").modelRef(new ModelRef("string")).parameterType("header").required(false).build();
         pars.add(tokenPar.build());
         return pars;
     }

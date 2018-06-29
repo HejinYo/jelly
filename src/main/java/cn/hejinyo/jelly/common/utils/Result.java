@@ -45,6 +45,12 @@ public class Result extends HashMap<String, Object> {
         return jsonMap;
     }
 
+    public static Result result(Object result) {
+        Result jsonMap = ok();
+        jsonMap.put(RESUTLT, result);
+        return jsonMap;
+    }
+
     public static Result ok(StatusCode statusCode) {
         return error(statusCode.getCode(), statusCode.getMsg());
     }
