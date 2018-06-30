@@ -113,7 +113,8 @@
         from sys_resource sr
         LEFT JOIN sys_resource sp on sp.parent_id != sp.res_id AND sr.parent_id = sp.res_id
         <where>
-            <if test="resId != null and !&quot;&quot;.equals(resId)">(sr.parent_id = #{resId} or sr.res_id = #{resId})</if>
+            <if test="queryTree != null and !&quot;&quot;.equals(queryTree)">(sr.parent_id = #{queryTree} or sr.res_id = #{queryTree})</if>
+            <if test="resId != null and !&quot;&quot;.equals(resId)">and sr.res_id = #{resId}</if>
             <if test="resType != null and !&quot;&quot;.equals(resType)">and sr.type like concat('%',#{type},'%')</if>
             <if test="resCode != null and !&quot;&quot;.equals(resCode)">and sr.res_code like concat('%',#{resCode},'%')</if>
             <if test="resName != null and !&quot;&quot;.equals(resName)">and sr.res_name like concat('%',#{resName},'%')</if>

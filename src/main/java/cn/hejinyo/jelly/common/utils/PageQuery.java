@@ -28,8 +28,7 @@ public class PageQuery extends HashMap<String, Object> {
     private static final String QUERY_KEY = "queryKey";
     private static final String QUERY_VALUE = "queryValue";
     //管理树点击的查询条件
-    private static final String TREE_KEY = "treeKey";
-    private static final String TREE_VALUE = "treeValue";
+    private static final String QUERY_TREE = "queryTree";
 
     private int pageNum;
     private int pageSize;
@@ -63,12 +62,6 @@ public class PageQuery extends HashMap<String, Object> {
             pageQuery.put(SORT, sort);
         }
 
-        // 管理树点击的查询条件
-        String treeValue = MapUtils.getString(pageParam, TREE_VALUE);
-        if (StringUtils.isNotBlank(treeValue)) {
-            pageQuery.put(MapUtils.getString(pageParam, TREE_KEY), treeValue);
-        }
-
         if (queryParam != null) {
             // 如果是高级查询，忽略简单查询条件
             pageQuery.putAll(queryParam);
@@ -80,9 +73,6 @@ public class PageQuery extends HashMap<String, Object> {
         if (StringUtils.isNotBlank(queryValue)) {
             pageQuery.put(MapUtils.getString(pageParam, QUERY_KEY), queryValue);
         }
-
-        //其他URL查询参数
-        pageQuery.putAll(pageParam);
 
         return pageQuery;
     }

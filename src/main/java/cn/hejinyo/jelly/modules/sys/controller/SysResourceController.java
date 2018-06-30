@@ -66,9 +66,9 @@ public class SysResourceController extends BaseController {
      * 分页查询
      */
     @ApiOperation(value = "分页查询资源信息", notes = "支持分页，排序和高级查询")
-    @RequestMapping(value = "/listPage")
-    public Result list(@RequestParam HashMap<String, Object> pageParam) {
-        PageInfo<SysResourceEntity> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(pageParam)));
+    @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
+    public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
+        PageInfo<SysResourceEntity> resourcePageInfo = new PageInfo<>(sysResourceService.findPage(PageQuery.build(pageParam, queryParam)));
         return Result.ok(resourcePageInfo);
     }
 
