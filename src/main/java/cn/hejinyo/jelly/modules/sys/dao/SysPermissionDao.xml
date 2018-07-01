@@ -133,10 +133,12 @@
     <!-- 分页查询 -->
     <select id="findPage" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List"/>
-        from sys_permission
+        sp.perm_id, sp.res_id, sp.perm_name, sp.perm_code, sp.state, sp.create_id, sp.create_time, sp.update_id, sp.update_time, sr.res_name
+        from sys_permission sp
+        left join sys_resource sr on sp.res_id = sr.res_id
         <where>
-            <if test="resId != null and !&quot;&quot;.equals(resId)">and res_id = #{resId}</if>
+            <if test="queryTree != null and !&quot;&quot;.equals(queryTree)">sp.res_id = #{queryTree}</if>
+            <if test="permId != null and !&quot;&quot;.equals(permId)">and perm_id = #{permId}</if>
             <if test="permName != null and !&quot;&quot;.equals(permName)">and perm_name like concat('%',#{permName},'%')</if>
             <if test="permCode != null and !&quot;&quot;.equals(permCode)">and perm_code like concat('%',#{permCode},'%')</if>
             <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>

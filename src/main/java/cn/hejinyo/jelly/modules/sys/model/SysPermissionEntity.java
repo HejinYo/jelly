@@ -31,6 +31,11 @@ public class SysPermissionEntity implements Serializable {
     private Integer resId;
 
     /**
+     * 资源名称 res_name
+     **/
+    private String resName;
+
+    /**
      * 权限名称 perm_name
      **/
     @NotBlank(message = "权限名称不能为空", groups = {RestfulValid.POST.class})
