@@ -52,10 +52,10 @@ public class SysResourceController extends BaseController {
      * 获得一个资源信息
      */
     @ApiOperation(value = "资源信息", notes = "资源信息")
-    @ApiImplicitParam(paramType = "path", name = "resourceId", value = "资源ID", required = true, dataType = "int")
-    @GetMapping(value = "/{roleId}")
-    public Result get(@PathVariable(value = "roleId") Integer roleId) {
-        SysResourceEntity sysResource = sysResourceService.findOne(roleId);
+    @ApiImplicitParam(paramType = "path", name = "resId", value = "资源ID", required = true, dataType = "int")
+    @GetMapping(value = "/{resId}")
+    public Result get(@PathVariable(value = "resId") Integer resId) {
+        SysResourceEntity sysResource = sysResourceService.findOne(resId);
         if (sysResource != null) {
             return Result.ok(sysResource);
         }
