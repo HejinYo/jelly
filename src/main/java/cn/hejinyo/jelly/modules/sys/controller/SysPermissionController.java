@@ -67,7 +67,7 @@ public class SysPermissionController extends BaseController {
     @PostMapping
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysPermissionEntity sysPermission) {
         int result = sysPermissionService.save(sysPermission);
-        if (result == 0) {
+        if (result > 0) {
             return Result.ok();
         }
         return Result.error(StatusCode.DATABASE_SAVE_FAILURE);

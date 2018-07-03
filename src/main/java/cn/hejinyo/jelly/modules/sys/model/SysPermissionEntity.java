@@ -2,7 +2,6 @@ package cn.hejinyo.jelly.modules.sys.model;
 
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -27,7 +26,7 @@ public class SysPermissionEntity implements Serializable {
     /**
      * 资源编号 res_id
      **/
-    @NotNull(message = "所属资源不能为空", groups = {RestfulValid.POST.class})
+    @NotNull(message = "所属资源不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private Integer resId;
 
     /**
@@ -38,13 +37,13 @@ public class SysPermissionEntity implements Serializable {
     /**
      * 权限名称 perm_name
      **/
-    @NotBlank(message = "权限名称不能为空", groups = {RestfulValid.POST.class})
+    @NotNull(message = "权限名称不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private String permName;
 
     /**
      * 权限编码 perm_code
      **/
-    @NotBlank(message = "权限编码不能为空", groups = {RestfulValid.POST.class})
+    @NotNull(message = "权限编码不能为空", groups = {RestfulValid.POST.class, RestfulValid.PUT.class})
     private String permCode;
 
     /**

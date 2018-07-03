@@ -64,7 +64,7 @@ public class SysUserController extends BaseController {
     @PostMapping
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUserEntity sysUser) {
         int result = sysUserService.save(sysUser);
-        if (result == 0) {
+        if (result > 0) {
             return Result.ok();
         }
         return Result.error(StatusCode.DATABASE_SAVE_FAILURE);

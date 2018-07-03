@@ -80,7 +80,7 @@ public class SysResourceController extends BaseController {
     @PostMapping
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysResourceEntity sysResource) {
         int result = sysResourceService.save(sysResource);
-        if (result == 0) {
+        if (result > 0) {
             return Result.ok();
         }
         return Result.error(StatusCode.DATABASE_SAVE_FAILURE);
