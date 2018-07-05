@@ -96,6 +96,36 @@
         ORDER BY sr.parent_id, sr.seq
     </select>
 
+    <!-- 一次修改父节点下指定排序号依次加一 -->
+    <update id="updateSeqInTurn">
+        update sys_resource
+        set seq = seq + 1
+        where parent_id = #{parentId} and seq >= #{seq}
+    </update>
+
+    <!-- 修改排序号 -->
+    <update id="updateSeq">
+        update sys_resource
+        set seq = #{seq}
+        where res_id = #{resId}
+    </update>
+
+    <!-- 修改父节点及其排序号 -->
+    <update id="updateParentIdAndSeq">
+        update sys_resource
+        set parent_id = #{parentId}, seq = #{seq}
+        where res_id = #{resId}
+    </update>
+
+    <!-- 查询父资源所有子资源列表 -->
+    <select id="findListByParentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_resource
+        where parent_id = #{parentId}
+        order by seq
+    </select>
+
     <!-- 分页查询 -->
     <select id="findPage" resultMap="BaseResultMap">
         select
@@ -185,6 +215,22 @@
         where
             res_id = #{resId}
     </delete>
+
+    <!-- 修改进入节点所有排序 -->
+    <update id="updateInnerAllSeq">
+        update sys_resource
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="seq = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when res_id =#{item.resId} then #{item.seq}
+                </foreach>
+            </trim>
+        </trim>
+        where res_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.resId}
+        </foreach>
+    </update>
 
     <!-- 多个主键批量删除记录 -->
     <delete id="deleteBatch">

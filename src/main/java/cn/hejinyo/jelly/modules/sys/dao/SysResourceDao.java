@@ -37,4 +37,28 @@ public interface SysResourceDao extends BaseDao<SysResourceEntity, Integer> {
     List<SysResourceEntity> findValidResourceList();
 
 
+    /**
+     * 一次修改父节点下指定排序号依次加一
+     */
+    int updateSeqInTurn(@Param("parentId") Integer parentId, @Param("seq") Integer seq);
+
+    /**
+     * 修改排序号
+     */
+    int updateSeq(@Param("resId") Integer resId, @Param("seq") Integer seq);
+
+    /**
+     * 查询父资源所有子资源列表
+     */
+    List<SysResourceEntity> findListByParentId(Integer inResId);
+
+    /**
+     * 修改父节点及其排序号
+     */
+    int updateParentIdAndSeq(@Param("resId") Integer resId, @Param("parentId") Integer parentId, @Param("seq") Integer seq);
+
+    /**
+     * 修改进入节点所有排序
+     */
+    int updateInnerAllSeq(List<SysResourceEntity> childList);
 }

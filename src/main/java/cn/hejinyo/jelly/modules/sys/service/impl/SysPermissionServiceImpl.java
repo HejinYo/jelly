@@ -158,5 +158,11 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
         });
     }
 
-
+    /**
+     * 根据资源编号查询所有权限
+     */
+    @Override
+    public List<SysPermissionEntity> findListByResId(Integer resId) {
+        return baseDao.findListByResId(resId);
+    }
 }

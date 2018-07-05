@@ -21,4 +21,8 @@ public interface SysPermissionService extends BaseService<SysPermissionEntity, I
      */
     List<AuthTreeDTO> getAuthTree();
 
+    /**
+     * 根据资源编号查询所有权限
+     */
+    List<SysPermissionEntity> findListByResId(Integer resId);
 }

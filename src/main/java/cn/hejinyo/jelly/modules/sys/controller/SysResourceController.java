@@ -114,4 +114,22 @@ public class SysResourceController extends BaseController {
         return Result.error(StatusCode.DATABASE_DELETE_FAILURE);
     }
 
+    /**
+     * 节点排序,改变父节点
+     */
+    @SysLogger("节点拖动")
+    @ApiOperation(value = "节点拖动：节点排序,改变父节点",
+            notes = "/{type}被拖拽节点的放置位置（before、after、inner}" +
+                    "/{resId}被拖拽节点ID" +
+                    "/{inResId}进入节点ID")
+    @PutMapping(value = "/drop/{location}/{resId}/{inResId}")
+    public Result nodeDrop(@PathVariable("location") String location, @PathVariable("resId") Integer resId, @PathVariable("inResId") Integer inResId) {
+        int result = sysResourceService.nodeDrop(location, resId, inResId);
+        if (result > 0) {
+            return Result.ok();
+        }
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
+
+    }
+
 }

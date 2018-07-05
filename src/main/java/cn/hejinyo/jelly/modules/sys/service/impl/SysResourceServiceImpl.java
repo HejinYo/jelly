@@ -12,6 +12,7 @@ import cn.hejinyo.jelly.modules.sys.model.dto.RoutersMenuDTO;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @date : 2017/4/22 15:11
  */
 @Service
+@Slf4j
 public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysResourceEntity, Integer> implements SysResourceService {
     /**
      * 递归资源获取id的名称
@@ -97,7 +99,12 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
         newResource.setIcon(sysResource.getIcon());
         newResource.setSeq(sysResource.getSeq());
         newResource.setState(sysResource.getState());
-        return super.save(newResource);
+        int count = super.save(newResource);
+        if (count > 0) {
+            // 重排序
+            changeSort(newResource, newResource.getSeq());
+        }
+        return count;
     }
 
     /**
@@ -128,33 +135,24 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
 
         // 资源原信息
         SysResourceEntity oldResource = baseDao.findOne(resId);
-        Integer parentId = sysResource.getParentId();
+        Integer seq = sysResource.getSeq();
 
-        //如果资源修改了父节点，需要检测新的父节点是否是当前节点的子节点，如果是，会造成递归死循环
-        if (parentId != null && !parentId.equals(oldResource.getParentId())) {
-            if (baseDao.findOne(parentId) == null) {
-                // 检查父节点是否存在
-                throw new InfoException(StatusCode.DATABASE_NO_FATHER);
-            }
-            // 递归获取当前节点的所有子节点
-            List<Integer> allIdList = recursionResource(true, Collections.singletonList(resId));
-            //检查新的父节点是否在子节点列表内
-            if (allIdList.contains(parentId)) {
-                throw new InfoException(StatusCode.DATABASE_UPDATE_LOOP);
-            }
-        }
 
         SysResourceEntity newResource = new SysResourceEntity();
         newResource.setResId(resId);
         newResource.setType(sysResource.getType());
         newResource.setResCode(sysResource.getResCode());
         newResource.setResName(sysResource.getResName());
-        newResource.setParentId(parentId);
         newResource.setIcon(sysResource.getIcon());
         newResource.setSeq(sysResource.getSeq());
         newResource.setState(sysResource.getState());
         newResource.setCreateTime(sysResource.getCreateTime());
-        return super.update(newResource);
+        int count = super.update(newResource);
+        //如果资源修改了排序号
+        if (seq != null && !seq.equals(oldResource.getSeq())) {
+            count += changeSort(sysResource, seq);
+        }
+        return count;
     }
 
     @Override
@@ -164,23 +162,151 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
             //根节点不允许删除
             throw new InfoException(StatusCode.DATABASE_DELETE_ROOT);
         }
+
+        SysResourceEntity sysResource = baseDao.findOne(resId);
         //查询是否还有子节点
-        SysResourceEntity sysRes = new SysResourceEntity();
-        sysRes.setParentId(resId);
-        List<SysResourceEntity> list = baseDao.findList(sysRes);
+        List<SysResourceEntity> list = baseDao.findListByParentId(resId);
         if (list.size() > 0) {
             throw new InfoException(StatusCode.DATABASE_DELETE_CHILD);
         }
 
         //查询资源下是否存在权限
-        SysPermissionEntity sysPermission = new SysPermissionEntity();
-        sysPermission.setResId(resId);
-        sysPermissionService.findList(sysPermission);
-        if (list.size() > 0) {
+        List<SysPermissionEntity> permList = sysPermissionService.findListByResId(resId);
+        if (permList.size() > 0) {
             throw new InfoException("资源下存在权限");
         }
         //删除资源
-        return baseDao.delete(resId);
+        int count = baseDao.delete(resId);
+        if (count > 0) {
+            // 原来同级节点重排序
+            reorder(sysResource.getParentId());
+        }
+        return count;
+    }
+
+    /**
+     * 同级修改排序
+     */
+    private int changeSort(SysResourceEntity resource, Integer seq) {
+        // 查询拖动节点所有同级节点
+        List<SysResourceEntity> innerList = baseDao.findListByParentId(resource.getParentId());
+        // 最大排序为同级长度
+        innerList.removeIf(res -> res.getResId().equals(resource.getResId()));
+        int innerSize = innerList.size();
+        int innerSeq = 1;
+        int add = 1;
+        for (int i = 0; i < innerSize; i++) {
+            if (seq.equals(i + 1)) {
+                innerSeq += i;
+                // 拖动节点新位置后面的排序加1
+                add = 2;
+            }
+            innerList.get(i).setSeq(i + add);
+        }
+        if (seq > innerList.size()) {
+            innerSeq = innerList.size() + 1;
+        }
+        // 修改同级节点所有排序
+        baseDao.updateInnerAllSeq(innerList);
+        // 修改当前节点
+        return baseDao.updateParentIdAndSeq(resource.getResId(), resource.getParentId(), innerSeq);
+    }
+
+    /**
+     * 父节点资源重排序
+     */
+    private void reorder(Integer parentId, Integer... resIds) {
+        // 查询拖动节点所有同级节点
+        List<SysResourceEntity> currList = baseDao.findListByParentId(parentId);
+        int currSize = currList.size();
+        if (currSize > 0) {
+            for (Integer resId : resIds) {
+                // 去掉拖动节点在同级排序
+                currList.removeIf(res -> res.getResId().equals(resId));
+            }
+            for (int i = 0; i < currSize; i++) {
+                currList.get(i).setSeq(i + 1);
+            }
+            // 修改拖动节点原来位置所有排序
+            baseDao.updateInnerAllSeq(currList);
+        }
+
+    }
+
+
+    /**
+     * 节点拖动
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int nodeDrop(String location, Integer resId, Integer inResId) {
+        // 拖动节点
+        SysResourceEntity currRes = baseDao.findOne(resId);
+        // 进入节点
+        SysResourceEntity innerRes = baseDao.findOne(inResId);
+
+        // 任何一个节点不存在，不进行操作
+        if (currRes == null || innerRes == null) {
+            return 0;
+        }
+
+        Integer currParentId = currRes.getParentId();
+        Integer innerParentId = innerRes.getParentId();
+        // 查询进入节点所有同级节点
+        List<SysResourceEntity> innerList = baseDao.findListByParentId(innerParentId);
+        //判断是不是同一个父节点
+        boolean parentEquals = currParentId.equals(innerParentId);
+        if (parentEquals) {
+            // 去掉进入节点在同级排序
+            innerList.removeIf(res -> res.getResId().equals(resId));
+        }
+
+        int innerSize = innerList.size();
+        int innerSeq = 1;
+        int add = 1;
+        int count;
+        switch (location) {
+            // 进入节点及其后面的依次加1，被拖拽节点排序号设置为进入节点
+            case "before":
+                for (int i = 0; i < innerSize; i++) {
+                    if (innerList.get(i).getResId().equals(inResId)) {
+                        innerSeq += i;
+                        // 拖动节点新位置后面的排序加1
+                        add = 2;
+                    }
+                    innerList.get(i).setSeq(i + add);
+                }
+                // 修改进入节点所有排序
+                baseDao.updateInnerAllSeq(innerList);
+                // 修改拖动节点
+                count = baseDao.updateParentIdAndSeq(resId, innerParentId, innerSeq);
+                break;
+            case "after":
+                for (int i = 0; i < innerSize; i++) {
+                    innerList.get(i).setSeq(i + add);
+                    if (innerList.get(i).getResId().equals(inResId)) {
+                        innerSeq += i;
+                        add = 2;
+                    }
+                }
+                // 修改进入节点所有排序
+                baseDao.updateInnerAllSeq(innerList);
+                // 修改拖动节点
+                count = baseDao.updateParentIdAndSeq(resId, innerParentId, innerSeq + 1);
+                break;
+            case "inner":
+                // 被拖拽节点父节点被进入节点，序号为进入节点的子节点长度+1
+                count = baseDao.updateParentIdAndSeq(resId, inResId, baseDao.findListByParentId(inResId).size() + 1);
+                break;
+            default:
+                return 0;
+        }
+
+        // 不同父节点，更新拖动节点原来排序
+        if (!parentEquals) {
+            reorder(currParentId, resId);
+        }
+        return count;
     }
 
 }

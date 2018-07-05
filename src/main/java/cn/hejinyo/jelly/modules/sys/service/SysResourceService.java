@@ -46,4 +46,9 @@ public interface SysResourceService extends BaseService<SysResourceEntity, Integ
      */
     List<Integer> recursionResource(boolean isRoot, List<Integer> parentIdList);
 
+    /**
+     * 节点拖动
+     */
+    int nodeDrop(String location, Integer resId, Integer inResId);
+
 }

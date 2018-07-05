@@ -20,4 +20,8 @@ public interface SysPermissionDao extends BaseDao<SysPermissionEntity, Integer> 
      */
     List<SysPermissionEntity> getAllPermissionList();
 
+    /**
+     * 根据资源编号查询所有权限
+     */
+    List<SysPermissionEntity> findListByResId(Integer resId);
 }

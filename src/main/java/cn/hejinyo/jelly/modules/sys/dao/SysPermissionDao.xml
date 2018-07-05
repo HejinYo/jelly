@@ -42,6 +42,15 @@
         from sys_permission where state = 0
     </select>
 
+
+    <!-- 根据资源编号查询所有权限 -->
+    <select id="findListByResId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_permission
+        where res_id = #{resId}
+    </select>
+
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="permId" useGeneratedKeys="true">
         insert into sys_permission
