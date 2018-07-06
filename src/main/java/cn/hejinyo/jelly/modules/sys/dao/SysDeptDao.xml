@@ -46,25 +46,54 @@
         ORDER BY sd.parent_id, sd.seq
     </select>
 
-       <!-- 有效部门数据列表 -->
-       <select id="findValidDeptList" resultMap="BaseResultMap">
-           select
-           <include refid="Base_Column_List"/>
-           from sys_dept sd
-           where state = 0
-           ORDER BY sd.parent_id, sd.seq
-       </select>
+    <!-- 有效部门数据列表 -->
+    <select id="findValidDeptList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept sd
+        where state = 0
+        ORDER BY sd.parent_id, sd.seq
+    </select>
 
-       <!-- 查询子部门 -->
-       <select id="findDeptByParentIds" resultMap="BaseResultMap">
-           select
-           <include refid="Base_Column_List"/>
-           from sys_dept
-           where parent_id in
-           <foreach collection="array" index="index" item="item" open="(" separator="," close=")">
-               #{item}
-           </foreach>
-       </select>
+    <!-- 查询子部门 -->
+    <select id="findDeptByParentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept
+        where parent_id = #{deptId}
+    </select>
+
+    <!-- 修改父节点及其排序号 -->
+    <update id="updateParentIdAndSeq">
+        update sys_dept
+        set parent_id = #{parentId}, seq = #{seq}
+        where dept_id = #{deptId}
+    </update>
+
+    <!-- 查询父资源所有子资源列表 -->
+    <select id="findListByParentId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept
+        where parent_id = #{parentId}
+        order by seq
+    </select>
+
+    <!-- 修改进入节点所有排序 -->
+    <update id="updateInnerAllSeq">
+        update sys_dept
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="seq = case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    when dept_id =#{item.deptId} then #{item.seq}
+                </foreach>
+            </trim>
+        </trim>
+        where dept_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.deptId}
+        </foreach>
+    </update>
 
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="deptId" useGeneratedKeys="true">
@@ -163,6 +192,7 @@
         <include refid="Base_Column_List"/>
         from sys_dept
         <where>
+            <if test="queryTree != null and !&quot;&quot;.equals(queryTree)">(parent_id = #{queryTree} or dept_id = #{queryTree})</if>
             <if test="parentId != null and !&quot;&quot;.equals(parentId)">and parent_id = #{parentId}</if>
             <if test="deptName != null and !&quot;&quot;.equals(deptName)">and dept_name like concat('%',#{deptName},'%')</if>
             <if test="seq != null and !&quot;&quot;.equals(seq)">and seq = #{seq}</if>

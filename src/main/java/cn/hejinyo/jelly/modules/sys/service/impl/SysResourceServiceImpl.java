@@ -194,20 +194,22 @@ public class SysResourceServiceImpl extends BaseServiceImpl<SysResourceDao, SysR
         innerList.removeIf(res -> res.getResId().equals(resource.getResId()));
         int innerSize = innerList.size();
         int innerSeq = 1;
-        int add = 1;
-        for (int i = 0; i < innerSize; i++) {
-            if (seq.equals(i + 1)) {
-                innerSeq += i;
-                // 拖动节点新位置后面的排序加1
-                add = 2;
+        if (innerSize > 0) {
+            int add = 1;
+            for (int i = 0; i < innerSize; i++) {
+                if (seq.equals(i + 1)) {
+                    innerSeq += i;
+                    // 拖动节点新位置后面的排序加1
+                    add = 2;
+                }
+                innerList.get(i).setSeq(i + add);
             }
-            innerList.get(i).setSeq(i + add);
+            if (seq > innerList.size()) {
+                innerSeq = innerList.size() + 1;
+            }
+            // 修改同级节点所有排序
+            baseDao.updateInnerAllSeq(innerList);
         }
-        if (seq > innerList.size()) {
-            innerSeq = innerList.size() + 1;
-        }
-        // 修改同级节点所有排序
-        baseDao.updateInnerAllSeq(innerList);
         // 修改当前节点
         return baseDao.updateParentIdAndSeq(resource.getResId(), resource.getParentId(), innerSeq);
     }

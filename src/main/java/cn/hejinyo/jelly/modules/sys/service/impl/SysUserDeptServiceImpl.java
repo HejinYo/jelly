@@ -4,7 +4,6 @@ import cn.hejinyo.jelly.common.base.BaseServiceImpl;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDeptDao;
-import cn.hejinyo.jelly.modules.sys.model.SysDeptEntity;
 import cn.hejinyo.jelly.modules.sys.model.SysUserDeptEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysDeptService;
 import cn.hejinyo.jelly.modules.sys.service.SysUserDeptService;
@@ -102,8 +101,8 @@ public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysU
      * 根据部门编号，删除与此部门的用户关系
      */
     @Override
-    public int deleteByDeptIds(Integer[] deptIds) {
-        return baseDao.deleteByDeptIds(deptIds);
+    public int deleteByDeptId(Integer deptId) {
+        return baseDao.deleteByDeptId(deptId);
     }
 
     /**
@@ -128,22 +127,6 @@ public class SysUserDeptServiceImpl extends BaseServiceImpl<SysUserDeptDao, SysU
         }
 
         return baseDao.saveBatch(userDeptList);
-    }
-
-    /**
-     * 查询 用户部门关系 信息列表
-     */
-    @Override
-    public List<SysUserDeptEntity> getUserDeptListByUserId(Integer userId) {
-        return baseDao.findDeptListByUserId(userId);
-    }
-
-    /**
-     * 根据用户ID，获取部门信息列表
-     */
-    @Override
-    public List<SysDeptEntity> getDeptListByUserId(Integer userId) {
-        return baseDao.findDeptList(userId);
     }
 
     /**

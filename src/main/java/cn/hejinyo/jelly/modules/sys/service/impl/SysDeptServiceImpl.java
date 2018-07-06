@@ -102,11 +102,11 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
         return super.findPage(pageQuery);
     }
 
-
     /**
      * 新增部门
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int save(SysDeptEntity dept) {
         if (baseDao.findOne(dept.getParentId()) == null) {
             // 检查父节点是否存在
@@ -119,12 +119,12 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
             SysDeptEntity newDept = PojoConvertUtil.convert(dept, SysDeptEntity.class);
             newDept.setCreateId(ShiroUtils.getUserId());
 
-            // TODO 检查排序号，如果有相同的，将这个排序号后面的排序号递增，然后保存部门
-
             int count = super.save(newDept);
             if (count > 0) {
                 // 清除所有用户的部门缓存
                 cleanDeptCache();
+                // 重排序
+                changeSort(newDept, newDept.getSeq());
                 //返回主键
                 return newDept.getDeptId();
             }
@@ -137,15 +137,16 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
      * 修改部门
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int update(Integer deptId, SysDeptEntity dept) {
         if (Constant.TREE_ROOT.equals(deptId)) {
             // 根节点不能修改
             throw new InfoException(StatusCode.DATABASE_UPDATE_ROOT);
         }
         Integer parentId = dept.getParentId();
+        SysDeptEntity oldDept = baseDao.findOne(deptId);
         // 检测越权，只能编辑用户所拥有的子部门，所在部门不能编辑
         if (checkPermission(true, parentId)) {
-            SysDeptEntity oldDept = baseDao.findOne(deptId);
             //如果部门修改了父节点，需要检测新的父节点是否是当前节点的子节点，如果是，会造成递归死循环
             if (parentId != null && !oldDept.getParentId().equals(parentId)) {
                 if (baseDao.findOne(parentId) == null) {
@@ -159,15 +160,18 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
                     throw new InfoException(StatusCode.DATABASE_UPDATE_LOOP);
                 }
             }
-
             SysDeptEntity newDept = PojoConvertUtil.convert(dept, SysDeptEntity.class);
             newDept.setUpdateId(ShiroUtils.getUserId());
             newDept.setDeptId(deptId);
-            // TODO 修改排序号，需要修改同级排序号
             int count = super.update(newDept);
             if (count > 0) {
                 // 清除所有用户的部门缓存
                 cleanDeptCache();
+            }
+            //如果修改了排序号
+            Integer seq = newDept.getSeq();
+            if (seq != null && !seq.equals(oldDept.getSeq())) {
+                changeSort(newDept, seq);
             }
             return count;
         }
@@ -179,38 +183,37 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteBatch(Integer[] deptIds) {
-        for (Integer deptId : deptIds) {
-            if (deptId.equals(Constant.TREE_ROOT)) {
-                //根节点不允许删除
-                throw new InfoException(StatusCode.DATABASE_DELETE_ROOT);
-            }
-            if (!checkPermission(false, deptId)) {
-                // 检查越权，只能删除用户子部门，用户所属部门不能删除
-                throw new InfoException(StatusCode.PERMISSION_UNAUTHORIZED);
-            }
-            //检查是否有人员在此部门下
-            List<Integer> list = sysUserDeptService.getUserIdByDeptId(deptId);
-            if (list.size() > 0) {
-                throw new InfoException("部门 [ " + baseDao.findOne(deptId).getDeptName() + " ] 存在用户，不能被删除");
-            }
+    public int delete(Integer deptId) {
+        if (deptId.equals(Constant.TREE_ROOT)) {
+            //根节点不允许删除
+            throw new InfoException(StatusCode.DATABASE_DELETE_ROOT);
+        }
+        if (!checkPermission(false, deptId)) {
+            // 检查越权，只能删除用户子部门，用户所属部门不能删除
+            throw new InfoException(StatusCode.PERMISSION_UNAUTHORIZED);
+        }
+        //检查是否有人员在此部门下
+        List<Integer> list = sysUserDeptService.getUserIdByDeptId(deptId);
+        if (list.size() > 0) {
+            throw new InfoException("部门 [ " + baseDao.findOne(deptId).getDeptName() + " ] 存在用户，不能被删除");
         }
 
         //检查部门是否存在子节点
-        List<SysDeptEntity> children = baseDao.findDeptByParentIds(deptIds);
+        List<SysDeptEntity> children = baseDao.findDeptByParentId(deptId);
         if (children.size() > 0) {
             throw new InfoException(StatusCode.DATABASE_DELETE_CHILD);
         }
 
         //删除人员与部门关系
-        sysUserDeptService.deleteByDeptIds(deptIds);
+        sysUserDeptService.deleteByDeptId(deptId);
 
-        //TODO 删除序号，检查后面是否还有，有的话，需要递减
-
-        int count = baseDao.deleteBatch(deptIds);
+        SysDeptEntity sysDeptEntity = baseDao.findOne(deptId);
+        int count = baseDao.delete(deptId);
         if (count > 0) {
             // 清除所有用户的部门缓存
             cleanDeptCache();
+            // 原来同级节点重排序
+            reorder(sysDeptEntity.getParentId());
         }
         return count;
     }
@@ -248,5 +251,132 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
             redisUtils.hdel(s, RedisKeys.USER_SUB_DEPT);
             redisUtils.hdel(s, RedisKeys.USER_ALL_DEPT);
         });
+    }
+
+    /**
+     * 节点拖动
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int nodeDrop(String location, Integer deptId, Integer inDeptId) {
+        // 拖动节点
+        SysDeptEntity currRes = baseDao.findOne(deptId);
+        // 进入节点
+        SysDeptEntity innerRes = baseDao.findOne(inDeptId);
+
+        // 任何一个节点不存在，不进行操作
+        if (currRes == null || innerRes == null) {
+            return 0;
+        }
+
+        Integer currParentId = currRes.getParentId();
+        Integer innerParentId = innerRes.getParentId();
+        // 查询进入节点所有同级节点
+        List<SysDeptEntity> innerList = baseDao.findListByParentId(innerParentId);
+        //判断是不是同一个父节点
+        boolean parentEquals = currParentId.equals(innerParentId);
+        if (parentEquals) {
+            // 去掉进入节点在同级排序
+            innerList.removeIf(dept -> dept.getDeptId().equals(deptId));
+        }
+
+        int innerSize = innerList.size();
+        int innerSeq = 1;
+        int add = 1;
+        int count;
+        switch (location) {
+            // 进入节点及其后面的依次加1，被拖拽节点排序号设置为进入节点
+            case "before":
+                for (int i = 0; i < innerSize; i++) {
+                    if (innerList.get(i).getDeptId().equals(inDeptId)) {
+                        innerSeq += i;
+                        // 拖动节点新位置后面的排序加1
+                        add = 2;
+                    }
+                    innerList.get(i).setSeq(i + add);
+                }
+                // 修改进入节点所有排序
+                baseDao.updateInnerAllSeq(innerList);
+                // 修改拖动节点
+                count = baseDao.updateParentIdAndSeq(deptId, innerParentId, innerSeq);
+                break;
+            case "after":
+                for (int i = 0; i < innerSize; i++) {
+                    innerList.get(i).setSeq(i + add);
+                    if (innerList.get(i).getDeptId().equals(inDeptId)) {
+                        innerSeq += i;
+                        add = 2;
+                    }
+                }
+                // 修改进入节点所有排序
+                baseDao.updateInnerAllSeq(innerList);
+                // 修改拖动节点
+                count = baseDao.updateParentIdAndSeq(deptId, innerParentId, innerSeq + 1);
+                break;
+            case "inner":
+                // 被拖拽节点父节点被进入节点，序号为进入节点的子节点长度+1
+                count = baseDao.updateParentIdAndSeq(deptId, inDeptId, baseDao.findListByParentId(inDeptId).size() + 1);
+                break;
+            default:
+                return 0;
+        }
+
+        // 不同父节点，更新拖动节点原来排序
+        if (!parentEquals) {
+            reorder(currParentId, deptId);
+        }
+        return count;
+    }
+
+
+    /**
+     * 同级修改排序
+     */
+    private int changeSort(SysDeptEntity sysDeptEntity, Integer seq) {
+        // 查询拖动节点所有同级节点
+        List<SysDeptEntity> innerList = baseDao.findListByParentId(sysDeptEntity.getParentId());
+        // 最大排序为同级长度
+        innerList.removeIf(res -> res.getDeptId().equals(sysDeptEntity.getDeptId()));
+        int innerSize = innerList.size();
+        int innerSeq = 1;
+        if(innerSize>0){
+            int add = 1;
+            for (int i = 0; i < innerSize; i++) {
+                if (seq.equals(i + 1)) {
+                    innerSeq += i;
+                    // 拖动节点新位置后面的排序加1
+                    add = 2;
+                }
+                innerList.get(i).setSeq(i + add);
+            }
+            if (seq > innerList.size()) {
+                innerSeq = innerList.size() + 1;
+            }
+            // 修改同级节点所有排序
+            baseDao.updateInnerAllSeq(innerList);
+        }
+        // 修改当前节点
+        return baseDao.updateParentIdAndSeq(sysDeptEntity.getDeptId(), sysDeptEntity.getParentId(), innerSeq);
+    }
+
+    /**
+     * 父节点资源重排序
+     */
+    private void reorder(Integer parentId, Integer... resIds) {
+        // 查询拖动节点所有同级节点
+        List<SysDeptEntity> currList = baseDao.findListByParentId(parentId);
+        int currSize = currList.size();
+        if (currSize > 0) {
+            for (Integer resId : resIds) {
+                // 去掉拖动节点在同级排序
+                currList.removeIf(res -> res.getDeptId().equals(resId));
+            }
+            for (int i = 0; i < currSize; i++) {
+                currList.get(i).setSeq(i + 1);
+            }
+            // 修改拖动节点原来位置所有排序
+            baseDao.updateInnerAllSeq(currList);
+        }
+
     }
 }

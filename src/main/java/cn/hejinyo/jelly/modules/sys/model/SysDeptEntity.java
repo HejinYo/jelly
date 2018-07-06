@@ -28,19 +28,19 @@ public class SysDeptEntity implements Serializable {
     /**
      * 父节点 parent_id
      **/
-    @NotNull(message = "父节点不能为空", groups = {RestfulValid.POST.class})
+    @NotNull(message = "父节点不能为空", groups = {RestfulValid.POST.class,RestfulValid.PUT.class})
     private Integer parentId;
 
     /**
      * 部门名称 dept_name
      **/
-    @NotBlank(message = "用户名不能为空", groups = {RestfulValid.POST.class})
+    @NotBlank(message = "部门名称不能为空", groups = {RestfulValid.POST.class,RestfulValid.PUT.class})
     private String deptName;
 
     /**
      * 排序号 seq
      **/
-    @NotNull(message = "排序号不能为空", groups = {RestfulValid.POST.class})
+    @NotNull(message = "排序号不能为空", groups = {RestfulValid.POST.class,RestfulValid.PUT.class})
     private Integer seq;
 
     /**
@@ -51,7 +51,7 @@ public class SysDeptEntity implements Serializable {
     /**
      * 状态 0：正常 1：禁用 state
      **/
-    @NotNull(message = "状态不能为空", groups = {RestfulValid.POST.class})
+    @NotNull(message = "状态不能为空", groups = {RestfulValid.POST.class,RestfulValid.PUT.class})
     private Integer state;
 
     /**

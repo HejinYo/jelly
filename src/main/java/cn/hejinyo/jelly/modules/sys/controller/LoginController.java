@@ -53,7 +53,7 @@ public class LoginController extends BaseController {
     /**
      * 登出
      */
-    @GetMapping(value = "/logout")
+    @PutMapping(value = "/logout")
     public Result logout(HttpServletRequest request) {
         String userToken = request.getHeader(Constant.AUTHOR_PARAM);
         if (StringUtils.isEmpty(userToken)) {

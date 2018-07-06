@@ -44,4 +44,9 @@ public interface SysDeptService extends BaseService<SysDeptEntity, Integer> {
      * @param deptId   需要检测的部门ID
      */
     boolean checkPermission(Boolean showSelf, Integer deptId);
+
+    /**
+     * 节点拖动
+     */
+    int nodeDrop(String location, Integer deptId, Integer inDeptId);
 }

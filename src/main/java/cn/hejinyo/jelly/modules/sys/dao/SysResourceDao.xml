@@ -96,20 +96,6 @@
         ORDER BY sr.parent_id, sr.seq
     </select>
 
-    <!-- 一次修改父节点下指定排序号依次加一 -->
-    <update id="updateSeqInTurn">
-        update sys_resource
-        set seq = seq + 1
-        where parent_id = #{parentId} and seq >= #{seq}
-    </update>
-
-    <!-- 修改排序号 -->
-    <update id="updateSeq">
-        update sys_resource
-        set seq = #{seq}
-        where res_id = #{resId}
-    </update>
-
     <!-- 修改父节点及其排序号 -->
     <update id="updateParentIdAndSeq">
         update sys_resource

@@ -10,6 +10,7 @@ import cn.hejinyo.jelly.modules.sys.model.SysPermissionEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysPermissionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,7 @@ public class SysPermissionController extends BaseController {
      */
     @ApiOperation(value = "权限信息", notes = "权限信息")
     @GetMapping(value = "/{permId}")
+    @RequiresPermissions("sys:permission:view")
     public Result get(@PathVariable(value = "permId") int permId) {
         SysPermissionEntity sysPermission = sysPermissionService.findOne(permId);
         if (sysPermission != null) {
@@ -54,6 +56,7 @@ public class SysPermissionController extends BaseController {
      */
     @ApiOperation(value = "分页查询权限信息", notes = "支持分页，排序和高级查询")
     @GetMapping(value = "/listPage")
+    @RequiresPermissions("sys:permission:view")
     public Result list(@RequestParam HashMap<String, Object> paramers) {
         PageInfo<SysPermissionEntity> userPageInfo = new PageInfo<>(sysPermissionService.findPage(PageQuery.build(paramers)));
         return Result.ok(userPageInfo);
@@ -65,6 +68,7 @@ public class SysPermissionController extends BaseController {
     @SysLogger("增加权限")
     @ApiOperation(value = "增加一个权限", notes = "增加一个权限")
     @PostMapping
+    @RequiresPermissions("sys:permission:save")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysPermissionEntity sysPermission) {
         int result = sysPermissionService.save(sysPermission);
         if (result > 0) {
@@ -79,6 +83,7 @@ public class SysPermissionController extends BaseController {
     @SysLogger("更新权限")
     @ApiOperation(value = "更新权限信息", notes = "更新权限详细信息")
     @PutMapping(value = "/{permId}")
+    @RequiresPermissions("sys:permission:update")
     public Result update(@PathVariable("permId") int permId, @Validated(RestfulValid.PUT.class) @RequestBody SysPermissionEntity sysPermission) {
         int result = sysPermissionService.update(permId, sysPermission);
         if (result > 0) {
@@ -93,6 +98,7 @@ public class SysPermissionController extends BaseController {
     @SysLogger("删除权限")
     @ApiOperation(value = "删除权限", notes = "删除权限：/delete/1,2,3,4")
     @DeleteMapping(value = "/{permId}")
+    @RequiresPermissions("sys:permission:delete")
     public Result delete(@PathVariable("permId") int permId) {
         int result = sysPermissionService.delete(permId);
         if (result > 0) {

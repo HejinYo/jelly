@@ -2,7 +2,6 @@ package cn.hejinyo.jelly.modules.sys.service;
 
 
 import cn.hejinyo.jelly.common.base.BaseService;
-import cn.hejinyo.jelly.modules.sys.model.SysDeptEntity;
 import cn.hejinyo.jelly.modules.sys.model.SysUserDeptEntity;
 
 import java.util.List;
@@ -31,17 +30,6 @@ public interface SysUserDeptService extends BaseService<SysUserDeptEntity, Integ
     List<Integer> getSubDeptIdListByUserId(Integer userId);
 
     /**
-     * 查询用户部门关系列表
-     */
-    List<SysUserDeptEntity> getUserDeptListByUserId(Integer userId);
-
-    /**
-     * 根据用户ID，获取部门列表
-     */
-    List<SysDeptEntity> getDeptListByUserId(Integer userId);
-
-
-    /**
      * 根据用户编号，删除与此用户的部门关系
      */
     int deleteByUserId(Integer userId);
@@ -49,7 +37,7 @@ public interface SysUserDeptService extends BaseService<SysUserDeptEntity, Integ
     /**
      * 根据部门编号，删除与此部门的用户关系
      */
-    int deleteByDeptIds(Integer[] deptIds);
+    int deleteByDeptId(Integer deptId);
 
     /**
      * 保存用户部门关系
