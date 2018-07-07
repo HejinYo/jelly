@@ -50,7 +50,7 @@
 
 
     <!-- 查询用户部门ID列表 -->
-    <select id="findDeptIdListByUserId" resultMap="BaseResultMap">
+    <select id="findDeptIdListByUserId" resultType="int">
         select dept_id
         from sys_user_dept
         where

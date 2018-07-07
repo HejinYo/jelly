@@ -34,13 +34,24 @@
     </delete>
 
     <!-- 根据用户拥有的角色ID列表 -->
-    <select id="findRoleIdListByUserId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+    <select id="findRoleIdListByUserId" resultType="int">
+        select role_id
         from sys_user_role
         where user_id = #{userId}
     </select>
 
+    <!-- 批量插入记录 -->
+    <insert id="saveBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into sys_user_role(user_id,role_id,create_id)
+        values
+        <foreach collection="list" index="item" item="item" separator=",">
+            (
+            #{item.userId},
+            #{item.roleId},
+            #{item.createId}
+            )
+        </foreach>
+    </insert>
 
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="id" useGeneratedKeys="true">

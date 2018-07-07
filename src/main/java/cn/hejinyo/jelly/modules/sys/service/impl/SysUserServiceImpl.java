@@ -41,6 +41,8 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
     @Autowired
     private SysDeptService sysDeptService;
     @Autowired
+    private SysRoleService sysRoleService;
+    @Autowired
     private SysUserRoleService sysUserRoleService;
     @Autowired
     private SysUserDeptService sysUserDeptService;
@@ -52,12 +54,18 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
     public SysUserEntity findOne(Integer userId) {
         SysUserEntity user = baseDao.findOne(userId);
         if (user != null) {
-            //获取用户所属的角色列表
-            List<Integer> roleIdList = sysUserRoleService.getRoleIdListByUserId(userId);
-            user.setRoleIdList(roleIdList);
-            //获取用户所在部门
-            List<Integer> deptIdList = sysUserDeptService.getCurDeptIdListByUserId(userId);
-            user.setDeptIdList(deptIdList);
+            //查询用户角色
+            List<Integer> roleIdList = sysUserRoleService.getRoleIdListByUserId(user.getUserId());
+            if (roleIdList.size() > 0) {
+                user.setRoleIdList(roleIdList);
+                user.setRoleList(sysRoleService.getListByRoleIdList(roleIdList));
+            }
+            //查询用户部门
+            List<Integer> deptIdList = sysUserDeptService.getCurDeptIdListByUserId(user.getUserId());
+            if (deptIdList.size() > 0) {
+                user.setDeptIdList(deptIdList);
+                user.setDeptList(sysDeptService.getListByDeptIdList(deptIdList));
+            }
         }
         return user;
     }
@@ -69,20 +77,29 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
     @DataFilter(dept = Constant.Dept.ALL_DEPT)
     public List<SysUserEntity> findPage(PageQuery pageQuery) {
         // 管理树点击的查询条件
-        String treeValue = MapUtils.getString(pageQuery, "treeValue");
+        String treeValue = MapUtils.getString(pageQuery, "queryTree");
         if (StringUtils.isNotBlank(treeValue)) {
             // 获取部门下所有子部门,作为查询条件
             List<Integer> allDeptList = sysDeptService.recursionDept(true, Collections.singletonList(Integer.valueOf(treeValue)));
-            pageQuery.put(MapUtils.getString(pageQuery, "treeKey"), allDeptList);
+            pageQuery.put("queryTree", allDeptList);
         }
 
         PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getOrder());
         List<SysUserEntity> list = baseDao.findPage(pageQuery);
         list.forEach(user -> {
             //查询用户角色
-            user.setRoleIdList(sysUserRoleService.getRoleIdListByUserId(user.getUserId()));
+            List<Integer> roleIdList = sysUserRoleService.getRoleIdListByUserId(user.getUserId());
+            if (roleIdList.size() > 0) {
+                user.setRoleIdList(roleIdList);
+                user.setRoleList(sysRoleService.getListByRoleIdList(roleIdList));
+            }
             //查询用户部门
-            user.setDeptIdList(sysUserDeptService.getCurDeptIdListByUserId(user.getUserId()));
+            List<Integer> deptIdList = sysUserDeptService.getCurDeptIdListByUserId(user.getUserId());
+            if (deptIdList.size() > 0) {
+                user.setDeptIdList(deptIdList);
+                System.out.println(deptIdList);
+                user.setDeptList(sysDeptService.getListByDeptIdList(deptIdList));
+            }
         });
         return list;
     }
@@ -110,6 +127,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
         SysUserEntity newUser = new SysUserEntity();
         //用户名小写
         newUser.setUserName(StringUtils.toLowerCase(sysUser.getUserName()));
+        newUser.setNickName(sysUser.getNickName());
         //用户盐,随机数
         String salt = new SecureRandomNumberGenerator().nextBytes().toHex();
         newUser.setUserSalt(salt);
@@ -186,6 +204,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
         SysUserEntity newUser = new SysUserEntity();
         newUser.setUserId(userId);
         newUser.setUserName(StringUtils.toLowerCase(sysUser.getUserName()));
+        newUser.setNickName(sysUser.getNickName());
         newUser.setEmail(sysUser.getEmail());
         newUser.setPhone(sysUser.getPhone());
         newUser.setState(sysUser.getState());
@@ -230,18 +249,20 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int deleteBatch(Integer[] userIds) {
-        int count = baseDao.deleteBatch(userIds);
+    public int delete(Integer userId) {
+        //管理员不能删除自己
+        if (Constant.SUPER_ADMIN.equals(userId)) {
+            throw new InfoException("Admin不允许被删除");
+        }
+        int count = baseDao.delete(userId);
         //清除用户资源（
         if (count > 0) {
-            for (Integer userId : userIds) {
-                //删除用户角色表记录
-                sysUserRoleService.deleteByUserId(userId);
-                //删除用户与部门关系
-                sysUserDeptService.deleteByUserId(userId);
-                // 清空这个用户所有缓存
-                redisUtils.delete(RedisKeys.storeUser(userId));
-            }
+            //删除用户角色表记录
+            sysUserRoleService.deleteByUserId(userId);
+            //删除用户与部门关系
+            sysUserDeptService.deleteByUserId(userId);
+            // 清空这个用户所有缓存
+            redisUtils.delete(RedisKeys.storeUser(userId));
         }
         return count;
     }

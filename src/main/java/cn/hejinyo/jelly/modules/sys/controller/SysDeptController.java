@@ -46,9 +46,9 @@ public class SysDeptController {
      * 部门选择树数据
      */
     @ApiOperation(value = "部门选择树数据", notes = "用户部门包含子部门")
-    @GetMapping("/selectTree")
-    public Result selectTree() {
-        return Result.ok(sysDeptService.getDeptListTree(true, true));
+    @GetMapping("/select")
+    public Result select() {
+        return Result.ok(sysDeptService.getDeptListTree(true, false));
     }
 
     /**

@@ -14,6 +14,12 @@ import java.util.List;
  * @date : 2017/6/12 22:21
  */
 public interface SysDeptService extends BaseService<SysDeptEntity, Integer> {
+
+    /**
+     * 根据部门Id列表获取部门信息列表
+     */
+    List<SysDeptEntity> getListByDeptIdList(List<Integer> deptIdList);
+
     /**
      * 获取系统所有部门列表
      */

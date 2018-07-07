@@ -43,6 +43,11 @@ public class SysRoleEntity implements Serializable {
     private String description;
 
     /**
+     * 排序号 seq
+     **/
+    private Integer seq;
+
+    /**
      * 状态 0：正常；1：锁定；-1：禁用(删除) state
      **/
     @NotNull(message = "状态不能为空", groups = {RestfulValid.POST.class})

@@ -215,8 +215,12 @@
     <!-- 分页查询 -->
     <select id="findPage" resultMap="BaseResultMap">
         select
+        su.user_id, su.nick_name, su.user_name, su.user_pwd, su.user_salt, su.avatar, su.email, su.phone, su.login_ip,
+        su.login_time, su.state, su.create_time, su.create_id, su.update_time, su.update_id
+        from
+        (select
         <include refid="Base_Column_List"/>
-        from sys_user
+        from sys_user su
         <where>
             <if test="nickName != null and !&quot;&quot;.equals(nickName)">and nick_name like concat('%',#{nickName},'%')</if>
             <if test="userName != null and !&quot;&quot;.equals(userName)">and user_name like concat('%',#{userName},'%')</if>
@@ -233,6 +237,19 @@
             <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and DATE_FORMAT(update_time,'%Y-%m-%d') = STR_TO_DATE(#{updateTime},'%Y-%m-%d')</if>
             <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
         </where>
+        ) su
+        left join sys_user_dept sud on sud.user_id = su.user_id
+        left join sys_user_role sur on sur.user_id = su.user_id
+        <where>
+            <if test="queryTree != null and queryTree.size() > 0">
+                and sud.dept_id in
+                <foreach collection="queryTree" index="index" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="null != roleId and !&quot;&quot;.equals(roleId)">sur.role_id = #{roleId},</if>
+        </where>
+        group by su.user_id
     </select>
 
     <!-- 查询记录数量 -->

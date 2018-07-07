@@ -19,7 +19,7 @@ public interface SysPermissionService extends BaseService<SysPermissionEntity, I
     /**
      * 获得授权树
      */
-    List<AuthTreeDTO> getAuthTree();
+    List<AuthTreeDTO> getAuthTree(boolean showRoot);
 
     /**
      * 根据资源编号查询所有权限

@@ -15,4 +15,9 @@ public interface SysRoleService extends BaseService<SysRoleEntity, Integer> {
      * 角色列表下拉选择select
      */
     List<SysRoleEntity> getDropList();
+
+    /**
+     * 根据角色Id列表获取角色信息列表
+     */
+    List<SysRoleEntity> getListByRoleIdList(List<Integer> roleIdList);
 }

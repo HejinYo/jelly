@@ -39,6 +39,14 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
     private RedisUtils redisUtils;
 
     /**
+     * 根据部门Id列表获取部门信息列表
+     */
+    @Override
+    public List<SysDeptEntity> getListByDeptIdList(List<Integer> deptIdList) {
+        return baseDao.findListByDeptIdList(deptIdList);
+    }
+
+    /**
      * 获取系统所有部门列表
      */
     @Override
@@ -339,7 +347,7 @@ public class SysDeptServiceImpl extends BaseServiceImpl<SysDeptDao, SysDeptEntit
         innerList.removeIf(res -> res.getDeptId().equals(sysDeptEntity.getDeptId()));
         int innerSize = innerList.size();
         int innerSeq = 1;
-        if(innerSize>0){
+        if (innerSize > 0) {
             int add = 1;
             for (int i = 0; i < innerSize; i++) {
                 if (seq.equals(i + 1)) {

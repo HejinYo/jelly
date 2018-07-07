@@ -95,6 +95,19 @@
         </foreach>
     </update>
 
+    <!-- 根据部门Id列表获取部门信息列表 -->
+    <select id="findListByDeptIdList" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_dept
+        where
+        dept_id in
+        <foreach collection="deptIdList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="deptId" useGeneratedKeys="true">
         insert into sys_dept

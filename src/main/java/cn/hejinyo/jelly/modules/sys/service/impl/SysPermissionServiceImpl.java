@@ -49,25 +49,28 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
      * 递归获得授权树
      */
     @Override
-    public List<AuthTreeDTO> getAuthTree() {
+    public List<AuthTreeDTO> getAuthTree(boolean showRoot) {
         List<SysResourceEntity> resourceList = new CopyOnWriteArrayList<>(sysResourceService.getAllResourceList());
         List<SysPermissionEntity> permissionList = new CopyOnWriteArrayList<>(getAllPermissionList());
-        return recursionAuthTree(Constant.TREE_ROOT, resourceList, permissionList);
+        return recursionAuthTree(showRoot, Constant.TREE_ROOT, resourceList, permissionList);
     }
 
-    private List<AuthTreeDTO> recursionAuthTree(Integer parentId, List<SysResourceEntity> resList, List<SysPermissionEntity> permList) {
+    private List<AuthTreeDTO> recursionAuthTree(boolean showRoot, Integer parentId, List<SysResourceEntity> resList, List<SysPermissionEntity> permList) {
         List<AuthTreeDTO> result = new ArrayList<>();
         // 开始遍历资源
         resList.forEach(res -> {
+            //如果是true，需要将根节点加入树节点，否则递归查询子节点
+            boolean checkRelation = showRoot ? res.getResId().equals(parentId) : res.getParentId().equals(parentId);
             // 资源ID 等于父资源ID
-            if (parentId.equals(res.getResId())) {
+            if (checkRelation) {
                 // 获取此资源的子资源
-                List<AuthTreeDTO> child = recursionAuthTree(res.getResId(), resList, permList);
+                List<AuthTreeDTO> child = recursionAuthTree(false, res.getResId(), resList, permList);
                 // 获取此资源的权限
                 List<AuthTreeDTO> childPerm = forEachPerm(res.getResId(), permList);
+                boolean disabled = childPerm.size() == 0;
                 //子资源添加到权限的后面
                 childPerm.addAll(child);
-                AuthTreeDTO authTreeDTO = new AuthTreeDTO("2:" + res.getResId(), res.getResName(), 0, childPerm);
+                AuthTreeDTO authTreeDTO = new AuthTreeDTO(0 - res.getResId(), res.getResName(), disabled, 0, childPerm);
                 result.add(authTreeDTO);
                 resList.remove(res);
             }
@@ -82,7 +85,7 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
         List<AuthTreeDTO> result = new ArrayList<>();
         list.forEach(perm -> {
             if (parentId.equals(perm.getResId())) {
-                AuthTreeDTO authTreeDTO = new AuthTreeDTO("1:" + perm.getResId(), perm.getPermName(), perm.getPermId(), 1);
+                AuthTreeDTO authTreeDTO = new AuthTreeDTO(perm.getPermId(), perm.getPermName(), perm.getPermId(), 1);
                 result.add(authTreeDTO);
                 list.remove(perm);
             }
@@ -152,8 +155,10 @@ public class SysPermissionServiceImpl extends BaseServiceImpl<SysPermissionDao, 
      * 清除所有用户的权限缓存
      */
     private void cleanPermCache() {
+        System.out.println("=====================:" + RedisKeys.storeUser("*"));
         Set<String> userStore = redisUtils.keys(RedisKeys.storeUser("*"));
         userStore.forEach(s -> {
+            System.out.println("=====================:" + s);
             redisUtils.hdel(s, RedisKeys.USER_PERM);
         });
     }

@@ -18,7 +18,7 @@ public class AuthTreeDTO implements Serializable {
     /**
      * 树编号
      */
-    private String id;
+    private Integer id;
 
     /**
      * 名称
@@ -36,19 +36,25 @@ public class AuthTreeDTO implements Serializable {
     private Integer type;
 
     /**
+     * 禁止选择
+     */
+    private Boolean disabled;
+
+    /**
      * 子节点
      */
     private List<AuthTreeDTO> children;
 
-    public AuthTreeDTO(String id, String label, Integer type, List<AuthTreeDTO> children) {
+    public AuthTreeDTO(Integer id, String label, Boolean disabled, Integer type, List<AuthTreeDTO> children) {
         this.id = id;
         this.label = label;
+        this.disabled = disabled;
         this.type = type;
         this.children = children;
     }
 
 
-    public AuthTreeDTO(String id, String label, Integer permId, Integer type) {
+    public AuthTreeDTO(Integer id, String label, Integer permId, Integer type) {
         this.id = id;
         this.label = label;
         this.permId = permId;

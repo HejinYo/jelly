@@ -17,6 +17,11 @@ import java.util.List;
 public interface SysDeptDao extends BaseDao<SysDeptEntity, Integer> {
 
     /**
+     * 根据部门Id列表获取部门信息列表
+     */
+    List<SysDeptEntity> findListByDeptIdList(@Param("deptIdList") List<Integer> deptIdList);
+
+    /**
      * 获取所有部门列表
      */
     List<SysDeptEntity> findAllDeptList();

@@ -40,10 +40,10 @@ public class SysUserRoleServiceImpl extends BaseServiceImpl<SysUserRoleDao, SysU
         }
         //保存角色与用户关系
         List<SysUserRoleEntity> userRoleList = new ArrayList<>();
-        for (Integer permId : roleIdList) {
+        for (Integer roleId : roleIdList) {
             SysUserRoleEntity userRole = new SysUserRoleEntity();
             userRole.setUserId(userId);
-            userRole.setRoleId(permId);
+            userRole.setRoleId(roleId);
             userRole.setCreateId(ShiroUtils.getUserId());
             userRoleList.add(userRole);
         }

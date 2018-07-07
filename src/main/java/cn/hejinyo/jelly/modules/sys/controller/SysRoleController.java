@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +35,9 @@ public class SysRoleController extends BaseController {
     /**
      * 角色列表下拉选择
      */
-    @GetMapping(value = "/dropList")
+    @GetMapping(value = "/drop")
     @ApiOperation(value = "角色列表下拉选择", notes = "角色列表下拉选择")
-    public Result roleSelect() {
+    public Result drop() {
         return Result.ok(sysRoleService.getDropList());
     }
 
@@ -48,6 +49,7 @@ public class SysRoleController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "query", name = "pageParam", value = "分页查询参数", required = true, dataType = "object"),
     })
+    @RequiresPermissions("sys:permission:view")
     public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         //查询列表数据
         PageInfo<SysRoleEntity> rolePageInfo = new PageInfo<>(sysRoleService.findPage(PageQuery.build(pageParam, queryParam)));
@@ -60,6 +62,7 @@ public class SysRoleController extends BaseController {
     @ApiOperation(value = "查询角色信息", notes = "查询角色信息")
     @ApiImplicitParam(paramType = "path", name = "roleId", value = "角色ID", required = true, dataType = "int")
     @GetMapping(value = "/{roleId}")
+    @RequiresPermissions("sys:permission:view")
     public Result get(@PathVariable(value = "roleId") Integer roleId) {
         SysRoleEntity sysRole = sysRoleService.findOne(roleId);
         if (sysRole != null) {
@@ -75,6 +78,7 @@ public class SysRoleController extends BaseController {
     @ApiOperation(value = "增加角色", notes = "增加角色")
     @ApiImplicitParam(paramType = "body", name = "SysRoleEntity", value = "角色参数", required = true, dataType = "SysRoleEntity")
     @PostMapping
+    @RequiresPermissions("sys:permission:save")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysRoleEntity sysRole) {
         int result = sysRoleService.save(sysRole);
         if (result > 0) {
@@ -93,6 +97,7 @@ public class SysRoleController extends BaseController {
             @ApiImplicitParam(paramType = "path", name = "roleId", value = "角色ID", required = true, dataType = "roleId")
     })
     @PutMapping(value = "/{roleId}")
+    @RequiresPermissions("sys:permission:update")
     public Result update(@PathVariable("roleId") Integer roleId, @Validated(RestfulValid.PUT.class) @RequestBody SysRoleEntity sysRole) {
         int count = sysRoleService.update(roleId, sysRole);
         if (count > 0) {
@@ -108,6 +113,7 @@ public class SysRoleController extends BaseController {
     @DeleteMapping(value = "/{roleIds}")
     @ApiOperation(value = "删除角色", notes = "删除角色，支持批量删除\n 示例： /1,2,3,4,5")
     @ApiImplicitParam(paramType = "path", name = "roleIds", value = "角色ID数组", required = true, dataType = "array")
+    @RequiresPermissions("sys:permission:delete")
     public Result delete(@PathVariable("roleIds") Integer[] roleIds) {
         int count = sysRoleService.deleteBatch(roleIds);
         if (count > 0) {

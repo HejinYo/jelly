@@ -12,6 +12,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,7 @@ public class SysUserController extends BaseController {
     @ApiOperation(value = "用户信息", notes = "用户信息")
     @ApiImplicitParam(paramType = "path", name = "userId", value = "用户ID", required = true, dataType = "int")
     @GetMapping("/{userId}")
+    @RequiresPermissions("sys:user:view")
     public Result info(@PathVariable("userId") Integer userId) {
         SysUserEntity user = sysUserService.findOne(userId);
         if (user != null) {
@@ -50,6 +52,7 @@ public class SysUserController extends BaseController {
      */
     @ApiOperation(value = "分页查询用户信息", notes = "支持分页，排序和高级查询")
     @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
+    @RequiresPermissions("sys:user:view")
     public Result listPage(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         PageInfo<SysUserEntity> userPageInfo = new PageInfo<>(sysUserService.findPage(PageQuery.build(pageParam, queryParam)));
         return Result.ok(userPageInfo);
@@ -62,6 +65,7 @@ public class SysUserController extends BaseController {
     @ApiOperation(value = "增加一个用户", notes = "增加一个用户")
     @ApiImplicitParam(paramType = "body", name = "user", value = "用户信息对象", required = true, dataType = "SysUserEntity")
     @PostMapping
+    @RequiresPermissions("sys:user:save")
     public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysUserEntity sysUser) {
         int result = sysUserService.save(sysUser);
         if (result > 0) {
@@ -93,6 +97,7 @@ public class SysUserController extends BaseController {
             @ApiImplicitParam(paramType = "path", name = "userId", value = "用户ID", required = true, dataType = "Integer")
     })
     @PutMapping(value = "/{userId}")
+    @RequiresPermissions("sys:user:update")
     public Result update(@PathVariable("userId") Integer userId, @Validated(RestfulValid.PUT.class) @RequestBody SysUserEntity sysUser) {
         int result = sysUserService.update(userId, sysUser);
         if (result > 0) {
@@ -104,12 +109,13 @@ public class SysUserController extends BaseController {
     /**
      * 删除
      */
-    @ApiOperation(value = "删除用户", notes = "删除用户：/delete/1,2,3,4")
-    @ApiImplicitParam(paramType = "path", name = "userIds", value = "用户ID数组", required = true, dataType = "String")
+    @ApiOperation(value = "删除用户", notes = "删除用户：/1")
+    @ApiImplicitParam(paramType = "path", name = "userIds", value = "用户ID", required = true, dataType = "int")
     @SysLogger("删除用户")
-    @DeleteMapping(value = "/{userIds}")
-    public Result delete(@PathVariable("userIds") Integer[] userIds) {
-        int result = sysUserService.deleteBatch(userIds);
+    @DeleteMapping(value = "/{userId}")
+    @RequiresPermissions("sys:user:delete")
+    public Result delete(@PathVariable("userId") Integer userId) {
+        int result = sysUserService.delete(userId);
         if (result > 0) {
             return Result.ok();
         }

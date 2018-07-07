@@ -1,8 +1,6 @@
 package cn.hejinyo.jelly.modules.sys.service.impl;
 
 import cn.hejinyo.jelly.common.base.BaseServiceImpl;
-import cn.hejinyo.jelly.common.consts.Constant;
-import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.RedisKeys;
 import cn.hejinyo.jelly.common.utils.RedisUtils;
@@ -48,6 +46,14 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
         return baseDao.findDropList();
     }
 
+    /**
+     * 根据角色Id列表获取角色信息列表
+     */
+    @Override
+    public List<SysRoleEntity> getListByRoleIdList(List<Integer> roleIdList) {
+        return baseDao.findListByRoleIdList(roleIdList);
+    }
+
     @Override
     public SysRoleEntity findOne(Integer roleId) {
         SysRoleEntity sysRole = baseDao.findOne(roleId);
@@ -72,6 +78,7 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
         newRole.setRoleName(role.getRoleName());
         newRole.setDescription(role.getDescription());
         newRole.setState(role.getState());
+        newRole.setSeq(role.getSeq());
         newRole.setCreateId(ShiroUtils.getUserId());
         int count = baseDao.save(newRole);
         if (count > 0) {
@@ -88,15 +95,13 @@ public class SysRoleServiceImpl extends BaseServiceImpl<SysRoleDao, SysRoleEntit
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int update(Integer roleId, SysRoleEntity role) {
-        if (Constant.TREE_ROOT.equals(roleId)) {
-            throw new InfoException(StatusCode.DATABASE_UPDATE_ROOT);
-        }
         // 从新构建保存对象，控制写入数据
         SysRoleEntity newRole = new SysRoleEntity();
         newRole.setRoleId(roleId);
         newRole.setRoleCode(role.getRoleCode());
         newRole.setRoleName(role.getRoleName());
         newRole.setDescription(role.getDescription());
+        newRole.setSeq(role.getSeq());
         newRole.setState(role.getState());
         newRole.setUpdateId(ShiroUtils.getUserId());
         //保存角色

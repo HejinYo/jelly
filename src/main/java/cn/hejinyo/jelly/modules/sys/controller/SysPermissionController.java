@@ -34,7 +34,7 @@ public class SysPermissionController extends BaseController {
      */
     @GetMapping("/authTree")
     public Result authTree() {
-        return Result.ok(sysPermissionService.getAuthTree());
+        return Result.ok(sysPermissionService.getAuthTree(false));
     }
 
     /**
