@@ -41,15 +41,6 @@ public class SysDictServiceImpl extends BaseServiceImpl<SysDictDao, SysDictEntit
     }
 
     /**
-     * 字典目录分页查询
-     */
-    @Override
-    public List<SysDictEntity> findPage(PageQuery pageQuery) {
-        PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getOrder());
-        return baseDao.findPage(pageQuery);
-    }
-
-    /**
      * 字典目录信息
      */
     @Override
@@ -138,6 +129,15 @@ public class SysDictServiceImpl extends BaseServiceImpl<SysDictDao, SysDictEntit
             dictList.add(dict);
         });
         return dictList;
+    }
+
+    /**
+     * 字典属性分页查询
+     */
+    @Override
+    public List<SysDictOptionEntity> optionFindPage(PageQuery pageQuery) {
+        PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getOrder());
+        return sysDictOptionDao.findPage(pageQuery);
     }
 
     /**

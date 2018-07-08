@@ -7,10 +7,10 @@ import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.sys.model.SysDictEntity;
+import cn.hejinyo.jelly.modules.sys.model.SysDictOptionEntity;
 import cn.hejinyo.jelly.modules.sys.service.SysDictService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -38,17 +38,6 @@ public class SysDictController {
     @GetMapping("/list")
     public Result confiList() {
         return Result.ok(sysDictService.getDictList());
-    }
-
-    /**
-     * 字典目录分页查询
-     */
-    @ApiOperation(value = "字典目录分页查询", notes = "字典目录分页查询")
-    @RequestMapping(value = "/listPage", method = {RequestMethod.GET, RequestMethod.POST})
-    public Result dirList(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
-        //查询列表数据
-        PageInfo<SysDictEntity> dictInfo = new PageInfo<>(sysDictService.findPage(PageQuery.build(pageParam, queryParam)));
-        return Result.ok(dictInfo);
     }
 
     /**
@@ -110,9 +99,9 @@ public class SysDictController {
 
 
     /**
-     * 字典信息
+     * 字典属性信息
      */
-    @ApiOperation(value = "字典信息", notes = "字典信息")
+    @ApiOperation(value = "字典属性信息", notes = "字典属性信息")
     @GetMapping("/option/{id}")
     public Result info(@PathVariable("id") Integer id) {
         SysDictEntity dict = sysDictService.findOne(id);
@@ -120,25 +109,24 @@ public class SysDictController {
     }
 
     /**
-     * 字典分页查询
+     * 字典属性分页查询
      */
-    @ApiOperation(value = "字典分页查询", notes = "字典分页查询")
+    @ApiOperation(value = "字典属性分页查询", notes = "字典属性分页查询")
     @RequestMapping(value = "/option/listPage", method = {RequestMethod.GET, RequestMethod.POST})
-    @RequiresPermissions("sys:dict:list")
     public Result list(@RequestParam HashMap<String, Object> pageParam, @RequestBody(required = false) HashMap<String, Object> queryParam) {
         //查询列表数据
-        PageInfo<SysDictEntity> userConfigInfo = new PageInfo<>(sysDictService.findPage(PageQuery.build(pageParam, queryParam)));
+        PageInfo<SysDictOptionEntity> userConfigInfo = new PageInfo<>(sysDictService.optionFindPage(PageQuery.build(pageParam, queryParam)));
         return Result.ok(userConfigInfo);
     }
 
     /**
-     * 保存字典
+     * 保存字典属性
      */
-    @ApiOperation(value = "保存字典", notes = "保存字典")
-    @SysLogger("保存字典")
+    @ApiOperation(value = "保存字典属性", notes = "保存字典属性")
+    @SysLogger("保存字典属性")
     @PostMapping("/option")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysDictEntity dict) {
-        int count = sysDictService.save(dict);
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysDictOptionEntity dict) {
+        int count = sysDictService.saveOption(dict);
         if (count > 0) {
             return Result.ok();
         }
@@ -148,11 +136,11 @@ public class SysDictController {
     /**
      * 修改字典
      */
-    @ApiOperation(value = "修改字典", notes = "修改字典")
-    @SysLogger("修改字典")
+    @ApiOperation(value = "修改字典属性", notes = "修改字典属性")
+    @SysLogger("修改字典属性")
     @PutMapping("/option/{code}")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysDictEntity dict) {
-        int count = sysDictService.update(dict);
+    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysDictOptionEntity dict) {
+        int count = sysDictService.updateOption(dict);
         if (count > 0) {
             return Result.ok();
         }
@@ -162,8 +150,8 @@ public class SysDictController {
     /**
      * 删除字典
      */
-    @ApiOperation(value = "删除字典", notes = "删除字典")
-    @SysLogger("删除字典")
+    @ApiOperation(value = "删除字典属性", notes = "删除字典属性")
+    @SysLogger("删除字典属性")
     @DeleteMapping("/{ids}")
     public Result delete(@PathVariable("ids") Integer[] ids) {
         int count = sysDictService.deleteBatch(ids);

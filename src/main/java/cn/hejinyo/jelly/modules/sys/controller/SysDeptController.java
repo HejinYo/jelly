@@ -39,7 +39,7 @@ public class SysDeptController {
     @RequiresPermissions("sys:dept:view")
     public Result operateTree() {
         //显示根节点
-        return Result.ok(sysDeptService.getDeptListTree(false, true));
+        return Result.ok(sysDeptService.getDeptListTree(false, false));
     }
 
     /**

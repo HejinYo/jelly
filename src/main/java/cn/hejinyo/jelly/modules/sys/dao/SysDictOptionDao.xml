@@ -149,6 +149,7 @@
         <include refid="Base_Column_List"/>
         from sys_dict_option
         <where>
+            <if test="queryTree != null and !&quot;&quot;.equals(queryTree)">code = #{queryTree}</if>
             <if test="code != null and !&quot;&quot;.equals(code)">and code like concat('%',#{code},'%')</if>
             <if test="value != null and !&quot;&quot;.equals(value)">and value = #{value}</if>
             <if test="label != null and !&quot;&quot;.equals(label)">and label like concat('%',#{label},'%')</if>

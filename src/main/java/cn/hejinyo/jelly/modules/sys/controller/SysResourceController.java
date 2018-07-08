@@ -36,7 +36,7 @@ public class SysResourceController extends BaseController {
     @ApiOperation(value = "资源选择树数据", notes = "资源选择树数据")
     @GetMapping("/selectTree")
     public Result selectTree() {
-        return Result.ok(sysResourceService.getResourceListTree(true, true));
+        return Result.ok(sysResourceService.getResourceListTree(true, false));
     }
 
     /**
@@ -46,7 +46,7 @@ public class SysResourceController extends BaseController {
     @GetMapping("/operateTree")
     @RequiresPermissions("sys:resource:view")
     public Result editTree() {
-        return Result.ok(sysResourceService.getResourceListTree(false, true));
+        return Result.ok(sysResourceService.getResourceListTree(false, false));
     }
 
     /**

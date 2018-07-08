@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.common.base.BaseService;
+import cn.hejinyo.jelly.common.utils.PageQuery;
 import cn.hejinyo.jelly.modules.sys.model.SysDictEntity;
 import cn.hejinyo.jelly.modules.sys.model.SysDictOptionEntity;
 import cn.hejinyo.jelly.modules.sys.model.dto.DictDTO;
@@ -35,4 +36,8 @@ public interface SysDictService extends BaseService<SysDictEntity, Integer> {
      */
     int updateOption(SysDictOptionEntity option);
 
+    /**
+     * 字典属性分页查询
+     */
+    List<SysDictOptionEntity> optionFindPage(PageQuery pageQuery);
 }
