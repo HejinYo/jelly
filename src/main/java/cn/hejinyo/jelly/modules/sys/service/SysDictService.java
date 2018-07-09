@@ -40,4 +40,14 @@ public interface SysDictService extends BaseService<SysDictEntity, Integer> {
      * 字典属性分页查询
      */
     List<SysDictOptionEntity> optionFindPage(PageQuery pageQuery);
+
+    /**
+     * 字典属性信息
+     */
+    SysDictOptionEntity findOneOption(Integer id);
+
+    /**
+     * 删除字典属性
+     */
+    int deleteOption(Integer id);
 }

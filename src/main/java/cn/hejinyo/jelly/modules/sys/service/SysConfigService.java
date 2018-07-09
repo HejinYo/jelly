@@ -42,4 +42,8 @@ public interface SysConfigService extends BaseService<SysConfigEntity, Integer> 
      */
     <T> T getConfig(String code, Class<T> cass);
 
+    /**
+     * 更新配置选项
+     */
+    int updateOptionId(Integer configId, Integer optionId);
 }

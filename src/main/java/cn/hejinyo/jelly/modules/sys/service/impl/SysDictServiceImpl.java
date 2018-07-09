@@ -33,6 +33,35 @@ public class SysDictServiceImpl extends BaseServiceImpl<SysDictDao, SysDictEntit
     private SysDictOptionDao sysDictOptionDao;
 
     /**
+     * 获取数据字典项
+     */
+    @Override
+    public List<DictDTO> getDictOptionByCode(String code) {
+        //查询数据类性
+        SysDictEntity optionEntity = baseDao.findByCode(code);
+        List<SysDictOptionEntity> list = sysDictOptionDao.getDictOptionByCode(code);
+        List<DictDTO> dictList = new ArrayList<>();
+        list.forEach(value -> {
+            DictDTO dict = new DictDTO();
+            dict.setLabel(value.getLabel());
+            if (Constant.DataType.INTEGER.equals(optionEntity.getType())) {
+                //整型
+                dict.setValue(Integer.valueOf(value.getValue()));
+            } else if (Constant.DataType.DOUBLE.equals(optionEntity.getType())) {
+                //浮点型
+                dict.setValue(Double.valueOf(value.getValue()));
+            } else if (Constant.DataType.BOOLEAN.equals(optionEntity.getType())) {
+                //布尔型
+                dict.setValue(Boolean.valueOf(value.getValue()));
+            } else {
+                dict.setValue(value.getValue());
+            }
+            dictList.add(dict);
+        });
+        return dictList;
+    }
+
+    /**
      * 查询字典目录列表
      */
     @Override
@@ -73,7 +102,7 @@ public class SysDictServiceImpl extends BaseServiceImpl<SysDictDao, SysDictEntit
         if (!oldConfig.getType().equals(newConfig.getType())) {
             SysDictOptionEntity configOption = new SysDictOptionEntity();
             configOption.setCode(oldConfig.getCode());
-            if (baseDao.count(config) > 0) {
+            if (sysDictOptionDao.count(configOption) > 0) {
                 throw new InfoException("存在字典属性，不允许修改字典类型");
             }
         }
@@ -103,35 +132,6 @@ public class SysDictServiceImpl extends BaseServiceImpl<SysDictDao, SysDictEntit
     }
 
     /**
-     * 获取数据字典项
-     */
-    @Override
-    public List<DictDTO> getDictOptionByCode(String code) {
-        //查询数据类性
-        SysDictEntity optionEntity = baseDao.findByCode(code);
-        List<SysDictOptionEntity> list = sysDictOptionDao.getDictOptionByCode(code);
-        List<DictDTO> dictList = new ArrayList<>();
-        list.forEach(value -> {
-            DictDTO dict = new DictDTO();
-            dict.setLabel(value.getLabel());
-            if (Constant.DataType.INTEGER.equals(optionEntity.getType())) {
-                //整型
-                dict.setValue(Integer.valueOf(value.getValue()));
-            } else if (Constant.DataType.DOUBLE.equals(optionEntity.getType())) {
-                //浮点型
-                dict.setValue(Double.valueOf(value.getValue()));
-            } else if (Constant.DataType.BOOLEAN.equals(optionEntity.getType())) {
-                //布尔型
-                dict.setValue(Boolean.valueOf(value.getValue()));
-            } else {
-                dict.setValue(value.getValue());
-            }
-            dictList.add(dict);
-        });
-        return dictList;
-    }
-
-    /**
      * 字典属性分页查询
      */
     @Override
@@ -158,5 +158,21 @@ public class SysDictServiceImpl extends BaseServiceImpl<SysDictDao, SysDictEntit
         SysDictOptionEntity newOption = PojoConvertUtil.convert(option, SysDictOptionEntity.class);
         newOption.setUpdateId(ShiroUtils.getUserId());
         return sysDictOptionDao.update(newOption);
+    }
+
+    /**
+     * 字典属性信息
+     */
+    @Override
+    public SysDictOptionEntity findOneOption(Integer id) {
+        return sysDictOptionDao.findOne(id);
+    }
+
+    /**
+     * 删除字典属性
+     */
+    @Override
+    public int deleteOption(Integer id) {
+        return sysDictOptionDao.delete(id);
     }
 }

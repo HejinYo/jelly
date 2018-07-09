@@ -49,6 +49,14 @@
         where code = #{code}
     </select>
 
+    <!-- 通过Code删除配置属性 -->
+    <delete id="deleteByCode">
+        delete
+        from sys_config_option
+        where
+            code = #{code}
+    </delete>
+
     <!-- 插入一条记录 -->
     <insert id="save" keyProperty="optionId" useGeneratedKeys="true">
         insert into sys_config_option

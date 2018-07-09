@@ -25,4 +25,9 @@ public interface SysConfigOptionDao extends BaseDao<SysConfigOptionEntity, Integ
      * 根据配置code获取配置值列表
      */
     List<SysConfigOptionEntity> findOptionListByCode(String code);
+
+    /**
+     * 通过Code删除配置属性
+     */
+    int deleteByCode(String code);
 }

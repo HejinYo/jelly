@@ -81,6 +81,21 @@ public class SysConfigController {
     }
 
     /**
+     * 更新配置选项
+     *
+     */
+    @ApiOperation(value = "更新配置选项", notes = "更新配置选项")
+    @SysLogger("更新配置选项")
+    @PutMapping(value = "/{configId}/{optionId}")
+    public Result updateOptionId(@PathVariable("configId") Integer configId, @PathVariable("optionId") Integer optionId) {
+        int count = sysConfigService.updateOptionId(configId, optionId);
+        if (count > 0) {
+            return Result.ok();
+        }
+        return Result.error(StatusCode.DATABASE_UPDATE_FAILURE);
+    }
+
+    /**
      * 删除配置
      */
     @ApiOperation(value = "删除配置", notes = "删除配置")

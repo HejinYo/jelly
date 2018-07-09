@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * sys_config 实体类
@@ -74,4 +75,9 @@ public class SysConfigEntity implements Serializable {
      * 配置说明
      **/
     private String label;
+
+    /**
+     * 配置下拉列表
+     */
+    private List<SysConfigOptionEntity> optionList;
 }

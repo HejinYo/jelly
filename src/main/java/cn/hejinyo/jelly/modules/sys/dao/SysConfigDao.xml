@@ -55,7 +55,7 @@
         ,
         sco.value,sco.label
         from sys_config sc
-        left join sys_config_option sco on sc.info_id = sco.info_id and sc.code = sco.code
+        left join sys_config_option sco on sc.option_id = sco.option_id and sc.code = sco.code
         where sc.code = #{code}
     </select>
 
@@ -153,18 +153,20 @@
     <!-- 分页查询 -->
     <select id="findPage" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List"/>
-        from sys_config
+        sc.config_id, sc.name, sc.code, sc.option_id, sc.type, sc.status, sc.create_id, sc.create_time, sc.update_id,
+        sc.update_time, sco.value, sco.label
+        from sys_config sc
+        left join sys_config_option sco on sc.option_id = sco.option_id
         <where>
-            <if test="name != null and !&quot;&quot;.equals(name)">and name like concat('%',#{name},'%')</if>
-            <if test="code != null and !&quot;&quot;.equals(code)">and code like concat('%',#{code},'%')</if>
-            <if test="optionId != null and !&quot;&quot;.equals(optionId)">and option_id = #{optionId}</if>
-            <if test="type != null and !&quot;&quot;.equals(type)">and type = #{type}</if>
-            <if test="status != null and !&quot;&quot;.equals(status)">and status = #{status}</if>
-            <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
-            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
-            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
-            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and DATE_FORMAT(update_time,'%Y-%m-%d') = STR_TO_DATE(#{updateTime},'%Y-%m-%d')</if>
+            <if test="name != null and !&quot;&quot;.equals(name)">and sc.name like concat('%',#{name},'%')</if>
+            <if test="code != null and !&quot;&quot;.equals(code)">and sc.code like concat('%',#{code},'%')</if>
+            <if test="optionId != null and !&quot;&quot;.equals(optionId)">and sc.option_id = #{optionId}</if>
+            <if test="type != null and !&quot;&quot;.equals(type)">and sc.type = #{type}</if>
+            <if test="status != null and !&quot;&quot;.equals(status)">and sc.status = #{status}</if>
+            <if test="createId != null and !&quot;&quot;.equals(createId)">and sc.create_id = #{createId}</if>
+            <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(sc.create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
+            <if test="updateId != null and !&quot;&quot;.equals(updateId)">and sc.update_id = #{updateId}</if>
+            <if test="updateTime != null and !&quot;&quot;.equals(updateTime)">and DATE_FORMAT(sc.update_time,'%Y-%m-%d') = STR_TO_DATE(#{updateTime},'%Y-%m-%d')</if>
         </where>
     </select>
 

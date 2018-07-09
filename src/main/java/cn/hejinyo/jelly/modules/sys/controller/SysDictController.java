@@ -32,6 +32,15 @@ public class SysDictController {
     private SysDictService sysDictService;
 
     /**
+     * 获取数据字典项
+     */
+    @ApiOperation(value = "获取数据字典项", notes = "获取数据字典项")
+    @GetMapping("/find/{code}")
+    public Result getDictByCode(@PathVariable("code") String code) {
+        return Result.ok(sysDictService.getDictOptionByCode(code));
+    }
+
+    /**
      * 字典目录列表
      */
     @ApiOperation(value = "字典目录列表", notes = "字典目录列表")
@@ -104,8 +113,11 @@ public class SysDictController {
     @ApiOperation(value = "字典属性信息", notes = "字典属性信息")
     @GetMapping("/option/{id}")
     public Result info(@PathVariable("id") Integer id) {
-        SysDictEntity dict = sysDictService.findOne(id);
-        return Result.ok(dict);
+        SysDictOptionEntity option = sysDictService.findOneOption(id);
+        if (option != null) {
+            return Result.ok(option);
+        }
+        return Result.error(StatusCode.DATABASE_SELECT_FAILURE);
     }
 
     /**
@@ -125,8 +137,8 @@ public class SysDictController {
     @ApiOperation(value = "保存字典属性", notes = "保存字典属性")
     @SysLogger("保存字典属性")
     @PostMapping("/option")
-    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysDictOptionEntity dict) {
-        int count = sysDictService.saveOption(dict);
+    public Result save(@Validated(RestfulValid.POST.class) @RequestBody SysDictOptionEntity option) {
+        int count = sysDictService.saveOption(option);
         if (count > 0) {
             return Result.ok();
         }
@@ -139,8 +151,8 @@ public class SysDictController {
     @ApiOperation(value = "修改字典属性", notes = "修改字典属性")
     @SysLogger("修改字典属性")
     @PutMapping("/option/{code}")
-    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysDictOptionEntity dict) {
-        int count = sysDictService.updateOption(dict);
+    public Result update(@Validated(RestfulValid.PUT.class) @RequestBody SysDictOptionEntity option) {
+        int count = sysDictService.updateOption(option);
         if (count > 0) {
             return Result.ok();
         }
@@ -152,22 +164,13 @@ public class SysDictController {
      */
     @ApiOperation(value = "删除字典属性", notes = "删除字典属性")
     @SysLogger("删除字典属性")
-    @DeleteMapping("/{ids}")
-    public Result delete(@PathVariable("ids") Integer[] ids) {
-        int count = sysDictService.deleteBatch(ids);
+    @DeleteMapping("/option/{id}")
+    public Result delete(@PathVariable("id") Integer id) {
+        int count = sysDictService.deleteOption(id);
         if (count > 0) {
             return Result.ok();
         }
         return Result.error(StatusCode.DATABASE_DELETE_FAILURE);
-    }
-
-    /**
-     * 获取数据字典项
-     */
-    @ApiOperation(value = "获取数据字典项", notes = "获取数据字典项")
-    @GetMapping("/find/{code}")
-    public Result getDictByCode(@PathVariable("code") String code) {
-        return Result.ok(sysDictService.getDictOptionByCode(code));
     }
 
 }

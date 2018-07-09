@@ -66,9 +66,12 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
     @Override
     public List<SysConfigEntity> findPage(PageQuery pageQuery) {
         PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize(), pageQuery.getOrder());
-        return baseDao.findPage(pageQuery);
+        List<SysConfigEntity> list = baseDao.findPage(pageQuery);
+        list.forEach(value -> {
+            value.setOptionList(sysConfigOptionDao.findOptionListByCode(value.getCode()));
+        });
+        return list;
     }
-
 
     /**
      * 保存配置目录
@@ -88,13 +91,14 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public int update(SysConfigEntity config) {
+    public int update(Integer configId, SysConfigEntity config) {
         SysConfigEntity newConfig = PojoConvertUtil.convert(config, SysConfigEntity.class);
+        newConfig.setConfigId(configId);
         newConfig.setUpdateId(ShiroUtils.getUserId());
-        SysConfigEntity oldConfig = baseDao.findOne(config.getConfigId());
+        SysConfigEntity oldConfig = baseDao.findOne(configId);
 
         //修改CODE,配置属性同步修改
-        if (!oldConfig.getCode().equals(newConfig.getCode())) {
+        if (newConfig.getCode() != null && !oldConfig.getCode().equals(newConfig.getCode())) {
             sysConfigOptionDao.updateCode(oldConfig.getCode(), newConfig.getCode());
         }
 
@@ -105,24 +109,35 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
     }
 
     /**
+     * 更新配置选项
+     */
+    @Override
+    public int updateOptionId(Integer configId, Integer optionId) {
+        SysConfigEntity oldConfig = baseDao.findOne(configId);
+        SysConfigEntity config = new SysConfigEntity();
+        config.setConfigId(configId);
+        config.setOptionId(optionId);
+        int count = baseDao.update(config);
+        if (count > 0) {
+            //清除缓存
+            redisUtils.hdel(RedisKeys.storeConfig(), oldConfig.getCode());
+        }
+        return count;
+    }
+
+    /**
      * 删除配置
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int delete(Integer id) {
         SysConfigEntity oldConfig = baseDao.findOne(id);
-
-        //检查是否有具体配置，有具体配置不允许删除
-        SysConfigOptionEntity config = new SysConfigOptionEntity();
-        config.setCode(oldConfig.getCode());
-        if (sysConfigOptionDao.count(config) > 0) {
-            throw new InfoException("存在配置属性，不允许删除配置");
-        }
-
         int count = baseDao.delete(id);
         if (count > 0) {
+            // 通过Code删除配置属性
+            sysConfigOptionDao.deleteByCode(oldConfig.getCode());
             //清除缓存
-            redisUtils.hdel(RedisKeys.storeConfig(), config.getCode());
+            redisUtils.hdel(RedisKeys.storeConfig(), oldConfig.getCode());
         }
         return count;
     }
@@ -164,8 +179,13 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
      */
     @Override
     public int deleteBatchOption(Integer optionId) {
-        Optional<SysConfigOptionEntity> config = Optional.ofNullable(sysConfigOptionDao.findOne(optionId));
-        return config.map(sc -> {
+        Optional<SysConfigOptionEntity> configOption = Optional.ofNullable(sysConfigOptionDao.findOne(optionId));
+        return configOption.map(sc -> {
+            // 检查是否有配置正在使用
+            SysConfigEntity config = baseDao.getConfig(sc.getCode());
+            if (optionId.equals(Optional.ofNullable(config).map(SysConfigEntity::getOptionId).orElse(null))) {
+                throw new InfoException("配置属性被使用，不允许删除");
+            }
             //清除缓存
             redisUtils.hdel(RedisKeys.storeConfig(), sc.getCode());
             return sysConfigOptionDao.delete(optionId);

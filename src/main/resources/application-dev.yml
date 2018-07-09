@@ -3,13 +3,9 @@ server:
   context-path: /
 spring:
   redis:
-    #database: 0
-    #host: 127.0.0.1
-    #port: 6379
-    #password: redhat     # 密码（默认为空）
     database: 0
-    host: hejinyo.cn
-    port: 29
+    host: 127.0.0.1
+    port: 6379
     password: redhat     # 密码（默认为空）
   datasource:
     name: mysql_druid
