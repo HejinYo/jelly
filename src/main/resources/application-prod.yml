@@ -5,18 +5,18 @@ spring:
   redis:
     database: 0
     host: 127.0.0.1
-    port: 29
+    port: 6388
     password: redhat     # 密码（默认为空）
   datasource:
     name: mysql
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/jelly?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: root
-    password: XroRXpiGU7vJeuQrAnZ8FhA4+BEzU9x45IabHN5yzo8bNhm2VXcUG4XdMf1RxNP5CQmbRr05/S/bsNvOcnSaHA==
+    password: TondZUOtzekMmm5rgVwkIm9ufT51AwpqV8buJMfe7EaRwCe6OX59WZ12xRaLX/lvtrkf+GfvoHEmnasMVQhAFg==
     sql-script-encoding: UTF-8
     druid:
       filter.config.enabled: true
-      connection-properties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALirgbRwt9we2+zKDMwEscyBxd901teyUNDexKpqEOMR943gmUhpBPCvqpZPp04KAxHkt612njXgjwJOAVm0kZECAwEAAQ==
+      connection-properties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANAEO1u7chEMZvxO09YCKfvzyZ4HjFm3nkNFwx3YXicvFt79o+EMB4kvs+yF29z/MYVcPTjW5rvo+BPBFlxo6M0CAwEAAQ==
       initial-size: 1
       min-idle: 1
       max-active: 20

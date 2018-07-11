@@ -160,7 +160,7 @@ public class Tools {
 
     /**************************** 测试 *********************************/
     public static void main(String agrs[]) {
-        String[] str = encryptDBPassword("hj269957961");
+        String[] str = encryptDBPassword("");
         for (String s : str) {
             System.out.println(s);
         }
