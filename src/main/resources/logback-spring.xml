@@ -18,4 +18,27 @@
         <logger name="org.springboot.sample" level="INFO"/>
         <logger name="cn.hejinyo" level="DEBUG"/>
     </springProfile>
+
+    <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </layout>
+    </appender>
+
+    <appender name="fileInfoLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <!--滚动策略-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--路径-->
+            <fileNamePattern>logs/%d.jelly.log</fileNamePattern>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 日志文件记录 -->
+    <root level="DEBUG">
+        <!--<appender-ref ref="consoleLog"/>-->
+        <appender-ref ref="fileInfoLog"/>
+    </root>
 </configuration>
