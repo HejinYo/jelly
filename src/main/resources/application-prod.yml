@@ -1,6 +1,6 @@
 server:
-  port: 80
-  context-path: /
+  port: 8666
+  context-path: /jelly
 spring:
   redis:
     database: 0
