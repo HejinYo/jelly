@@ -7,12 +7,14 @@ server:
 
 spring:
   profiles:
-    active: dev
+    active: test
   http:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
       enabled: true
+  aop:
+    proxy-target-class: true
   redis:
       timeout: 6000  # 连接超时时长（毫秒）
       pool:
@@ -20,8 +22,13 @@ spring:
         max-wait: -1      # 连接池最大阻塞等待时间（使用负值表示没有限制）
         max-idle: 10      # 连接池中的最大空闲连接
         min-idle: 5       # 连接池中的最小空闲连接
-  aop:
-    proxy-target-class: true
+  rabbitmq:
+      # addresses: hejinyo.cn:5672
+      host: hejinyo.cn
+      port: 5672
+      username: admin
+      password: rabbitmq@2018
+      virtual-host: /jelly
 mybatis:
   #type-aliases-package: cn.hejinyo
   mapper-locations: classpath*:cn/hejinyo/jelly/modules/*/dao/*Dao.xml
@@ -34,5 +41,3 @@ pagehelper:
     reasonable: true
     params: pageNum=start;pageSize=limit;pageSizeZero=zero;reasonable=heli;count=contsql
     row-bounds-with-count: true
-
-
