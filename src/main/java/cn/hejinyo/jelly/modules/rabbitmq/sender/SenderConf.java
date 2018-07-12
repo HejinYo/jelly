@@ -1,4 +1,4 @@
-package cn.hejinyo.jelly.modules.rabbitmq.config;
+package cn.hejinyo.jelly.modules.rabbitmq.sender;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 public class SenderConf {
     @Bean
     public Queue queue() {
-        return new Queue("test");
+        // durable = true queue持久化
+        return new Queue("hello", true);
     }
 }

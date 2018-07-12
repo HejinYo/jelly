@@ -1,16 +1,16 @@
 server:
-  port: 80
+  port: 88
   context-path: /
 spring:
   redis:
-    database: 0
-    host: hejinyo.cn
-    port: 29
-    password: redhat     # 密码（默认为空）
+    database: 8
+    host: 10.0.98.9
+    port: 6385
+    password:      # 密码（默认为空）
   datasource:
     name: mysql_druid
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/jelly?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://hejinyo.cn:3306/jelly?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: root
     password: XroRXpiGU7vJeuQrAnZ8FhA4+BEzU9x45IabHN5yzo8bNhm2VXcUG4XdMf1RxNP5CQmbRr05/S/bsNvOcnSaHA==
     sql-script-encoding: UTF-8
@@ -35,11 +35,3 @@ spring:
         reset-enable: false
         login-username: admin
         login-password: 123456
-
-logging:
-  path: /var/logs/
-  file: jelly.log
-  level:
-    root: DEBUG
-    cn:
-      hejinyo: DEBUG
