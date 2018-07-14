@@ -32,7 +32,6 @@ import java.util.*;
 @Slf4j
 public class ShiroConfig {
 
-
     /**
      * SecurityManager 安全管理器 有多个Realm,可使用'realms'属性代替
      */
@@ -80,7 +79,8 @@ public class ShiroConfig {
 
         filterMap.put("/test/**", "anon");
         filterMap.put("/wechat/**", "anon");
-        filterMap.put("/app/**", "anon");
+        // spring cloud 健康检查
+        filterMap.put("/info/**", "anon");
 
         filterMap.put("/**", "url,authc");
         factoryBean.setFilterChainDefinitionMap(filterMap);

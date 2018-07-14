@@ -6,6 +6,8 @@ server:
     connection-timeout: 5000
 
 spring:
+  application:
+    name: jelly
   profiles:
     active: dev
   http:
@@ -34,3 +36,14 @@ pagehelper:
     reasonable: true
     params: pageNum=start;pageSize=limit;pageSizeZero=zero;reasonable=heli;count=contsql
     row-bounds-with-count: true
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://hejinyo:password@cloud.hejinyo.cn/eureka
+  instance:
+    # 服务续约任务调用间隔时间，默认30秒
+    lease-renewal-interval-in-seconds: 30
+    # 服务失效时间，默认90秒
+    lease-expiration-duration-in-seconds: 90
