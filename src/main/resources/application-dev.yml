@@ -2,6 +2,8 @@ server:
   port: 80
   context-path: /
 spring:
+  application:
+    name: jelly
   redis:
     database: 0
     host: 127.0.0.1

@@ -2,6 +2,8 @@ server:
   port: 8666
   context-path: /jelly
 spring:
+  application:
+    name: hejinyo-jelly
   redis:
     database: 0
     host: 127.0.0.1
@@ -66,5 +68,5 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     # 服务失效时间，默认90秒
     lease-expiration-duration-in-seconds: 90
-    hostname: m.hejinyo.cn/api
+    hostname: m.hejinyo.cn
     instance-id: m.hejinyo.cn
