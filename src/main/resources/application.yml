@@ -47,3 +47,8 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     # 服务失效时间，默认90秒
     lease-expiration-duration-in-seconds: 90
+
+info:
+  app:
+    name: jelly
+    version: 1.0
