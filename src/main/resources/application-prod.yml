@@ -55,3 +55,16 @@ spring:
         reset-enable: false
         login-username: admin
         login-password: 123456
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://hejinyo:password@cloud.hejinyo.cn/eureka
+  instance:
+    # 服务续约任务调用间隔时间，默认30秒
+    lease-renewal-interval-in-seconds: 30
+    # 服务失效时间，默认90秒
+    lease-expiration-duration-in-seconds: 90
+    hostname: m.hejinyo.cn/api
+    instance-id: m.hejinyo.cn
