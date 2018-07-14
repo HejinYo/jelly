@@ -29,9 +29,11 @@ public class WechatJokeServiceImpl extends BaseServiceImpl<WechatJokeDao, Wechat
     public WechatJoke getRandomWechatJoke() {
         Random rand = new Random();
         int randNum = 9000;
+        int count = 0;
         WechatJoke wechatJoke = baseDao.findOne(rand.nextInt(randNum));
-        while (null == wechatJoke) {
+        while (null == wechatJoke || count > 10) {
             wechatJoke = wechatJokeDao.findOne(rand.nextInt(randNum));
+            count++;
         }
         return wechatJoke;
     }
