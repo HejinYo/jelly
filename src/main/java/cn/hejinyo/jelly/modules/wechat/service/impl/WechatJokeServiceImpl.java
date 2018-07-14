@@ -31,7 +31,7 @@ public class WechatJokeServiceImpl extends BaseServiceImpl<WechatJokeDao, Wechat
         int randNum = 9000;
         int count = 0;
         WechatJoke wechatJoke = baseDao.findOne(rand.nextInt(randNum));
-        while (null == wechatJoke || count > 10) {
+        while (null == wechatJoke && count < 10) {
             wechatJoke = wechatJokeDao.findOne(rand.nextInt(randNum));
             count++;
         }
