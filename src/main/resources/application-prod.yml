@@ -1,6 +1,7 @@
 server:
   port: 8666
-  context-path: /jelly
+  servlet:
+    context-path: /jelly
 spring:
   application:
     name: hejinyo-jelly
@@ -57,7 +58,6 @@ spring:
         reset-enable: false
         login-username: admin
         login-password: 123456
-
 
 eureka:
   client:

@@ -1,6 +1,7 @@
 server:
   port: 88
-  context-path: /
+  servlet:
+    context-path: /
 spring:
   redis:
     database: 8

@@ -35,7 +35,7 @@ public class RabbitConfig {
         //开启returncallback  yml 需要 配置    publisher-returns: true
         rabbitTemplate.setMandatory(true);
         rabbitTemplate.setReturnCallback((message, replyCode, replyText, exchange, routingKey) -> {
-            String correlationId = message.getMessageProperties().getCorrelationIdString();
+            String correlationId = message.getMessageProperties().getCorrelationId();
             log.debug("消息：{} 发送失败, 应答码：{} 原因：{} 交换机: {}  路由键: {}", correlationId, replyCode, replyText, exchange, routingKey);
         });
         // 消息确认  yml 需要配置   publisher-returns: true

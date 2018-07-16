@@ -3,9 +3,9 @@ package cn.hejinyo.jelly.modules.sys.model;
 import cn.hejinyo.jelly.common.validator.RestfulValid;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
-import org.hibernate.validator.constraints.Email;
-import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
 import java.util.Date;

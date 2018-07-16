@@ -1,9 +1,9 @@
 package cn.hejinyo.jelly.modules.oss.cloud;
 
 import lombok.Data;
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.URL;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 
 /**
