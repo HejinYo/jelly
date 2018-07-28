@@ -10,6 +10,11 @@ import java.util.Set;
  */
 public interface ShiroService {
     /**
+     * 手机登录，查询用户登录信息
+     */
+    LoginUserDTO getPhoneUser(String phone);
+
+    /**
      * 执行登录，查询用户登录信息
      */
     LoginUserDTO getLoginUser(String userName);

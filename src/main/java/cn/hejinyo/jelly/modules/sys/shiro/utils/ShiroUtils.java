@@ -5,6 +5,8 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.apache.shiro.subject.Subject;
 
+import java.util.Optional;
+
 /**
  * Shiro工具类
  *
@@ -40,7 +42,7 @@ public class ShiroUtils {
      * 获得用户id
      */
     public static int getUserId() {
-        return getLoginUser().getUserId();
+        return Optional.ofNullable(getLoginUser()).map(LoginUserDTO::getUserId).orElse(0);
     }
 
     /**

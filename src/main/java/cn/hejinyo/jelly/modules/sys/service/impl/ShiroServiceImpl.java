@@ -27,6 +27,14 @@ public class ShiroServiceImpl implements ShiroService {
     private ShiroDao shiroDao;
 
     /**
+     * 手机登录，查询用户登录信息
+     */
+    @Override
+    public LoginUserDTO getPhoneUser(String phone) {
+        return shiroDao.findByPhone(phone);
+    }
+
+    /**
      * 执行登录，查询用户登录信息
      */
     @Override

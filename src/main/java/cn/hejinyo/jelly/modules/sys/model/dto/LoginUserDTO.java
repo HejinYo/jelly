@@ -1,8 +1,10 @@
 package cn.hejinyo.jelly.modules.sys.model.dto;
 
+import cn.hejinyo.jelly.common.validator.RestfulValid;
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Data;
 
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -30,12 +32,14 @@ public class LoginUserDTO implements Serializable {
     /**
      * 用户名 user_name
      **/
+    @NotBlank(message = "用户名不能为空", groups = {RestfulValid.POST.class})
     private String userName;
 
     /**
      * 密码
      */
     @JSONField(serialize = false)
+    @NotBlank(message = "密码不能为空", groups = {RestfulValid.POST.class})
     private String userPwd;
 
     /**

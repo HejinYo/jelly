@@ -1,6 +1,7 @@
 package cn.hejinyo.jelly.modules.sys.service;
 
 import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.PhoneLoginDTO;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
@@ -8,15 +9,24 @@ import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
  */
 public interface LoginService {
 
+    /**
+     * 发送电话登录验证码
+     */
+    boolean sendPhoneCode(String phone);
+
+    /**
+     * 手机用户登录
+     */
+    LoginUserDTO phoneLogin(PhoneLoginDTO phoneLogin);
+
 
     /**
      * 验证登录用户
      */
-    LoginUserDTO checkUser(String userName, String userPwd);
+    LoginUserDTO checkUser(LoginUserDTO loginUser);
 
     /**
      * 处理登录逻辑
      */
-    String doLogin(String userName, String userPwd);
-
+    String doLogin(LoginUserDTO userDTO);
 }

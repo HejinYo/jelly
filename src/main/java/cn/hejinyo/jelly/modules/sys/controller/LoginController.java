@@ -1,14 +1,18 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
+import cn.hejinyo.jelly.common.annotation.SysLogger;
 import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.utils.*;
+import cn.hejinyo.jelly.common.validator.RestfulValid;
 import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
+import cn.hejinyo.jelly.modules.sys.model.dto.PhoneLoginDTO;
 import cn.hejinyo.jelly.modules.sys.service.LoginService;
 import cn.hejinyo.jelly.modules.sys.service.ShiroService;
 import cn.hejinyo.jelly.modules.sys.service.SysResourceService;
 import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,21 +37,34 @@ public class LoginController extends BaseController {
     @Autowired
     private ShiroService shiroService;
 
+    /**
+     * 发送手机登录验证码,暂时不做相关限制
+     */
+    @PostMapping(value = "/login/code/{phone}")
+    @SysLogger("发送验证码")
+    public Result sendLoginCode(@PathVariable("phone") String phone) {
+        if (loginService.sendPhoneCode(phone)) {
+            return Result.ok();
+        }
+        return Result.error("验证码发送失败");
+    }
+
+    /**
+     * 手机号,验证码登录,返回userToken
+     */
+    @PostMapping(value = "/login/phone")
+    @SysLogger("手机号登录")
+    public Result phoneLogin(@Validated(RestfulValid.POST.class) @RequestBody PhoneLoginDTO phoneLogin) {
+        return Result.result(loginService.doLogin(loginService.phoneLogin(phoneLogin)));
+    }
+
 
     /**
      * 执行登录,返回userToken
      */
     @PostMapping(value = "/login")
-    public Result login(@RequestBody LoginUserDTO loginUser) {
-        String userName = loginUser.getUserName();
-        String userPwd = loginUser.getUserPwd();
-        if (StringUtils.isEmpty(userName)) {
-            return Result.error("用户名不能为空");
-        }
-        if (StringUtils.isEmpty(userPwd)) {
-            return Result.error("密码不能为空");
-        }
-        return Result.result(loginService.doLogin(userName, userPwd));
+    public Result login(@Validated(RestfulValid.POST.class) @RequestBody LoginUserDTO loginUser) {
+        return Result.result(loginService.doLogin(loginService.checkUser(loginUser)));
     }
 
     /**

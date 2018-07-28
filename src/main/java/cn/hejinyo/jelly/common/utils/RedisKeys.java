@@ -36,4 +36,12 @@ public class RedisKeys {
         return buildKey(PREFIX, "store", "user", userId);
     }
 
+
+    /**
+     * 手机短信验证码
+     */
+    public static String smsSingle(String phone) {
+        return buildKey(PREFIX, "cache", "sms", phone);
+    }
+
 }

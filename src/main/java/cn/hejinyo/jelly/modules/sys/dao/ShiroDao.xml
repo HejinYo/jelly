@@ -23,6 +23,15 @@
         <result column="state" jdbcType="TINYINT" property="state"/>
     </resultMap>
 
+    <!-- 执行登录，根据手机查询用户登录信息 -->
+    <select id="findByPhone" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_user
+        WHERE
+        phone = #{phone}
+    </select>
+
     <!-- 执行登录，根据用户名查询用户登录信息 -->
     <select id="findLoginUser" resultMap="BaseResultMap">
         SELECT

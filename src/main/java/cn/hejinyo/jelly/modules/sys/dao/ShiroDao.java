@@ -12,6 +12,11 @@ import java.util.Set;
 @Mapper
 public interface ShiroDao {
     /**
+     * 手机登录，查询用户登录信息
+     */
+    LoginUserDTO findByPhone(String phone);
+
+    /**
      * 执行登录，查询用户登录信息
      */
     LoginUserDTO findLoginUser(String userName);
