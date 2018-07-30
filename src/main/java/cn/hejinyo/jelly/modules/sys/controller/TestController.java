@@ -1,8 +1,8 @@
 package cn.hejinyo.jelly.modules.sys.controller;
 
 import cn.hejinyo.jelly.common.utils.Result;
-import cn.hejinyo.jelly.modules.oss.cloud.CloudStorage;
-import cn.hejinyo.jelly.modules.oss.cloud.QiniuCloudStorageService;
+import cn.hejinyo.jelly.modules.oss.model.CloudStorageDTO;
+import cn.hejinyo.jelly.modules.oss.service.impl.QiniuCloudStorageService;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
@@ -35,18 +35,18 @@ public class TestController {
     @PostMapping(value = "/multiFileUpload")
     public Result multiFileUpload(@RequestParam("file") MultipartFile[] files) {
         List<String> list = new ArrayList<>();
-        CloudStorage config = new CloudStorage();
-        config.setQiniuAccessKey("GqZQG6TvEZGPkCXzm5O7QN1jipLdeI4CXXsR6N3G");
+        CloudStorageDTO config = new CloudStorageDTO();
+       /* config.setQiniuAccessKey("GqZQG6TvEZGPkCXzm5O7QN1jipLdeI4CXXsR6N3G");
         config.setQiniuSecretKey("qodIX8q2zqaX4eSAiOvcS1YNLeKU_cxyNtSFkWf9");
         config.setQiniuBucketName("skye-user-avatar");
-        config.setQiniuDomain(domain);
+        config.setQiniuDomain(domain);*/
         for (int i = 0; i < files.length; i++) {
             // 获得原始文件名
             String fileName = files[i].getOriginalFilename();
             // 新文件名
             String newFileName = UUID.randomUUID() + "-" + fileName;
             if (!files[i].isEmpty()) {
-                config.setKey(newFileName);
+                // config.setKey(newFileName);
                 QiniuCloudStorageService storageService = new QiniuCloudStorageService(config);
                 try {
                     String result = storageService.upload(files[i].getInputStream(), newFileName);

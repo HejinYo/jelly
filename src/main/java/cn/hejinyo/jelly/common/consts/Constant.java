@@ -167,5 +167,35 @@ public class Constant {
             return value.equals(this.value);
         }
     }
+
+
+    /**
+     * 云服务商
+     */
+    public enum CloudService {
+        /**
+         * 阿里云
+         */
+        ALIYUN(0),
+        /**
+         * 腾讯云
+         */
+        QCLOUD(1),
+        /**
+         * 七牛云
+         */
+        QINIU(2);
+
+        private int value;
+
+        CloudService(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
+
 }
 

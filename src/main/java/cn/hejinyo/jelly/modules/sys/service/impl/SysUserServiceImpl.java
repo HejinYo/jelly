@@ -6,7 +6,7 @@ import cn.hejinyo.jelly.common.consts.Constant;
 import cn.hejinyo.jelly.common.consts.StatusCode;
 import cn.hejinyo.jelly.common.exception.InfoException;
 import cn.hejinyo.jelly.common.utils.*;
-import cn.hejinyo.jelly.modules.oss.cloud.OSSFactory;
+import cn.hejinyo.jelly.modules.oss.factory.OSSFactory;
 import cn.hejinyo.jelly.modules.sys.dao.SysUserDao;
 import cn.hejinyo.jelly.modules.sys.model.SysUserEntity;
 import cn.hejinyo.jelly.modules.sys.model.dto.LoginUserDTO;
@@ -324,7 +324,7 @@ public class SysUserServiceImpl extends BaseServiceImpl<SysUserDao, SysUserEntit
         String key = "avatar/" + ShiroUtils.getLoginUser().getUserName() + "/" + LocalDateTime.now().toString() + ".png";
         if (!file.isEmpty()) {
             try {
-                String avatarUrl = OSSFactory.build(key).upload(file.getInputStream(), key);
+                String avatarUrl = OSSFactory.build().upload(file.getInputStream(), key);
                 SysUserEntity sysUser = new SysUserEntity();
                 sysUser.setUserId(ShiroUtils.getUserId());
                 sysUser.setAvatar(avatarUrl);
