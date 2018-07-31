@@ -1,11 +1,9 @@
 package cn.hejinyo.jelly.modules.oss.service.impl;
 
 import cn.hejinyo.jelly.common.exception.InfoException;
-import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.modules.oss.model.CloudStorageDTO;
 import cn.hejinyo.jelly.modules.oss.model.OssFileInfo;
 import cn.hejinyo.jelly.modules.oss.service.CloudStorageService;
-import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.qiniu.common.QiniuException;
 import com.qiniu.common.Zone;
@@ -20,7 +18,6 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
