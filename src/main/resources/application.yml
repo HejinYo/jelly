@@ -7,6 +7,10 @@ server:
 spring:
   profiles:
     active: dev
+  thymeleaf:
+    mode: LEGACYHTML5
+  resources: # 指定静态资源的路径
+      static-locations: classpath:/static/,classpath:/templates/
   aop:
     proxy-target-class: true
   redis:
@@ -17,6 +21,11 @@ spring:
           max-wait:  -1ms    # 连接池最大阻塞等待时间（使用负值表示没有限制）
           max-idle: 10      # 连接池中的最大空闲连接
           min-idle: 5        # 连接池中的最小空闲连接
+  mail:
+    host: smtp.hejinyo.cn
+    username: jelly@hejinyo.cn
+    password: Redhat@2018
+    default-encoding: utf-8
 mybatis:
   #type-aliases-package: cn.hejinyo
   mapper-locations: classpath*:cn/hejinyo/jelly/modules/*/dao/*Dao.xml
