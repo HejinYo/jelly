@@ -9,7 +9,7 @@
         <result column="code" jdbcType="VARCHAR" property="code"/>
         <result column="option_id" jdbcType="INTEGER" property="optionId"/>
         <result column="type" jdbcType="TINYINT" property="type"/>
-        <result column="status" jdbcType="TINYINT" property="status"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
         <result column="create_id" jdbcType="INTEGER" property="createId"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_id" jdbcType="INTEGER" property="updateId"/>
@@ -20,14 +20,14 @@
 
     <!-- 表基本列 -->
     <sql id="Base_Column_List">
-        config_id, name, code, option_id, type, status, create_id, create_time, update_id,
+        config_id, name, code, option_id, type, state, create_id, create_time, update_id,
         update_time
     </sql>
 
     <!-- 别名基本列 -->
     <sql id="Alias_Column_List">
         ${alias}.config_id, ${alias}.name, ${alias}.code, ${alias}.option_id, ${alias}.type,
-        ${alias}.status, ${alias}.create_id, ${alias}.create_time, ${alias}.update_id, ${alias}.update_time
+        ${alias}.state, ${alias}.create_id, ${alias}.create_time, ${alias}.update_id, ${alias}.update_time
     </sql>
 
 
@@ -38,7 +38,7 @@
             <if test="code != null and !&quot;&quot;.equals(code)">and code = #{code}</if>
             <if test="optionId != null and !&quot;&quot;.equals(optionId)">and option_id = #{optionId}</if>
             <if test="type != null and !&quot;&quot;.equals(type)">and type = #{type}</if>
-            <if test="status != null and !&quot;&quot;.equals(status)">and status = #{status}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and state = #{state}</if>
             <if test="createId != null and !&quot;&quot;.equals(createId)">and create_id = #{createId}</if>
             <if test="createTime != null and !&quot;&quot;.equals(createTime)">and create_time = #{createTime}</if>
             <if test="updateId != null and !&quot;&quot;.equals(updateId)">and update_id = #{updateId}</if>
@@ -67,7 +67,7 @@
             <if test="null != code">code,</if>
             <if test="null != optionId">option_id,</if>
             <if test="null != type">type,</if>
-            <if test="null != status">status,</if>
+            <if test="null != state">state,</if>
             <if test="null != createId">create_id,</if>
             <if test="null != createTime">create_time,</if>
             <if test="null != updateId">update_id,</if>
@@ -79,7 +79,7 @@
             <if test="null != code">#{code},</if>
             <if test="null != optionId">#{optionId},</if>
             <if test="null != type">#{type},</if>
-            <if test="null != status">#{status},</if>
+            <if test="null != state">#{state},</if>
             <if test="null != createId">#{createId},</if>
             <if test="null != createTime">#{createTime},</if>
             <if test="null != updateId">#{updateId},</if>
@@ -95,7 +95,7 @@
             <if test="null != code">code = #{code},</if>
             <if test="null != optionId">option_id = #{optionId},</if>
             <if test="null != type">type = #{type},</if>
-            <if test="null != status">status = #{status},</if>
+            <if test="null != state">state = #{state},</if>
             <if test="null != createId">create_id = #{createId},</if>
             <if test="null != createTime">create_time = #{createTime},</if>
             <if test="null != updateId">update_id = #{updateId},</if>
@@ -153,7 +153,7 @@
     <!-- 分页查询 -->
     <select id="findPage" resultMap="BaseResultMap">
         select
-        sc.config_id, sc.name, sc.code, sc.option_id, sc.type, sc.status, sc.create_id, sc.create_time, sc.update_id,
+        sc.config_id, sc.name, sc.code, sc.option_id, sc.type, sc.state, sc.create_id, sc.create_time, sc.update_id,
         sc.update_time, sco.value, sco.label
         from sys_config sc
         left join sys_config_option sco on sc.option_id = sco.option_id
@@ -162,7 +162,7 @@
             <if test="code != null and !&quot;&quot;.equals(code)">and sc.code like concat('%',#{code},'%')</if>
             <if test="optionId != null and !&quot;&quot;.equals(optionId)">and sc.option_id = #{optionId}</if>
             <if test="type != null and !&quot;&quot;.equals(type)">and sc.type = #{type}</if>
-            <if test="status != null and !&quot;&quot;.equals(status)">and sc.status = #{status}</if>
+            <if test="state != null and !&quot;&quot;.equals(state)">and sc.state = #{state}</if>
             <if test="createId != null and !&quot;&quot;.equals(createId)">and sc.create_id = #{createId}</if>
             <if test="createTime != null and !&quot;&quot;.equals(createTime)">and DATE_FORMAT(sc.create_time,'%Y-%m-%d') = STR_TO_DATE(#{createTime},'%Y-%m-%d')</if>
             <if test="updateId != null and !&quot;&quot;.equals(updateId)">and sc.update_id = #{updateId}</if>

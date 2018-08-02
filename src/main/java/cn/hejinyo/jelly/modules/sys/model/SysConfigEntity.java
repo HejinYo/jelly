@@ -42,9 +42,9 @@ public class SysConfigEntity implements Serializable {
     private Integer type;
 
     /**
-     * 状态 0：正常 1：禁用 status
+     * 状态 0：正常 1：禁用 state
      **/
-    private Integer status;
+    private Integer state;
 
     /**
      * 创建人编号 create_id

@@ -80,7 +80,7 @@ public class SysConfigServiceImpl extends BaseServiceImpl<SysConfigDao, SysConfi
     public int save(SysConfigEntity config) {
         SysConfigEntity newConfig = PojoConvertUtil.convert(config, SysConfigEntity.class);
         newConfig.setCreateId(ShiroUtils.getUserId());
-        newConfig.setStatus(Constant.Status.NORMAL.getValue());
+        newConfig.setState(Constant.Status.NORMAL.getValue());
         //清除缓存
         redisUtils.hdel(RedisKeys.storeConfig(), config.getCode());
         return baseDao.save(newConfig);
