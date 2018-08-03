@@ -81,6 +81,8 @@ public class ShiroConfig {
         filterMap.put("/wechat/**", "anon");
         // spring cloud 健康检查
         filterMap.put("/info/**", "anon");
+        // 开放授权
+        filterMap.put("/oauth/**", "anon");
 
         filterMap.put("/**", "url,authc");
         factoryBean.setFilterChainDefinitionMap(filterMap);
