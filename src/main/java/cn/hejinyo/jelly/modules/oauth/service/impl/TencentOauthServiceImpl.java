@@ -4,6 +4,8 @@ import cn.hejinyo.jelly.common.utils.JsonUtil;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.modules.oauth.model.dto.TencentUserDTO;
 import cn.hejinyo.jelly.modules.oauth.service.TencentOauthService;
+import cn.hejinyo.jelly.modules.sys.model.SysLogEntity;
+import cn.hejinyo.jelly.modules.sys.service.SysLogService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,9 @@ public class TencentOauthServiceImpl implements TencentOauthService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private SysLogService sysLogService;
 
 
     @Override
@@ -95,7 +100,15 @@ public class TencentOauthServiceImpl implements TencentOauthService {
         String userInfo = restTemplate.getForObject(getUserInfoURL + "?access_token={1}&oauth_consumer_key={2}&openid={3}", String.class, accessToken, clientId, openid);
         if (StringUtils.isNotEmpty(userInfo)) {
             log.info("userInfo:{}", userInfo);
-            return JsonUtil.fromJson(userInfo, TencentUserDTO.class);
+            TencentUserDTO user = JsonUtil.fromJson(userInfo, TencentUserDTO.class);
+            SysLogEntity sysLogEntity = new SysLogEntity();
+            sysLogEntity.setParams(userInfo);
+            sysLogEntity.setCreateId(0);
+            sysLogEntity.setOperation("qq用户登录");
+            sysLogEntity.setUserName(user.getNickname());
+            sysLogEntity.setMethod(TencentOauthServiceImpl.class.getName());
+            sysLogService.save(sysLogEntity);
+            return user;
         }
         return null;
     }
