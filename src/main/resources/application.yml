@@ -43,3 +43,14 @@ info:
   app:
     name: jelly
     version: 1.0
+
+tencent:
+  baseUrl: https://graph.qq.com
+  authorizeURL: ${tencent.baseUrl}/oauth2.0/authorize
+  accessTokenURL: ${tencent.baseUrl}/oauth2.0/token
+  getUserInfoURL: ${tencent.baseUrl}/user/get_user_info
+  getOpenIDURL: ${tencent.baseUrl}/oauth2.0/me
+  clientId: 101494574
+  clientSecret: 22e81b9bb632922b1095d0de329c9a35
+  redirectURI: http://test.hejinyo.cn/api/oauth/v2
+  scope: get_user_info

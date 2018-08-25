@@ -70,3 +70,6 @@ eureka:
     lease-expiration-duration-in-seconds: 90
     hostname: m.hejinyo.cn
     instance-id: m.hejinyo.cn
+
+tencent:
+  redirectURI: https://m.hejinyo.cn/api/oauth/v2

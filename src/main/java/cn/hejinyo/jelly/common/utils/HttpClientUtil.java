@@ -135,7 +135,7 @@ public class HttpClientUtil implements AutoCloseable {
     /**
      * get请求，返回结果为指定类型
      */
-    private <T> T sendGet(String url, Class<T> clazz) {
+    public <T> T sendGet(String url, Class<T> clazz) {
         // 创建get请求
         log.info("sendHttpGet  :" + url);
         HttpGet httpGet = new HttpGet(url);
@@ -146,7 +146,7 @@ public class HttpClientUtil implements AutoCloseable {
     /**
      * get带参数请求，返回结果为指定类型
      */
-    private <T> T sendGet(String url, Map<String, Object> params, Class<T> clazz) {
+    public <T> T sendGet(String url, Map<String, Object> params, Class<T> clazz) {
         // 创建get请求
         String paramsUrl = HttpClientUtil.buildUrl(url, params);
         return sendGet(paramsUrl, clazz);

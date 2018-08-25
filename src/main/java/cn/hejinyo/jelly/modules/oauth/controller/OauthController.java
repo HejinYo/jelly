@@ -1,19 +1,13 @@
 package cn.hejinyo.jelly.modules.oauth.controller;
 
-import cn.hejinyo.jelly.common.utils.JsonUtil;
 import cn.hejinyo.jelly.common.utils.Result;
-import com.qq.connect.QQConnectException;
-import com.qq.connect.api.OpenID;
-import com.qq.connect.api.qzone.UserInfo;
-import com.qq.connect.javabeans.AccessToken;
-import com.qq.connect.javabeans.qzone.UserInfoBean;
-import com.qq.connect.oauth.Oauth;
-import lombok.extern.slf4j.Slf4j;
+import cn.hejinyo.jelly.modules.oauth.model.dto.TencentUserDTO;
+import cn.hejinyo.jelly.modules.oauth.service.TencentOauthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author : heshuangshuang
@@ -21,37 +15,25 @@ import javax.servlet.http.HttpServletRequest;
  */
 @RestController
 @RequestMapping("/oauth")
-@Slf4j
 public class OauthController {
+    @Autowired
+    private TencentOauthService tencentOauthService;
 
+    /**
+     * 登录重定向的url
+     */
     @GetMapping("/login")
-    public Result loginPage(HttpServletRequest request) throws QQConnectException {
-        return Result.result(new Oauth().getAuthorizeURL(request));
+    public Result loginPage() {
+        return Result.result(tencentOauthService.loginUrl());
     }
 
     @GetMapping("/v2")
-    public Result LoginRedirect(HttpServletRequest request) throws QQConnectException {
-        AccessToken accessTokenObj = (new Oauth()).getAccessTokenByRequest(request);
-        System.out.println(JsonUtil.toJson(accessTokenObj));
-
-        //我们的网站被CSRF攻击了或者用户取消了授权,做一些数据统计工作
-        if ("".equals(accessTokenObj.getAccessToken())) {
-            return Result.ok("没有获取到响应参数");
+    public Result LoginRedirect(@RequestParam("code") String code, @RequestParam("state") String state) {
+        TencentUserDTO userDTO = tencentOauthService.loginRedirect(code, state);
+        if (userDTO != null) {
+            return Result.ok("登录测试成功", userDTO.getNickname() + ":谢谢你的登录，目前还没结合业务，mua~>");
         }
-        String accessToken = accessTokenObj.getAccessToken();
-        long tokenExpireIn = accessTokenObj.getExpireIn();
-        log.debug("accessToken:{}", accessToken);
-        log.debug("tokenExpireIn:{}", tokenExpireIn);
+        return Result.ok("登录测试失败");
 
-        OpenID openIDObj = new OpenID(accessToken);
-        String openID = openIDObj.getUserOpenID();
-        log.debug("openID:{}", openID);
-        UserInfo userInfo = new UserInfo(accessToken, openID);
-        UserInfoBean userInfoBean = userInfo.getUserInfo();
-        if (userInfoBean.getRet() == 0) {
-            log.debug("openID:{}", JsonUtil.toJson(userInfoBean));
-            return Result.ok("登录成功", userInfoBean);
-        }
-        return Result.ok("很抱歉，我们没能正确获取到您的信息", userInfoBean.getMsg());
     }
 }

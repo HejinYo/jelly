@@ -66,3 +66,6 @@ eureka:
     lease-renewal-interval-in-seconds: 30
     # 服务失效时间，默认90秒
     lease-expiration-duration-in-seconds: 90
+
+tencent:
+  redirectURI: http://test.hejinyo.cn/api/oauth/v2
