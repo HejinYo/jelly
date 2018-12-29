@@ -9,7 +9,6 @@ import cn.hejinyo.jelly.modules.wechat.model.TextMessage;
 import cn.hejinyo.jelly.modules.wechat.service.WechatJokeService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ import java.util.Collections;
  * @date : 2017/8/13 10:48
  * @Description :
  */
-@Controller
+@RestController
 @RequestMapping(value = "/wechat")
 public class WechatController {
     private static final String myToken = "hejinyo";
@@ -57,7 +56,6 @@ public class WechatController {
     }
 
     @PostMapping
-    @ResponseBody
     public String replyMessage(@RequestBody String param) {
         System.out.println("param:" + param);
         TextMessage message = JsonUtil.fromJson(JsonUtil.toJson(XmlUtils.parseFromXml(TextMessage.class, param)), TextMessage.class);
