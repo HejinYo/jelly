@@ -27,8 +27,7 @@ public class WechatController {
     @Autowired
     private WechatJokeService wechatJokeService;
 
-    @RequestMapping("/findOne")
-    @ResponseBody
+    @GetMapping("/findOne")
     public Result joke() {
         return Result.ok(wechatJokeService.getRandomWechatJoke());
     }
@@ -50,9 +49,6 @@ public class WechatController {
             return echostr;
         }
         return echostr;
-    }
-
-    public static void main(String[] args) {
     }
 
     @PostMapping
