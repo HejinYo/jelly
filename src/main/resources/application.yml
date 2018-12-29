@@ -54,3 +54,8 @@ tencent:
   clientSecret: 22e81b9bb632922b1095d0de329c9a35
   redirectURI: http://test.hejinyo.cn/api/oauth/v2
   scope: get_user_info
+
+baidu:
+    ai:
+      appKey: zjkD2Pz9RMbd3OswWLu3yzkN
+      secretKey: USIDcBe3LGdrspU1zELc3BR0FlA5Lpbk

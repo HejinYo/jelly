@@ -62,7 +62,7 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://hejinyo:password@localhost:8001/eureka
+      defaultZone: http://hejinyo:password@cloud.hejinyo.cn/eureka
   instance:
     # 服务续约任务调用间隔时间，默认30秒
     lease-renewal-interval-in-seconds: 30

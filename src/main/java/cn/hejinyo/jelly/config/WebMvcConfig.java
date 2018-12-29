@@ -3,11 +3,14 @@ package cn.hejinyo.jelly.config;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,11 +23,14 @@ import java.util.List;
 @Configuration
 public class WebMvcConfig extends WebMvcConfigurationSupport {
 
-    /**
-     * 注入fastJson
-     */
-    @Override
-    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+
+    @Bean
+    public StringHttpMessageConverter stringHttpMessageConverter() {
+        return new StringHttpMessageConverter(Charset.forName("UTF-8"));
+    }
+
+    @Bean
+    public FastJsonHttpMessageConverter fastJsonHttpMessageConverter() {
         FastJsonHttpMessageConverter fastConverter = new FastJsonHttpMessageConverter();
         //fast参数配置
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
@@ -40,7 +46,16 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         }};
         fastConverter.setSupportedMediaTypes(fastMediaTypes);
         fastConverter.setFastJsonConfig(fastJsonConfig);
-        converters.add(fastConverter);
+        return fastConverter;
+    }
+
+    /**
+     * 注入fastJson
+     */
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(stringHttpMessageConverter());
+        converters.add(fastJsonHttpMessageConverter());
         super.configureMessageConverters(converters);
     }
 
