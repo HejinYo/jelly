@@ -83,6 +83,7 @@ public class BaiduAiServiceImpl implements BaiduAiService {
             String key = "speechSynthesis/" + ShiroUtils.getLoginUser().getUserName() + "/" + LocalDateTime.now().toString() + "." + format;
             String avatarUrl = OSSFactory.build().upload(bytes, key);
             System.out.println("上传到云存储 =>" + avatarUrl);
+            return avatarUrl;
         } else {
             System.err.println("ERROR: content-type= " + contentType);
             String res = ConnUtil.getResponseString(conn);

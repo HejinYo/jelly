@@ -4,6 +4,8 @@ import cn.hejinyo.jelly.common.utils.JsonUtil;
 import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.common.utils.StringUtils;
 import cn.hejinyo.jelly.common.utils.XmlUtils;
+import cn.hejinyo.jelly.modules.baidu.model.vo.SpeechSynthesisVo;
+import cn.hejinyo.jelly.modules.baidu.service.BaiduAiService;
 import cn.hejinyo.jelly.modules.wechat.model.ReplyMessage;
 import cn.hejinyo.jelly.modules.wechat.model.TextMessage;
 import cn.hejinyo.jelly.modules.wechat.service.WechatJokeService;
@@ -11,6 +13,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -26,6 +29,9 @@ public class WechatController {
 
     @Autowired
     private WechatJokeService wechatJokeService;
+
+    @Autowired
+    private BaiduAiService baiduAiService;
 
     @GetMapping("/findOne")
     public Result joke() {
@@ -69,6 +75,14 @@ public class WechatController {
             replyMessage.setContent(wechatJokeService.weater(citys.trim()));
         } else if (mess.contains("笑话")) {
             replyMessage.setContent(wechatJokeService.getRandomWechatJoke().getContent());
+        } else if (mess.contains("语音")) {
+            SpeechSynthesisVo speechSynthesisVo = new SpeechSynthesisVo();
+            speechSynthesisVo.setContent(mess.replace("语音", "").replace(" ", ""));
+            try {
+                replyMessage.setContent(baiduAiService.speechSynthesis(speechSynthesisVo));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
             replyMessage.setMediaId("100000003");
             replyMessage.setContent(mess);
