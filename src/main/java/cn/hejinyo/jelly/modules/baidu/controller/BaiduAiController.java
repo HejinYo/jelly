@@ -4,6 +4,7 @@ import cn.hejinyo.jelly.common.utils.Result;
 import cn.hejinyo.jelly.modules.baidu.model.vo.SpeechSynthesisVo;
 import cn.hejinyo.jelly.modules.baidu.service.BaiduAiService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,7 +27,7 @@ public class BaiduAiController {
      * 百度ai语音合成
      */
     @PostMapping("/speechSynthesis")
-    public Result speechSynthesis(@RequestBody SpeechSynthesisVo speechSynthesisVo) throws IOException {
+    public Result speechSynthesis(@Validated @RequestBody SpeechSynthesisVo speechSynthesisVo) throws IOException {
         return Result.ok(baiduAiService.speechSynthesis(speechSynthesisVo));
     }
 }

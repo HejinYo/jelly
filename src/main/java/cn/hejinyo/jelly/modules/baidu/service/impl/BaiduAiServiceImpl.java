@@ -4,21 +4,25 @@ import cn.hejinyo.jelly.modules.baidu.common.ConnUtil;
 import cn.hejinyo.jelly.modules.baidu.common.TokenHolder;
 import cn.hejinyo.jelly.modules.baidu.model.vo.SpeechSynthesisVo;
 import cn.hejinyo.jelly.modules.baidu.service.BaiduAiService;
+import cn.hejinyo.jelly.modules.oss.factory.OSSFactory;
+import cn.hejinyo.jelly.modules.sys.shiro.utils.ShiroUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * @author : HejinYo   hejinyo@gmail.com
  * @date :  2018/12/29 18:49
  */
 @Service
+@Slf4j
 public class BaiduAiServiceImpl implements BaiduAiService {
 
     @Value("${baidu.ai.appKey}")
@@ -26,33 +30,6 @@ public class BaiduAiServiceImpl implements BaiduAiService {
 
     @Value("${baidu.ai.secretKey}")
     private String secretKey;
-
-    /**
-     * text 的内容为"欢迎使用百度语音合成"的urlencode,utf-8 编码
-     */
-    private final String text = "欢迎使用百度语音";
-
-    /**
-     * 发音人选择, 0为普通女声，1为普通男生，3为情感合成-度逍遥，4为情感合成-度丫丫，默认为普通女声
-     */
-    private final int PER = 0;
-    /**
-     * 语速，取值0-15，默认为5中语速
-     */
-    private final int SPD = 5;
-    /**
-     * 音调，取值0-15，默认为5中语调
-     */
-    private final int PIT = 5;
-    /**
-     * 音量，取值0-9，默认为5中音量
-     */
-    private final int VOL = 5;
-
-    /**
-     * 下载的文件格式, 3：mp3(default) 4： pcm-16k 5： pcm-8k 6. wav
-     */
-    private final int AUE = 3;
 
     /**
      * 可以使用https
@@ -66,19 +43,28 @@ public class BaiduAiServiceImpl implements BaiduAiService {
      */
     @Override
     public String speechSynthesis(SpeechSynthesisVo speechSynthesisVo) throws IOException {
+        // 设置默认值
+        speechSynthesisVo.setPronunciation(Optional.ofNullable(speechSynthesisVo.getPronunciation()).orElse(0));
+        speechSynthesisVo.setSpeechSpeed(Optional.ofNullable(speechSynthesisVo.getSpeechSpeed()).orElse(5));
+        speechSynthesisVo.setTone(Optional.ofNullable(speechSynthesisVo.getTone()).orElse(5));
+        speechSynthesisVo.setVolume(Optional.ofNullable(speechSynthesisVo.getVolume()).orElse(5));
+        speechSynthesisVo.setFileType(Optional.ofNullable(speechSynthesisVo.getFileType()).orElse(3));
+
+        log.debug("speechSynthesisVo==>{}", speechSynthesisVo);
+
         TokenHolder holder = new TokenHolder(appKey, secretKey, TokenHolder.ASR_SCOPE);
         holder.refresh();
         String token = holder.getToken();
 
         // 此处2次urlencode， 确保特殊字符被正确编码
-        String params = "tex=" + ConnUtil.urlEncode(ConnUtil.urlEncode(text));
-        params += "&PER=" + speechSynthesisVo;
-        params += "&SPD=" + SPD;
-        params += "&PIT=" + PIT;
-        params += "&VOL=" + VOL;
+        String params = "tex=" + ConnUtil.urlEncode(ConnUtil.urlEncode(speechSynthesisVo.getContent()));
+        params += "&PER=" + speechSynthesisVo.getPronunciation();
+        params += "&SPD=" + speechSynthesisVo.getSpeechSpeed();
+        params += "&PIT=" + speechSynthesisVo.getTone();
+        params += "&VOL=" + speechSynthesisVo.getVolume();
         params += "&cuid=" + cuid;
         params += "&tok=" + token;
-        params += "&AUE=" + AUE;
+        params += "&AUE=" + speechSynthesisVo.getFileType();
         params += "&lan=zh&ctp=1";
         // 反馈请带上此url，浏览器上可以测试
         System.out.println(url + "?" + params);
@@ -92,23 +78,17 @@ public class BaiduAiServiceImpl implements BaiduAiService {
         String contentType = conn.getContentType();
         if (contentType.contains("audio/")) {
             byte[] bytes = ConnUtil.getResponseBytes(conn);
-            String format = getFormat(AUE);
-            // 打开mp3文件即可播放
-            File file = new File("result." + format);
-            FileOutputStream os = new FileOutputStream(file);
-            os.write(bytes);
-            os.close();
-            System.out.println("audio file write to " + file.getAbsolutePath());
+            // 上传到云存储
+            String format = getFormat(speechSynthesisVo.getFileType());
+            String key = "speechSynthesis/" + ShiroUtils.getLoginUser().getUserName() + "/" + LocalDateTime.now().toString() + "." + format;
+            String avatarUrl = OSSFactory.build().upload(bytes, key);
+            System.out.println("上传到云存储 =>" + avatarUrl);
         } else {
             System.err.println("ERROR: content-type= " + contentType);
             String res = ConnUtil.getResponseString(conn);
             System.err.println(res);
         }
         return null;
-    }
-
-
-    private void run() throws IOException {
     }
 
     /**
@@ -119,8 +99,5 @@ public class BaiduAiServiceImpl implements BaiduAiService {
         return formats[aue - 3];
     }
 
-    public static void main(String[] args) throws IOException {
-        (new BaiduAiServiceImpl()).run();
-    }
 
 }
